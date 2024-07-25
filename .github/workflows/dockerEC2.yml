@@ -22,7 +22,7 @@ jobs:
 
       # Docker 이미지 빌드
       - name: Build Docker Image
-        run: docker build -t rimi3226/gamegoo-socket .
+        run: docker build -t rimi3226/gamegoo-socket:${{ github.sha }} .
 
       # DockerHub 로그인
       - name: DockerHub Login
@@ -33,7 +33,7 @@ jobs:
 
       # DockerHub에 이미지 푸시
       - name: Push Docker Image
-        run: docker push rimi3226/gamegoo-socket
+        run: docker push rimi3226/gamegoo-socket:${{ github.sha }}
 
   deploy-to-ec2:
     needs: docker
@@ -66,9 +66,14 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
           script: |
+            echo "Pulling new Docker image..."
+            sudo docker pull rimi3226/gamegoo-socket:${{ github.sha }}
+            echo "Stopping existing Docker container..."
             sudo docker stop gamegoo_socket || true
+            echo "Removing existing Docker container..."
             sudo docker rm gamegoo_socket || true
-            sudo docker run -it -d -p 3000:3000 --name gamegoo_socket rimi3226/gamegoo-socket
+            echo "Running new Docker container..."
+            sudo docker run -d -p 3000:3000 --name gamegoo_socket rimi3226/gamegoo-socket:${{ github.sha }}
 
       # AWS 보안 그룹에서 GitHub IP 제거
       - name: Remove IP from Security Group
