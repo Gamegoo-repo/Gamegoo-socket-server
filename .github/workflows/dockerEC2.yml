@@ -77,8 +77,6 @@ jobs:
             sudo docker rm gamegoo_socket || true
             echo "Running new Docker container..."
             sudo docker run -d -p 3000:3000 --name gamegoo_socket rimi3226/gamegoo-socket:${{ github.sha }}
-            echo "Displaying Docker container logs..."
-            sudo docker logs -f gamegoo_socket
 
       # AWS 보안 그룹에서 GitHub IP 제거
       - name: Remove IP from Security Group
