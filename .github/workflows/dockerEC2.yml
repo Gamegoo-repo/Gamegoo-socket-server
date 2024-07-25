@@ -3,9 +3,6 @@ name: Node.js CICD with Docker and EC2
 on:
   pull_request:
     types: [closed]
-  push:
-    branches:
-      - feat/7
 
   workflow_dispatch: # 수동 실행 가능하도록
 
