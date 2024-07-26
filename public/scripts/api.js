@@ -7,7 +7,7 @@ async function loginApi(userEmail, userPw) {
   formData.append("password", userPw);
 
   try {
-    const response = await fetch(`${apiServerUrl}/api/member/login`, {
+    const response = await fetch(`${apiServerUrl}/v1/member/login`, {
       method: "POST",
       body: formData,
     });
@@ -25,7 +25,7 @@ async function loginApi(userEmail, userPw) {
 async function getMemberInfoApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${apiServerUrl}/api/member/profile`, {
+    const response = await fetch(`${apiServerUrl}/v1/member/profile`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
