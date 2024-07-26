@@ -46,6 +46,16 @@ function login(io) {
         return res.status(401).json(failResponse("SOCKET_INIT_FAILED", "header에서 socket id를 추출할 수 없습니다."));
       }
 
+      // 현재 socket의 모든 id list 추출
+      let socketIdList = [];
+      const connectedSockets = await io.fetchSockets();
+      for (const connSocket of connectedSockets) {
+        socketIdList.push({ socketId: connSocket.id, memberId: connSocket.memberId });
+      }
+
+      let errorResponse = { socketIdList, "request socketId": socketId };
+      console.log(errorResponse);
+
       // Socket.IO를 통해 클라이언트 소켓을 찾고 memberId, token을 추가
       const socket = io.sockets.sockets.get(socketId);
       if (socket) {
@@ -60,7 +70,7 @@ function login(io) {
           socketIdList.push({ socketId: connSocket.id, memberId: connSocket.memberId });
         }
 
-        let errorResponse = { socketIdList, "socket.memberId": socket.memberId };
+        let errorResponse = { socketIdList, "request socketId": socketId };
         console.error(`Socket ${socketId} not found or disconnected.`);
         return res
           .status(404)
