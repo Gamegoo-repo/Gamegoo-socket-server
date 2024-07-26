@@ -30,7 +30,7 @@ function login(io) {
     }
 
     // JWT 토큰을 검증하고 memberId를 추출
-    jwt.verify(jwtToken, secretKey, (err, decoded) => {
+    jwt.verify(jwtToken, secretKey, async (err, decoded) => {
       if (err) {
         console.error("Error verifying token:", err);
         return res.status(401).json(failResponse("AUTH", "JWT 토큰 인증에 실패했습니다"));
@@ -53,8 +53,18 @@ function login(io) {
         socket.token = jwtToken; // 해당 소켓 객체에 token 추가
         console.log(`Added memberId ${memberId} to socket ${socketId}`);
       } else {
+        // 현재 socket의 모든 id list 추출
+        let socketIdList = [];
+        const connectedSockets = await io.fetchSockets();
+        for (const connSocket of connectedSockets) {
+          socketIdList.push({ socketId: connSocket.id, memberId: connSocket.memberId });
+        }
+
+        let errorResponse = { socketIdList, "socket.memberId": socket.memberId };
         console.error(`Socket ${socketId} not found or disconnected.`);
-        return res.status(404).json(failResponse("SOCKET_NOT_FOUND", "socket id에 해당하는 socket 객체를 찾을 수 없습니다. socket 초기화 실패."));
+        return res
+          .status(404)
+          .json(failResponse("SOCKET_NOT_FOUND", "socket id에 해당하는 socket 객체를 찾을 수 없습니다. socket 초기화 실패.", errorResponse));
       }
 
       // (#1-10) "member-info" event emit
