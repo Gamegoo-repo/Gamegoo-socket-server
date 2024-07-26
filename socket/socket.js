@@ -12,7 +12,7 @@ const { emitMemberInfo } = require("./emitters/memberEmitter");
 function initializeSocket(server) {
   const io = socketIo(server, {
     cors: {
-      origin: "http://localhost:3000", // localhost:3000 cors 허용
+      origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr"], // localhost:3000 cors 허용
       methods: ["*"], // 모든 메소드 허용
       credentials: true,
     },
