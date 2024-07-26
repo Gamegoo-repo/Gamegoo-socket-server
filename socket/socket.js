@@ -1,4 +1,6 @@
 const socketIo = require("socket.io");
+const cors = require("cors");
+
 const jwt = require("jsonwebtoken");
 const { secretKey } = require("../config/config");
 
