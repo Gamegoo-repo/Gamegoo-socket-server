@@ -184,7 +184,8 @@
     <div class="container">
       <div class="top-bar">
         <div>
-          <input id="userId" type="number" placeholder="Enter your ID" />
+          <input id="userEmail" type="string" placeholder="Enter your Email" />
+          <input id="userPw" type="string" placeholder="Enter your Pw" />
           <button id="loginButton">Login</button>
           <button id="logoutButton">Logout</button>
         </div>
@@ -213,24 +214,8 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-      let socket;
-
-      function connectSocket(jwtToken = null) {
-        const options = jwtToken ? { auth: { token: jwtToken } } : {};
-
-        socket = io(options);
-
-        socket.on("connect", () => {
-          console.log("Connected to server. Socket ID:", socket.id);
-          alert("Connected to server. Socket ID: " + socket.id);
-        });
-      }
-
-      window.addEventListener("load", () => {
-        const jwtToken = localStorage.getItem("jwtToken");
-        connectSocket(jwtToken);
-      });
-    </script>
+    <script src="scripts/socket.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/eventListeners.js"></script>
   </body>
 </html>

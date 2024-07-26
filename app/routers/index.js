@@ -11,5 +11,7 @@ module.exports = (io) => {
 
   router.use("/img", express.static(path.join(__dirname, "../../public/img")));
 
+  router.use("/scripts", express.static(path.join(__dirname, "../../public/scripts")));
+
   return router;
 };
