@@ -20,7 +20,7 @@ loginButton.addEventListener("click", () => {
     // (#1-3) 8080서버로부터 jwt 토큰 정상 응답 받음
     if (result) {
       // (#1-4) jwt 토큰 localStorage에 저장
-      const jwtToken = result.accessToken;
+      const jwtToken = result.access_token;
       localStorage.setItem("jwtToken", jwtToken);
 
       alert("Login successful! Token received.");
@@ -31,8 +31,8 @@ loginButton.addEventListener("click", () => {
         // (#1-6) 8080서버로부터 나의 회원 정보 정상 응답 받음
         if (result) {
           // (#1-7) localStorage에 나의 회원 정보 저장
-          localStorage.setItem("profileImg", data.result.profileImg);
-          localStorage.setItem("name", data.result.name);
+          localStorage.setItem("profileImg", result.profileImg);
+          localStorage.setItem("name", result.name);
 
           // (#1-8) 3000서버로 login api 요청 (소켓 초기화를 위함)
           loginNodeApi();

@@ -12,7 +12,7 @@ async function loginApi(userEmail, userPw) {
       body: formData,
     });
     const data = await response.json();
-    if (data.isSuccess && data.result.accessToken) {
+    if (data.isSuccess && data.result) {
       return data.result;
     } else {
       throw new Error("Login failed");
@@ -24,13 +24,14 @@ async function loginApi(userEmail, userPw) {
 
 async function getMemberInfoApi() {
   try {
+    const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${apiServerUrl}/api/member/profile`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
     });
     const data = await response.json();
-    if (data.isSuccess && data.result.accessToken) {
+    if (data.isSuccess && data.result) {
       return data.result;
     } else {
       throw new Error("getMemberInfoApi failed");
@@ -42,6 +43,7 @@ async function getMemberInfoApi() {
 
 async function loginNodeApi() {
   try {
+    const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${nodeServerUrl}/login`, {
       method: "POST",
       headers: {
@@ -51,7 +53,7 @@ async function loginNodeApi() {
       },
     });
     const data = await response.json();
-    if (data.isSuccess && data.result.accessToken) {
+    if (data.isSuccess && data.result) {
       console.log(data.result);
     } else {
       throw new Error("loginNodeApi failed");
