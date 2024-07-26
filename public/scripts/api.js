@@ -1,5 +1,5 @@
 const apiServerUrl = "https://api.gamegoo.co.kr";
-const nodeServerUrl = "http://localhost:3000";
+const nodeServerUrl = "http://socket.gamegoo.co.kr";
 
 async function loginApi(userEmail, userPw) {
   const formData = new FormData();
