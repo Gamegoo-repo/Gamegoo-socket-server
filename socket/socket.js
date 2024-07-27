@@ -1,8 +1,8 @@
 const socketIo = require("socket.io");
-const cors = require("cors");
-
 const jwt = require("jsonwebtoken");
-const { secretKey } = require("../config/config");
+const config = require("../config/config");
+
+const secretKey = config.jwt.secret;
 
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");

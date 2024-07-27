@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
-const { secretKey } = require("../../config/config");
+const config = require("../../config/config");
+
+const secretKey = config.jwt.secret;
 
 const initChat = require("../../socket/handlers/chat/chatInit");
 const initAlarm = require("../../socket/handlers/alarm/alarmInit");
