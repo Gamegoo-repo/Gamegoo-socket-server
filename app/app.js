@@ -4,7 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const config = require("../config/config");
 
-const socketioUrl = config.socketioUrl;
+const SOCKETIO_URL = config.socketioUrl;
+const API_SERVER_URL = config.apiServerUrl;
+const NODE_SERVER_URL = config.nodeServerUrl;
 
 const app = express();
 const server = http.createServer(app);
@@ -62,7 +64,11 @@ app.get("/", (req, res) => {
             </div>
           </div>
         </div>
-        <script src="${socketioUrl}"></script>
+        <script>
+          const apiServerUrl = '${API_SERVER_URL}';
+          const nodeServerUrl = '${NODE_SERVER_URL}';
+        </script>
+        <script src="${SOCKETIO_URL}"></script>
         <script src="scripts/socket.js"></script>
         <script src="scripts/api.js"></script>
         <script src="scripts/eventListeners.js"></script>
