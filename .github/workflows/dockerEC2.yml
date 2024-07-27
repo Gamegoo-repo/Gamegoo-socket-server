@@ -21,11 +21,16 @@ jobs:
       # .env 파일 생성
       - name: Create .env file
         run: |
-          echo "PORT=3000" >> $GITHUB_WORKSPACE/.env.production
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_WORKSPACE/.env.production
-          echo "SOCKETIO_URL=https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js" >> $GITHUB_WORKSPACE/.env.production
-          echo "API_SERVER_URL=https://api.gamegoo.co.kr" >> $GITHUB_WORKSPACE/.env.production
-          echo "NODE_SERVER_URL=https://socket.gamegoo.co.kr" >> $GITHUB_WORKSPACE/.env.production
+          touch .env.production
+          echo "PORT=3000" >> .env.production
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
+          echo "SOCKETIO_URL=https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js" >> .env.production
+          echo "API_SERVER_URL=https://api.gamegoo.co.kr" >> .env.production
+          echo "NODE_SERVER_URL=https://socket.gamegoo.co.kr" >> .env.production
+          cat .env.production
+
+      - name: Verify .env.production file
+        run: cat .env.production
 
       - name: Install dependencies
         run: npm install
@@ -81,7 +86,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PEM_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
-          source: "${{ github.workspace }}/.env.production"
+          source: ".env.production"
           target: "/home/ec2-user/.env.production"
 
       # AWS EC2 서버 연결 및 Docker 명령어 실행
