@@ -18,19 +18,19 @@ jobs:
         with:
           node-version: 16
 
-      # .env 파일 생성
-      - name: Create .env file
-        run: |
-          touch .env.production
-          echo "PORT=3000" >> .env.production
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
-          echo "SOCKETIO_URL=https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js" >> .env.production
-          echo "API_SERVER_URL=https://api.gamegoo.co.kr" >> .env.production
-          echo "NODE_SERVER_URL=https://socket.gamegoo.co.kr" >> .env.production
-          cat .env.production
+      # # .env 파일 생성
+      # - name: Create .env file
+      #   run: |
+      #     touch .env.production
+      #     echo "PORT=3000" >> .env.production
+      #     echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.production
+      #     echo "SOCKETIO_URL=https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js" >> .env.production
+      #     echo "API_SERVER_URL=https://api.gamegoo.co.kr" >> .env.production
+      #     echo "NODE_SERVER_URL=https://socket.gamegoo.co.kr" >> .env.production
+      #     cat .env.production
 
-      - name: Verify .env.production file
-        run: cat .env.production
+      # - name: Verify .env.production file
+      #   run: cat .env.production
 
       - name: Install dependencies
         run: npm install
@@ -78,16 +78,16 @@ jobs:
         run: |
           aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ env.ipv4 }}/32
 
-      # .env.production 파일 복사
-      - name: Copy .env.production file to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          port: ${{ secrets.EC2_SSH_PORT }}
-          source: ".env.production"
-          target: "/home/ec2-user/.env.production"
+      # # .env.production 파일 복사
+      # - name: Copy .env.production file to EC2
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key: ${{ secrets.EC2_PEM_KEY }}
+      #     port: ${{ secrets.EC2_SSH_PORT }}
+      #     source: ".env.production"
+      #     target: "./home/ec2-user/.env.production"
 
       # AWS EC2 서버 연결 및 Docker 명령어 실행
       - name: Deploy to EC2
@@ -105,7 +105,14 @@ jobs:
             echo "Removing existing Docker container..."
             sudo docker rm gamegoo_socket || true
             echo "Running new Docker container..."
-            sudo docker run -d -p 3000:3000 --env-file /home/ec2-user/.env.production --name gamegoo_socket rimi3226/gamegoo-socket:${{ github.sha }}
+      #            sudo docker run -d -p 3000:3000 --env-file /home/ec2-user/.env.production --name gamegoo_socket rimi3226/gamegoo-socket:${{ github.sha }}
+            sudo docker run -d -p 3000:3000 \
+              -e PORT=3000 \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e SOCKETIO_URL=https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js \
+              -e API_SERVER_URL=https://api.gamegoo.co.kr \
+              -e NODE_SERVER_URL=https://socket.gamegoo.co.kr \
+              --name gamegoo_socket rimi3226/gamegoo-socket:${{ github.sha }}
 
       # AWS 보안 그룹에서 GitHub IP 제거
       - name: Remove IP from Security Group
