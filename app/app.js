@@ -2,6 +2,9 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const path = require("path");
+const config = require("../config/config");
+
+const socketioUrl = config.socketioUrl;
 
 const app = express();
 const server = http.createServer(app);
@@ -59,7 +62,7 @@ app.get("/", (req, res) => {
             </div>
           </div>
         </div>
-        <script src="https://socket.gamegoo.co.kr:3000/socket.io/socket.io.js"></script>
+        <script src="${socketioUrl}"></script>
         <script src="scripts/socket.js"></script>
         <script src="scripts/api.js"></script>
         <script src="scripts/eventListeners.js"></script>
