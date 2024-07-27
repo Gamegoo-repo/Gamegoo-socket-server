@@ -1,0 +1,173 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* 100% of the viewport height */
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+.top-bar input,
+.top-bar button,
+.top-bar p {
+  margin: 0 10px;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Prevent scrolling in the content area */
+}
+
+.column {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-left: 10px; /* 줄여진 왼쪽 여백 */
+}
+
+.column:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+.column:nth-child(even) {
+  background-color: #e9e9e9;
+}
+
+.chatroom {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent scrolling in the chatroom area */
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto; /* Enable scrolling in the messages area */
+  padding-left: 5px;
+}
+
+.chat-form {
+  display: flex;
+}
+
+.chat-form input {
+  flex: 1;
+}
+
+.chatroom-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chatroom-item img {
+  border-radius: 50%;
+}
+
+.chatroom-info {
+  flex: 1;
+  margin-left: 5px;
+}
+
+.chatroom-info p {
+  margin: 0;
+}
+
+.message-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.message-item.mine {
+  justify-content: flex-end;
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+}
+
+.sender-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.message-text {
+  margin: 0 10px;
+}
+
+.message-time {
+  font-size: 0.8em;
+  color: gray;
+}
+.online {
+  color: red;
+  font-size: 14px; /* 텍스트 크기 */
+  font-weight: 300; /* 굵기 (400이 기본값, 더 얇게 하려면 숫자를 낮추세요) */
+  font-style: italic; /* 이탤릭체 */
+  padding-left: 5px; /* 왼쪽 여백 */
+}
+
+.offline {
+  color: gray;
+  font-size: 14px; /* 텍스트 크기 */
+  font-weight: 300; /* 굵기 (400이 기본값, 더 얇게 하려면 숫자를 낮추세요) */
+  font-style: italic; /* 이탤릭체 */
+  padding-left: 5px; /* 왼쪽 여백 */
+}
+
+p[data-new-count] {
+  color: red; /* 글자 색상 빨간색 */
+  font-weight: bold; /* 굵기 */
+  text-align: right; /* 오른쪽 정렬 */
+}
+
+#chatroomList {
+  padding-left: 5px;
+}
+
+#friendsList {
+  list-style-type: none; /* Remove default bullet points */
+  padding: 5px; /* Remove default padding */
+}
+
+#friendsList li {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  padding: 10px 0; /* Add vertical padding for spacing */
+  border-bottom: 1px solid #ccc; /* Add a bottom border */
+}
+
+#friendsList li:last-child {
+  border-bottom: none; /* Remove border from the last item */
+}
+
+#friendsList img {
+  margin-right: 10px; /* Add space between the image and the text */
+}
+
+#loginStatus {
+  color: white;
+}
