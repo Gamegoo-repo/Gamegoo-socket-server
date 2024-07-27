@@ -2,7 +2,7 @@ const socketIo = require("socket.io");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 
-const secretKey = config.jwt.secret;
+const JWT_SECRET = config.jwt.secret;
 
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");
@@ -30,7 +30,7 @@ function initializeSocket(server) {
 
     if (token) {
       // (#2-2) jwt 토큰 검증 및 socket 바인딩
-      jwt.verify(token, secretKey, (err, decoded) => {
+      jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
           console.log("Invalid token");
         } else {

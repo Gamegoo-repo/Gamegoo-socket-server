@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../../config/config");
 
-const secretKey = config.jwt.secret;
+const JWT_SECRET = config.jwt.secret;
 
 const initChat = require("../../socket/handlers/chat/chatInit");
 const initAlarm = require("../../socket/handlers/alarm/alarmInit");
@@ -32,7 +32,7 @@ function login(io) {
     }
 
     // JWT 토큰을 검증하고 memberId를 추출
-    jwt.verify(jwtToken, secretKey, (err, decoded) => {
+    jwt.verify(jwtToken, JWT_SECRET, { algorithms: ["HS256"] }, (err, decoded) => {
       if (err) {
         console.error("Error verifying token:", err);
         return res.status(401).json(failResponse("AUTH", "JWT 토큰 인증에 실패했습니다"));
