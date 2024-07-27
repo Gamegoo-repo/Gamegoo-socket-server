@@ -7,10 +7,6 @@ module.exports = (io) => {
 
   const { login } = require("../controller/loginController")(io); // io 객체를 전달
 
-  router.get("/", (req, res) => {
-    res.sendFile(join(__dirname, "../../public/index.html"));
-  });
-
   router.use("/img", express.static(path.join(__dirname, "../../public/img")));
 
   router.use("/scripts", express.static(path.join(__dirname, "../../public/scripts")));
