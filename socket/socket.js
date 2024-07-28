@@ -4,6 +4,8 @@ const config = require("../common/config");
 
 const JWT_SECRET = config.jwt.secret;
 
+const JWTTokenError = require("../common/JWTTokenError");
+
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");
 const initMatching = require("./handlers/matching/matchingInit");
@@ -12,6 +14,8 @@ const initFriend = require("./handlers/friend/friendInit");
 const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
 const { fetchFriends } = require("./apis/friendApi");
+
+const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
 
 function initializeSocket(server) {
   const io = socketIo(server, {
@@ -68,7 +72,7 @@ function initializeSocket(server) {
             const friendIdList = friends.map((friend) => friend.memberId);
 
             // (#6-4) 친구 memberId로 socketId 찾기
-            const friendSocketList = await getSocketIdByMemberId(io, friendIdList);
+            const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
 
             // (#6-5) 친구 소켓에게 "friend-offline" event emit
             emitFriendOffline(io, friendSocketList, socket.memberId);
