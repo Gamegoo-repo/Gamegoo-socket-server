@@ -10,31 +10,21 @@ const API_SERVER_URL = config.apiServerUrl;
  * @returns
  */
 async function fetchChatroomUuid(socket) {
-  try {
-    const response = await fetch(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-      },
-    });
-    const data = await response.json();
-    if (data.isSuccess) {
-      return data.result;
-    } else {
-      if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
-        throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
-      }
-      console.error("Failed to fetch chatroom uuid: ", data.message);
-      throw new Error(`fetchChatroomUuid Failed: ${data.message}`);
+  const response = await fetch(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
+    headers: {
+      Authorization: `Bearer ${socket.token}`, // Include JWT token in header
+    },
+  });
+  const data = await response.json();
+  if (data.isSuccess) {
+    return data.result;
+  } else {
+    if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
+      console.error("JWT token Error: ", data.message);
+      throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
     }
-  } catch (error) {
-    if (error instanceof JWTTokenError) {
-      console.error("JWTTokenError:", error.message);
-      emitJWTError(socket, error.code, error.message);
-    } else {
-      console.error("Error fetching chatroom uuid data:", error);
-      emitError(socket, error.message);
-    }
+    console.error("Failed to fetch chatroom uuid: ", data.message);
+    throw new Error(`fetchChatroomUuid Failed: ${data.message}`);
   }
 }
 
