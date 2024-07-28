@@ -23,7 +23,21 @@ function emitSetFriendList(socket, friendSocketList) {
   socket.emit("init-online-friend-list", formatResponse("init-online-friend-list", { onlineFriendMemberIdList }));
 }
 
+/**
+ * socketList에 해당하는 socket에게 해당 memberId가 오프라인 상태가 되었음을 알리는 메소드
+ * @param {*} io
+ * @param {*} socketList
+ * @param {*} memberId
+ */
+function emitFriendOffline(io, socketList, memberId) {
+  socketList.forEach((socket) => {
+    // 소켓에게 friend-offline emit
+    io.to(socket.socketId).emit("friend-offline", formatResponse("friend-offline", { memberId }));
+  });
+}
+
 module.exports = {
   emitFriendOnline,
   emitSetFriendList,
+  emitFriendOffline,
 };

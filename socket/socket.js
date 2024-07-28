@@ -4,12 +4,18 @@ const config = require("../common/config");
 
 const JWT_SECRET = config.jwt.secret;
 
+const JWTTokenError = require("../common/JWTTokenError");
+
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");
 const initMatching = require("./handlers/matching/matchingInit");
 const initFriend = require("./handlers/friend/friendInit");
 
 const { emitMemberInfo } = require("./emitters/memberEmitter");
+const { emitFriendOffline } = require("./emitters/friendEmitter");
+const { fetchFriends } = require("./apis/friendApi");
+
+const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
 
 function initializeSocket(server) {
   const io = socketIo(server, {
@@ -52,8 +58,35 @@ function initializeSocket(server) {
       console.log("No token provided, 비로그인 사용자의 socket connection 입니다.");
     }
 
-    socket.on("disconnect", () => {
-      console.log("SOCKET DISCONNECTED: ", socket.id);
+    // disconnect 시에 친구 소켓에게 friend-offline event emit
+    socket.on("disconnect", async () => {
+      console.log("DISCONNECTED, memberId: ", socket.memberId);
+
+      // 해당 socket이 memberId를 가질 때에만(로그인한 소켓인 경우에만)
+      if (socket.memberId) {
+        // (#6-2) 친구 목록 조회 api 요청
+        // (#6-3) 친구 목록 조회 성공 응답 받음
+        fetchFriends(socket)
+          .then(async (friends) => {
+            // 친구 중에서 현재 온라인인 친구의 소켓 id 및 memberId array 생성
+            const friendIdList = friends.map((friend) => friend.memberId);
+
+            // (#6-4) 친구 memberId로 socketId 찾기
+            const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
+
+            // (#6-5) 친구 소켓에게 "friend-offline" event emit
+            emitFriendOffline(io, friendSocketList, socket.memberId);
+          })
+          .catch((error) => {
+            if (error instanceof JWTTokenError) {
+              console.error("JWT Token Error:", error.message);
+              emitJWTError(socket, error.code, error.message);
+            } else {
+              console.error("Error fetching friend list data:", error);
+              emitError(socket, error.message);
+            }
+          });
+      }
     });
   });
 

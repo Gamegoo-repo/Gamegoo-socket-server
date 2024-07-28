@@ -67,6 +67,39 @@ function setupSocketListeners() {
       }
     }
   });
+
+  // friend-offline event listener
+  socket.on("friend-offline", (response) => {
+    const memberId = response.data.memberId;
+    // (#5-2) 친구 목록의 온라인 여부 html 변경
+    const li = document.querySelector(`li[data-member-id='${response.data.memberId}']`);
+
+    if (li) {
+      const statusElement = li.querySelector("span.online");
+      if (statusElement) {
+        statusElement.textContent = "(offline)";
+        statusElement.classList.remove("online");
+        statusElement.classList.add("offline");
+      }
+    }
+
+    // (#5-3) onlineFriendMemberIdList에서 해당 memberId 제거
+    onlineFriendMemberIdList = onlineFriendMemberIdList.filter((id) => id !== memberId);
+
+    console.log(`Friend ID: ${memberId} is offline`);
+    console.log("Updated online Friend Member Id List:", onlineFriendMemberIdList);
+
+    // (#5-4) 현재 채팅 중인 memberId와 동일한 경우 상태 텍스트 변경
+    if (currentChattingMemberId === memberId) {
+      const chatroomHeader = document.querySelector(".column.chatroom h2");
+      const statusElement = chatroomHeader.querySelector("span");
+      if (statusElement) {
+        statusElement.textContent = "(offline)";
+        statusElement.classList.remove("online");
+        statusElement.classList.add("offline");
+      }
+    }
+  });
 }
 
 window.addEventListener("load", () => {

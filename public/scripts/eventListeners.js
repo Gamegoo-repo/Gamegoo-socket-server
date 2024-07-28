@@ -81,3 +81,37 @@ fetchFriendsButton.addEventListener("click", () => {
     }
   });
 });
+
+// 로그아웃 버튼 클릭 시
+logoutButton.addEventListener("click", () => {
+  // 로그아웃 버튼 클릭 이벤트 추가
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    alert("You are not logged in.");
+    return;
+  }
+
+  // (#7-3) 3000서버에 logout api 호출
+  // 8080으로 먼저 logout 요청 보내는게 맞지만, 여기서는 일단 3000으로만 보냄, 추후 추가 예정
+  fetch("/logout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwtToken}`,
+      "Socket-Id": socket.id,
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.isSuccess) {
+        alert("Logout successful!");
+        // (#7-6) localStorage에서 jwt 삭제
+        localStorage.removeItem("jwtToken");
+        // 로그아웃 후 페이지 새로고침 또는 다른 후속 조치
+        location.reload();
+      } else {
+        alert("Logout failed.");
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+});
