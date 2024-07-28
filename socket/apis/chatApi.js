@@ -1,4 +1,3 @@
-const { emitError, emitJWTError } = require("../emitters/errorEmitter");
 const JWTTokenError = require("../../common/JWTTokenError");
 
 const config = require("../../common/config");
@@ -24,7 +23,7 @@ async function fetchChatroomUuid(socket) {
       throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
     }
     console.error("Failed to fetch chatroom uuid: ", data.message);
-    throw new Error(`fetchChatroomUuid Failed: ${data.message}`);
+    throw new Error(`Failed to fetch chatroom uuid: ${data.message}`);
   }
 }
 
