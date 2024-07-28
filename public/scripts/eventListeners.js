@@ -41,3 +41,43 @@ loginButton.addEventListener("click", () => {
     }
   });
 });
+
+// 친구목록 조회 버튼 클릭 시
+fetchFriendsButton.addEventListener("click", () => {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("JWT token is missing.");
+    return;
+  }
+
+  // (#3-1) 친구 목록 조회 api 요청
+  getFriendListApi().then((result) => {
+    if (result) {
+      // (#3-2) 친구 목록 조회 성공 응답 받음
+      const friendsElement = document.getElementById("friendsList");
+      friendsElement.innerHTML = ""; // 이전 친구목록 element 비우기
+
+      // (#3-3) 친구 목록 화면 렌더링
+      result.forEach((friend) => {
+        const li = document.createElement("li");
+
+        // onlineFriendMemberIdList에 존재하는 회원인지 (해당 회원이 현재 온라인인지)에 따라 상태 text 배정
+        const isOnline = onlineFriendMemberIdList.includes(friend.memberId);
+        const statusText = isOnline ? "online" : "offline";
+
+        // 접속 상태 element 생성 및 class 부여
+        const statusElement = document.createElement("span");
+        statusElement.textContent = `(${statusText})`;
+        statusElement.classList.add(isOnline ? "online" : "offline");
+
+        li.setAttribute("data-member-id", friend.memberId);
+        li.innerHTML = `
+                  <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
+                  <span>${friend.name}</span>
+                `;
+        li.appendChild(statusElement);
+        friendsElement.appendChild(li);
+      });
+    }
+  });
+});

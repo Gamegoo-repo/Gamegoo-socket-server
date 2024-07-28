@@ -65,8 +65,8 @@ app.get("/", (req, res) => {
           </div>
         </div>
         <script>
-          const apiServerUrl = '${API_SERVER_URL}';
-          const nodeServerUrl = '${NODE_SERVER_URL}';
+          const API_SERVER_URL = '${API_SERVER_URL}';
+          const NODE_SERVER_URL = '${NODE_SERVER_URL}';
         </script>
         <script src="${SOCKETIO_URL}"></script>
         <script src="scripts/socket.js"></script>
