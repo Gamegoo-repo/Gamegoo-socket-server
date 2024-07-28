@@ -4,7 +4,7 @@ async function loginApi(userEmail, userPw) {
   formData.append("password", userPw);
 
   try {
-    const response = await fetch(`${apiServerUrl}/v1/member/login`, {
+    const response = await fetch(`${API_SERVER_URL}/v1/member/login`, {
       method: "POST",
       body: formData,
     });
@@ -22,7 +22,7 @@ async function loginApi(userEmail, userPw) {
 async function getMemberInfoApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${apiServerUrl}/v1/member/profile`, {
+    const response = await fetch(`${API_SERVER_URL}/v1/member/profile`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -41,7 +41,7 @@ async function getMemberInfoApi() {
 async function loginNodeApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${nodeServerUrl}/login`, {
+    const response = await fetch(`${NODE_SERVER_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,6 +54,25 @@ async function loginNodeApi() {
       console.log(data.result);
     } else {
       throw new Error("loginNodeApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function getFriendListApi() {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/member/friends`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("getMemberInfoApi failed");
     }
   } catch (error) {
     console.error("Error:", error);
