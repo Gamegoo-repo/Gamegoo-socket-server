@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const path = require("path");
-const config = require("../config/config");
+const config = require("../common/config");
 
 const SOCKETIO_URL = config.socketioUrl;
 const API_SERVER_URL = config.apiServerUrl;
