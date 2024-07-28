@@ -1,6 +1,6 @@
 const socketIo = require("socket.io");
 const jwt = require("jsonwebtoken");
-const config = require("../config/config");
+const config = require("../common/config");
 
 const JWT_SECRET = config.jwt.secret;
 
