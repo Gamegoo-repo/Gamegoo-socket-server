@@ -1,7 +1,7 @@
-const { fetchChatroomUuid } = require("../../apis/chatApis");
-
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
 const JWTTokenError = require("../../../common/JWTTokenError");
+
+const { fetchChatroomUuid } = require("../../apis/chatApi");
 
 /**
  * socket 초기화 즉시 실행될 메소드
