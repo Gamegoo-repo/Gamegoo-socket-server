@@ -1,3 +1,5 @@
+const axios = require("axios");
+
 const JWTTokenError = require("../../common/JWTTokenError");
 
 const config = require("../../common/config");
@@ -9,21 +11,20 @@ const API_SERVER_URL = config.apiServerUrl;
  * @returns
  */
 async function fetchChatroomUuid(socket) {
-  const response = await fetch(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
+  const response = await axios.get(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
     headers: {
       Authorization: `Bearer ${socket.token}`, // Include JWT token in header
     },
   });
-  const data = await response.json();
-  if (data.isSuccess) {
-    return data.result;
+  if (response.data.isSuccess) {
+    return response.data.result;
   } else {
-    if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-      console.error("JWT token Error: ", data.message);
-      throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
+    if (["JWT400", "JWT401", "JWT404"].includes(response.data.code)) {
+      console.error("JWT token Error: ", response.data.message);
+      throw new JWTTokenError(`JWT token Error: ${response.data.message}`, response.data.code);
     }
-    console.error("Failed to fetch chatroom uuid: ", data.message);
-    throw new Error(`Failed to fetch chatroom uuid: ${data.message}`);
+    console.error("Failed to fetch chatroom uuid: ", response.data.message);
+    throw new Error(`Failed to fetch chatroom uuid: ${response.data.message}`);
   }
 }
 
