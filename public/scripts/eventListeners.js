@@ -115,3 +115,56 @@ logoutButton.addEventListener("click", () => {
     })
     .catch((error) => console.error("Error:", error));
 });
+
+// 채팅방 목록 버튼 클릭 시
+fetchChatroomsButton.addEventListener("click", () => {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("JWT token is missing.");
+    return;
+  }
+
+  // (#8-1) 채팅방 목록 조회 api 요청
+  getChatroomListApi().then((result) => {
+    if (result) {
+      // (#8-2) 채팅방 목록 조회 성공 응답 받음
+
+      // 채팅방 목록 element 초기화
+      const chatroomListElement = document.getElementById("chatroomList");
+      chatroomListElement.innerHTML = "";
+
+      // (#8-3) 채팅방 목록 렌더링
+      // api result data를 돌면서 html 요소 생성
+      result.forEach((chatroom) => {
+        const li = document.createElement("li");
+        li.classList.add("chatroom-item");
+        li.setAttribute("data-chatroom-uuid", chatroom.uuid); // data-chatroom-uuid 값 세팅
+
+        li.innerHTML = `
+                                                            <div>
+                                                                <img src="${chatroom.targetMemberImg}" alt="Profile Image" width="30" height="30">
+                                                            </div>
+                                                            <div class="chatroom-info">
+                                                                <span>${chatroom.targetMemberName}</span>
+                                                                <p last-msg-text>${chatroom.lastMsg}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p last-msg-time>${new Date(chatroom.lastMsgAt).toLocaleString()}</p>
+                                                                <p data-new-count>${chatroom.notReadMsgCnt}</p>
+                                                                <button class="enter-chatroom-btn" data-chatroom-uuid="${chatroom.uuid}">채팅방 입장</button>
+                                                            </div>
+                                                        `;
+        chatroomListElement.appendChild(li);
+      });
+
+      // 채팅방 입장 버튼에 eventListener 추가
+      const enterChatroomButtons = document.querySelectorAll(".enter-chatroom-btn");
+      enterChatroomButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+          const chatroomUuid = event.target.getAttribute("data-chatroom-uuid");
+          enterChatroom(chatroomUuid);
+        });
+      });
+    }
+  });
+});
