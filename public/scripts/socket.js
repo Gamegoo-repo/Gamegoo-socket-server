@@ -100,9 +100,95 @@ function setupSocketListeners() {
       }
     }
   });
+
+  // my-message-broadcast-success event listener
+  socket.on("my-message-broadcast-success", (response) => {
+    // (#10-6) messagesFromThisChatroom array 업데이트
+    const { chatroomUuid, ...newMessage } = response.data;
+
+    messagesFromThisChatroom.push(newMessage);
+
+    console.log("============== messagesFromThisChatroom Updated ==============");
+    console.log(messagesFromThisChatroom);
+
+    // (#10-7) 내가 보낸 메시지 요소 생성
+    const messagesElement = document.getElementById("messages");
+    const li = document.createElement("li");
+    li.classList.add("message-item");
+    li.classList.add("mine");
+    li.innerHTML = `
+                                              <div class="message-content">
+                                                <img src="${response.data.senderProfileImg}" alt="Profile Image" width="30" height="30">
+                                                <div>
+                                                  <p class="sender-name">${response.data.senderName}</p>
+                                                  <p class="message-text">${response.data.message}</p>
+                                                  <p class="message-time">${new Date(response.data.createdAt).toLocaleString()}</p>
+                                                </div>
+                                              </div>
+                                            `;
+    messagesElement.appendChild(li);
+
+    // (#10-8) 채팅방 목록 내 element 업데이트
+    // 채팅방 목록 내의 마지막 전송시각 업데이트
+    const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
+    if (chatroomItemLastTime) {
+      chatroomItemLastTime.textContent = `${new Date(response.data.createdAt).toLocaleString()}`;
+    } else {
+      console.error(`Could not find chatroom item with UUID ${currentViewingChatroomUuid} to update last msg time.`);
+    }
+
+    // 채팅방 목록 내의 마지막 메시지 업데이트
+    const chatroomItemLastMsg = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-text]`);
+    if (chatroomItemLastMsg) {
+      chatroomItemLastMsg.textContent = response.data.message;
+    } else {
+      console.error(`Could not find chatroom item with UUID ${currentViewingChatroomUuid} to update last msg text.`);
+    }
+
+    // 채팅방 목록 내 li 요소 재정렬
+    reorderChatroomsByLastMsgTime();
+  });
 }
 
 window.addEventListener("load", () => {
   const jwtToken = localStorage.getItem("jwtToken");
   connectSocket(jwtToken);
 });
+
+// 채팅방 목록의 각 채팅방 li를 마지막 메시지 전송 시각 기준으로 내림차순 정렬
+function reorderChatroomsByLastMsgTime() {
+  console.log("reorderChatroomsByLastMsgTime called, 채팅방 목록의 li 요소를 재정렬합니다.");
+  const chatroomList = document.getElementById("chatroomList");
+  const chatroomItems = Array.from(chatroomList.getElementsByClassName("chatroom-item"));
+
+  chatroomItems.sort((a, b) => {
+    const timeA = parseDate(a.querySelector("p[last-msg-time]").innerText.trim());
+    const timeB = parseDate(b.querySelector("p[last-msg-time]").innerText.trim());
+
+    return timeB - timeA; // Descending order
+  });
+
+  // Clear existing list and append sorted items
+  chatroomList.innerHTML = "";
+  chatroomItems.forEach((item) => chatroomList.appendChild(item));
+}
+
+// toLocaleString()으로 생성된 날짜 string -> Date 로 parsing
+function parseDate(dateString) {
+  const parts = dateString.match(/(\d+)\. (\d+)\. (\d+)\. (오전|오후) (\d+):(\d+):(\d+)/);
+  const year = parseInt(parts[1], 10);
+  const month = parseInt(parts[2], 10) - 1; // Months are zero-based
+  const day = parseInt(parts[3], 10);
+  let hour = parseInt(parts[5], 10);
+  const minute = parseInt(parts[6], 10);
+  const second = parseInt(parts[7], 10);
+  const period = parts[4];
+
+  if (period === "오후" && hour < 12) {
+    hour += 12;
+  } else if (period === "오전" && hour === 12) {
+    hour = 0;
+  }
+
+  return new Date(year, month, day, hour, minute, second);
+}
