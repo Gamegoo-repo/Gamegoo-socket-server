@@ -101,7 +101,7 @@ async function getChatroomListApi() {
 async function enterChatroomApi(chatroomUuid) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/member/chat/${chatroomUuid}`, {
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/enter`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },

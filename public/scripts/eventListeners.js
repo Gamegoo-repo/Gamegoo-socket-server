@@ -145,7 +145,7 @@ fetchChatroomsButton.addEventListener("click", () => {
                                                             </div>
                                                             <div class="chatroom-info">
                                                                 <span>${chatroom.targetMemberName}</span>
-                                                                <p last-msg-text>${chatroom.lastMsg}</p>
+                                                                <p last-msg-text>${chatroom.lastMsg ? chatroom.lastMsg : " "}</p>
                                                             </div>
                                                             <div>
                                                                 <p last-msg-time>${new Date(chatroom.lastMsgAt).toLocaleString()}</p>
