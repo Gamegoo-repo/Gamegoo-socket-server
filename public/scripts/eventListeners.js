@@ -252,3 +252,14 @@ function enterChatroom(chatroomUuid) {
     }
   });
 }
+
+// 채팅 전송 폼 제출 시
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (input.value) {
+    const msg = input.value;
+    // (#10-1) "chat-message" event emit
+    socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    input.value = "";
+  }
+});

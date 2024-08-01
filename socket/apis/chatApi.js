@@ -28,6 +28,29 @@ async function fetchChatroomUuid(socket) {
   }
 }
 
+async function postChatMessage(socket, chatroomUuid, message) {
+  const response = await axios.post(
+    `${API_SERVER_URL}/v1/chat/${chatroomUuid}`,
+    { message: message },
+    {
+      headers: {
+        Authorization: `Bearer ${socket.token}`,
+      },
+    }
+  );
+  if (response.data.isSuccess) {
+    return response.data.result;
+  } else {
+    if (["JWT400", "JWT401", "JWT404"].includes(response.data.code)) {
+      console.error("JWT token Error: ", response.data.message);
+      throw new JWTTokenError(`JWT token Error: ${response.data.message}`, response.data.code);
+    }
+    console.error("Failed to fetch chatroom uuid: ", response.data.message);
+    throw new Error(`Failed to fetch chatroom uuid: ${response.data.message}`);
+  }
+}
+
 module.exports = {
   fetchChatroomUuid,
+  postChatMessage,
 };
