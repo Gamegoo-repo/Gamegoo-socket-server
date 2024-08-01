@@ -116,3 +116,22 @@ async function enterChatroomApi(chatroomUuid) {
     console.error("Error:", error);
   }
 }
+
+async function readChatApi(chatroomUuid, timestamp) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/read?timestamp=${timestamp}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("readChatApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
