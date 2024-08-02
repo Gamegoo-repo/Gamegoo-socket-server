@@ -222,7 +222,7 @@ function enterChatroom(chatroomUuid) {
         messagesElement.scrollTop = messagesElement.scrollHeight;
       }
 
-      // (#9-8) 채팅방 내부 헤더 렌더링
+      // (#9-6) 채팅방 내부 헤더 렌더링
       const chatroomHeader = document.querySelector(".column.chatroom h2");
 
       // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
@@ -238,7 +238,7 @@ function enterChatroom(chatroomUuid) {
       chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
       chatroomHeader.appendChild(statusElement);
 
-      // (#9-9) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
+      // (#9-7) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
       const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"] p[data-new-count]`);
       if (chatroomItem) {
         chatroomItem.textContent = "0";
@@ -246,7 +246,7 @@ function enterChatroom(chatroomUuid) {
         console.error(`Could not find chatroom item with UUID ${chatroomUuid} to update new count.`);
       }
 
-      // (#9-10) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
+      // (#9-8) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
       currentViewingChatroomUuid = chatroomUuid;
       currentChattingMemberId = result.memberId;
     }
