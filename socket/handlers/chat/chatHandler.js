@@ -30,7 +30,7 @@ function setupChatListeners(socket) {
           console.error("JWT Token Error:", error.message);
           emitJWTError(socket, error.code, error.message);
         } else {
-          console.error("Error fetching friend list data:", error);
+          console.error("Error POST chat message:", error);
           emitError(socket, error.message);
         }
       });
