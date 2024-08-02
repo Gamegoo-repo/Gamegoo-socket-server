@@ -13,6 +13,9 @@ const initFriend = require("./handlers/friend/friendInit");
 
 const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
+
+const { emitError, emitJWTError } = require("./emitters/errorEmitter");
+
 const { fetchFriends } = require("./apis/friendApi");
 
 const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
