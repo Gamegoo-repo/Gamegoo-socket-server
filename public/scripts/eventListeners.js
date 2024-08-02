@@ -263,3 +263,82 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+
+// 채팅방 내부에서 스크롤이 가장 위에 닿았을 때
+document.addEventListener("DOMContentLoaded", () => {
+  const messagesElement = document.getElementById("messages");
+
+  messagesElement.addEventListener("scroll", () => {
+    if (messagesElement.scrollTop === 0) {
+      // 스크롤이 끝까지 올라갔을 때
+      if (hasNextChat) {
+        // 더 조회해올 다음 chat 내역이 있다면
+        fetchOlderMessages();
+      } else {
+        console.log("=== End of Chat Messages, No fecth ==");
+      }
+    }
+  });
+});
+
+// timestamp cursor 기반으로 이전 메시지 내역 조회 api 호출
+function fetchOlderMessages() {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("JWT token is missing.");
+    return;
+  }
+
+  let firstMessage;
+  // (#12-1) 가장 앞에 있는 메시지의 timestamp를 가져오기
+  if (messagesFromThisChatroom.length > 0) {
+    firstMessage = messagesFromThisChatroom[0];
+  } else {
+    console.log("messagesFromThisChatroom array is Empty");
+  }
+
+  // (#12-2) timestamp cursor를 담아 다음 메시지 조회 api 요청
+  getMessageApi(currentViewingChatroomUuid, firstMessage.timestamp).then((result) => {
+    if (result) {
+      // (#12-3) 다음 메시지 조회 성공 응답 받음
+      const olderMessages = result.chatMessageDtoList;
+
+      // (#12-4) messagesFromThisChatroom array 맨 앞에 새로 조회해온 orderMessages 추가
+      // olderMessages 배열을 messagesFromThisChatroom 배열의 맨 앞에 추가
+      const updatedMessages = olderMessages.concat(messagesFromThisChatroom);
+      messagesFromThisChatroom = updatedMessages;
+
+      console.log("===================== fetxh OlderMessages, updated messagesFromThisChatroom ==================");
+      console.log(messagesFromThisChatroom);
+
+      //(#12-5) hasNextChat 업데이트
+      hasNextChat = result.has_next;
+
+      // (#12-6) 기존 메시지 목록 앞에 새로 불러온 메시지 추가 렌더링
+      const messagesElement = document.getElementById("messages");
+      const scrollPosition = messagesElement.scrollHeight; // 현재 스크롤 위치 저장
+
+      olderMessages.reverse().forEach((message) => {
+        const li = document.createElement("li");
+        li.classList.add("message-item");
+        if (message.senderId === memberId) {
+          li.classList.add("mine");
+        }
+        li.innerHTML = `
+                  <div class="message-content">
+                    <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
+                    <div>
+                      <p class="sender-name">${message.senderName}</p>
+                      <p class="message-text">${message.message}</p>
+                      <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                `;
+        messagesElement.prepend(li);
+      });
+
+      // 기존 위치로 스크롤 이동 (새 메시지가 추가되었기 때문에 현재 위치를 유지하기 위해)
+      messagesElement.scrollTop = messagesElement.scrollHeight - scrollPosition;
+    }
+  });
+}
