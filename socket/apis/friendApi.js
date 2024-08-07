@@ -5,13 +5,13 @@ const config = require("../../common/config");
 const API_SERVER_URL = config.apiServerUrl;
 
 /**
- * 현재 회원이 속한 채팅방의 uuid 목록을 요청하는 메소드
+ * 회원의 친구 목록을 요청하는 메소드
  * @param {*} socket
  * @returns
  */
 async function fetchFriends(socket) {
   try {
-    const response = await axios.get(`${API_SERVER_URL}/v1/member/friends`, {
+    const response = await axios.get(`${API_SERVER_URL}/v1/friends`, {
       headers: {
         Authorization: `Bearer ${socket.token}`, // Include JWT token in header
       },
