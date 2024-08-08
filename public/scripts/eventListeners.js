@@ -137,6 +137,19 @@ fetchFriendsButton.addEventListener("click", () => {
               chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
               chatroomHeader.appendChild(statusElement);
 
+              // 채팅방 나가기 버튼 생성
+              const exitButton = document.createElement("button");
+              exitButton.textContent = "나가기";
+              exitButton.style.marginLeft = "10px";
+
+              // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
+              exitButton.addEventListener("click", () => {
+                exitChatroom(result.uuid);
+              });
+
+              // 헤더에 채팅방 나가기 버튼 추가
+              chatroomHeader.appendChild(exitButton);
+
               // 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
               const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${result.uuid}"] p[data-new-count]`);
               if (chatroomItem) {
@@ -314,6 +327,19 @@ function enterChatroom(chatroomUuid) {
       chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
       chatroomHeader.appendChild(statusElement);
 
+      // 채팅방 나가기 버튼 생성
+      const exitButton = document.createElement("button");
+      exitButton.textContent = "나가기";
+      exitButton.style.marginLeft = "10px";
+
+      // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
+      exitButton.addEventListener("click", () => {
+        exitChatroom(chatroomUuid);
+      });
+
+      // 헤더에 채팅방 나가기 버튼 추가
+      chatroomHeader.appendChild(exitButton);
+
       // (#9-7) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
       const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"] p[data-new-count]`);
       if (chatroomItem) {
@@ -339,6 +365,40 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+
+// 채팅방 퇴장 시
+function exitChatroom(chatroomUuid) {
+  console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
+
+  exitChatroomApi(chatroomUuid).then(() => {
+    // chatroom 영역 초기화
+    // 기존 메시지 element 초기화
+    const messagesElement = document.getElementById("messages");
+    messagesElement.innerHTML = "";
+
+    // 채팅방 내부 헤더 초기화
+    const chatroomHeader = document.querySelector(".column.chatroom h2");
+    chatroomHeader.innerHTML = "채팅방";
+
+    // 채팅방 목록 영역에서 해당 채팅방 삭제
+    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"]`);
+    if (chatroomItem) {
+      chatroomItem.remove();
+    } else {
+      console.log("chatroom delete not found: ", chatroomUuid);
+    }
+
+    // messagesFromThisChatroom array 초기화
+    messagesFromThisChatroom = null;
+
+    // hasNextChat 업데이트
+    hasNextChat = null;
+
+    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
+    currentViewingChatroomUuid = null;
+    currentChattingMemberId = null;
+  });
+}
 
 // 채팅방 내부에서 스크롤이 가장 위에 닿았을 때
 document.addEventListener("DOMContentLoaded", () => {
