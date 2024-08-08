@@ -366,6 +366,41 @@ form.addEventListener("submit", (e) => {
   }
 });
 
+// 알림 아이콘 클릭 시
+document.getElementById("notificationButton").addEventListener("click", () => {
+  const notificationList = document.getElementById("notificationList");
+  notificationList.style.display = notificationList.style.display === "block" ? "none" : "block";
+});
+
+// 알림 창에서 탭 클릭 시
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", (e) => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+
+    // 현재 클릭한 tab에 active 부여
+    e.target.classList.add("active");
+    const tabType = e.target.getAttribute("data-tab");
+
+    // 모든 알림 type을 안보이게 변경 후, 현재 클릭한 tab만 보이게 변경
+    document.querySelectorAll(".notification-type").forEach((nt) => (nt.style.display = "none"));
+    document.getElementById(`${tabType}Notifications`).style.display = "block";
+  });
+});
+
+// 알림 요소 추가
+function addNotification(type, message, time, isRead) {
+  const notificationContainer = document.getElementById(`${type}Notifications`);
+  const div = document.createElement("div");
+  div.className = `notification-item ${isRead ? "read" : "unread"}`;
+  div.innerHTML = `
+    <div class="notification-text">
+      <p>${message}</p>
+      <p class="notification-time">${time}</p>
+    </div>
+  `;
+  notificationContainer.appendChild(div);
+}
+
 // 채팅방 퇴장 시
 function exitChatroom(chatroomUuid) {
   console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
