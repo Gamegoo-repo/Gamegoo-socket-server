@@ -76,6 +76,95 @@ fetchFriendsButton.addEventListener("click", () => {
                   <span>${friend.name}</span>
                 `;
         li.appendChild(statusElement);
+
+        // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
+        li.addEventListener("click", () => {
+          startChatApi(friend.memberId)
+            .then((result) => {
+              // messagesFromThisChatroom array 초기화
+              messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
+
+              console.log("============== fetch chat messages result ===============");
+              console.log(result.chatMessageList);
+
+              // hasNextChat 업데이트
+              hasNextChat = result.chatMessageList.has_next;
+
+              // 기존 메시지 element 초기화
+              const messagesElement = document.getElementById("messages");
+              const shouldScrollToBottom = messagesElement.scrollTop === messagesElement.scrollHeight - messagesElement.clientHeight;
+
+              messagesElement.innerHTML = "";
+
+              // messagesFromThisChatroom의 각 messgae 요소 렌더링
+              messagesFromThisChatroom.forEach((message) => {
+                const li = document.createElement("li");
+                li.classList.add("message-item");
+                if (message.senderId === memberId) {
+                  li.classList.add("mine");
+                }
+                li.innerHTML = `
+                    <div class="message-content">
+                      <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
+                      <div>
+                        <p class="sender-name">${message.senderName}</p>
+                        <p class="message-text">${message.message}</p>
+                        <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  `;
+                messagesElement.appendChild(li);
+              });
+
+              // Scroll to bottom if was already at bottom before fetching new messages or on initial load
+              if (shouldScrollToBottom || messagesElement.children.length === 0) {
+                messagesElement.scrollTop = messagesElement.scrollHeight;
+              }
+
+              // 채팅방 내부 헤더 렌더링
+              const chatroomHeader = document.querySelector(".column.chatroom h2");
+
+              // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
+              const isOnline = onlineFriendMemberIdList.includes(result.memberId);
+              const statusText = isOnline ? "online" : "offline";
+
+              // 상태 element에 class 부여
+              const statusElement = document.createElement("span");
+              statusElement.textContent = `(${statusText})`;
+              statusElement.classList.add(isOnline ? "online" : "offline");
+
+              // 헤더의 profile image, name, 상태 element 업데이트
+              chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
+              chatroomHeader.appendChild(statusElement);
+
+              // 채팅방 나가기 버튼 생성
+              const exitButton = document.createElement("button");
+              exitButton.textContent = "나가기";
+              exitButton.style.marginLeft = "10px";
+
+              // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
+              exitButton.addEventListener("click", () => {
+                exitChatroom(result.uuid);
+              });
+
+              // 헤더에 채팅방 나가기 버튼 추가
+              chatroomHeader.appendChild(exitButton);
+
+              // 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
+              const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${result.uuid}"] p[data-new-count]`);
+              if (chatroomItem) {
+                chatroomItem.textContent = "0";
+              } else {
+                console.error(`Could not find chatroom item with UUID ${result.uuid} to update new count.`);
+              }
+
+              // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
+              currentViewingChatroomUuid = result.uuid;
+              currentChattingMemberId = result.memberId;
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+
         friendsElement.appendChild(li);
       });
     }
@@ -238,6 +327,19 @@ function enterChatroom(chatroomUuid) {
       chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
       chatroomHeader.appendChild(statusElement);
 
+      // 채팅방 나가기 버튼 생성
+      const exitButton = document.createElement("button");
+      exitButton.textContent = "나가기";
+      exitButton.style.marginLeft = "10px";
+
+      // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
+      exitButton.addEventListener("click", () => {
+        exitChatroom(chatroomUuid);
+      });
+
+      // 헤더에 채팅방 나가기 버튼 추가
+      chatroomHeader.appendChild(exitButton);
+
       // (#9-7) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
       const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"] p[data-new-count]`);
       if (chatroomItem) {
@@ -263,6 +365,40 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+
+// 채팅방 퇴장 시
+function exitChatroom(chatroomUuid) {
+  console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
+
+  exitChatroomApi(chatroomUuid).then(() => {
+    // chatroom 영역 초기화
+    // 기존 메시지 element 초기화
+    const messagesElement = document.getElementById("messages");
+    messagesElement.innerHTML = "";
+
+    // 채팅방 내부 헤더 초기화
+    const chatroomHeader = document.querySelector(".column.chatroom h2");
+    chatroomHeader.innerHTML = "채팅방";
+
+    // 채팅방 목록 영역에서 해당 채팅방 삭제
+    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"]`);
+    if (chatroomItem) {
+      chatroomItem.remove();
+    } else {
+      console.log("chatroom delete not found: ", chatroomUuid);
+    }
+
+    // messagesFromThisChatroom array 초기화
+    messagesFromThisChatroom = null;
+
+    // hasNextChat 업데이트
+    hasNextChat = null;
+
+    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
+    currentViewingChatroomUuid = null;
+    currentChattingMemberId = null;
+  });
+}
 
 // 채팅방 내부에서 스크롤이 가장 위에 닿았을 때
 document.addEventListener("DOMContentLoaded", () => {

@@ -22,6 +22,27 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "../public")));
 
+// 프로필 이미지 제공
+app.get("/:id", (req, res) => {
+  const id = req.params.id;
+  const options = {
+    root: path.join(__dirname, "../public", "img"),
+  };
+
+  // Ensure the ID is a valid number between 1 and 8
+  if (id >= 1 && id <= 8) {
+    const fileName = `profile_${id}.png`;
+    res.sendFile(fileName, options, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+        res.status(500).send("Error sending file");
+      }
+    });
+  } else {
+    res.status(404).send("Profile image not found");
+  }
+});
+
 app.get("/", (req, res) => {
   res.send(`
     <!DOCTYPE html>

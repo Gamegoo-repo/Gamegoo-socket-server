@@ -132,24 +132,69 @@ function setupSocketListeners() {
     messagesElement.appendChild(li);
 
     // (#10-8) 채팅방 목록 내 element 업데이트
-    // 채팅방 목록 내의 마지막 전송시각 업데이트
-    const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
-    if (chatroomItemLastTime) {
+    // chatroomUuid에 해당하는 chatroomItem이 없는 경우: 채팅방 목록 조회 다시 요청해 채팅방 목록 html update
+    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"]`);
+    if (!chatroomItem) {
+      const jwtToken = localStorage.getItem("jwtToken");
+
+      fetch(`${API_SERVER_URL}/v1/member/chatroom`, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.isSuccess && data.result) {
+            const chatroomListElement = document.getElementById("chatroomList");
+
+            // api 응답값 중에서 새로 추가해야할 채팅방 정보만 필터링
+            const newChatroom = data.result.find((chatroom) => chatroom.uuid === currentViewingChatroomUuid);
+
+            if (newChatroom) {
+              const li = document.createElement("li");
+              li.classList.add("chatroom-item");
+              li.setAttribute("data-chatroom-uuid", newChatroom.uuid); // data-chatroom-uuid 값 세팅
+
+              li.innerHTML = `
+          <div>
+            <img src="${newChatroom.targetMemberImg}" alt="Profile Image" width="30" height="30">
+          </div>
+          <div class="chatroom-info">
+            <span>${newChatroom.targetMemberName}</span>
+            <p last-msg-text>${newChatroom.lastMsg ? newChatroom.lastMsg : " "}</p>
+          </div>
+          <div>
+            <p last-msg-time>${new Date(newChatroom.lastMsgAt).toLocaleString()}</p>
+            <p data-new-count>${newChatroom.notReadMsgCnt}</p>
+            <button class="enter-chatroom-btn" data-chatroom-uuid="${newChatroom.uuid}">채팅방 입장</button>
+          </div>
+        `;
+              chatroomListElement.appendChild(li);
+
+              // 채팅방 목록 내 li 요소 재정렬
+              reorderChatroomsByLastMsgTime();
+            }
+          } else {
+            throw new Error("Failed to fetch chatroom list");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    } else {
+      // chatroomUuid에 해당하는 chatroomItem이 있는 경우: 채팅방 목록 내 마지막 전송 시각, 메시지 업데이트
+      // 채팅방 목록 내의 마지막 전송시각 업데이트
+      const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
       chatroomItemLastTime.textContent = `${new Date(response.data.createdAt).toLocaleString()}`;
-    } else {
-      console.error(`Could not find chatroom item with UUID ${currentViewingChatroomUuid} to update last msg time.`);
-    }
 
-    // 채팅방 목록 내의 마지막 메시지 업데이트
-    const chatroomItemLastMsg = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-text]`);
-    if (chatroomItemLastMsg) {
+      // 채팅방 목록 내의 마지막 메시지 업데이트
+      const chatroomItemLastMsg = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-text]`);
       chatroomItemLastMsg.textContent = response.data.message;
-    } else {
-      console.error(`Could not find chatroom item with UUID ${currentViewingChatroomUuid} to update last msg text.`);
-    }
 
-    // 채팅방 목록 내 li 요소 재정렬
-    reorderChatroomsByLastMsgTime();
+      // 채팅방 목록 내 li 요소 재정렬
+      reorderChatroomsByLastMsgTime();
+    }
   });
 
   // chat-message event listener
