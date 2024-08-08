@@ -62,8 +62,25 @@ app.get("/", (req, res) => {
               <button id="loginButton">Login</button>
               <button id="logoutButton">Logout</button>
             </div>
-            <p id="loginStatus">You are not Login User</p>
+            <div>
+              <p id="loginStatus">You are not Login User</p>
+              <button id="notificationButton" class="notification-button">🔔</button>
+            </div>
+            <div id="notificationList" class="notifications">
+              <div class="notification-header">
+                <h2>알림</h2>
+                <button id="viewAllButton">전체보기</button>
+              </div>
+            <div class="tabs">
+              <div class="tab active" data-tab="received">받은 알림</div>
+              <div class="tab" data-tab="friendRequest">친구 요청</div>
+            </div>
+            <div id="notificationItems">
+              <div id="receivedNotifications" class="notification-type"></div>
+              <div id="friendRequestNotifications" class="notification-type" style="display: none;"></div>
+            </div>
           </div>
+        </div>
           <div class="content">
             <div class="column">
               <h2>친구 목록</h2>
@@ -93,6 +110,13 @@ app.get("/", (req, res) => {
         <script src="scripts/socket.js"></script>
         <script src="scripts/api.js"></script>
         <script src="scripts/eventListeners.js"></script>
+        <script>
+          // 초기 알림 예시 (실제 데이터로 대체 필요)
+          addNotification('received', '알림 내용', '1시간 전', true);
+          addNotification('received', '알림 내용', '1시간 전', false);
+          addNotification('friendRequest', '12345 님이 친구요청을 보냈습니다.', '1시간 전', true);
+          addNotification('friendRequest', '알림 내용', '1시간 전', false);
+        </script>
       </body>
     </html>
   `);

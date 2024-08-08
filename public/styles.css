@@ -171,3 +171,99 @@ p[data-new-count] {
 #loginStatus {
   color: white;
 }
+
+/* 알림 창 관련 */
+.notification-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  margin-left: 10px;
+  position: relative;
+}
+
+.notifications {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  width: 350px;
+  max-height: 400px;
+  min-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.notification-header h2 {
+  margin: 0;
+  color: black;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 15px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: black;
+}
+
+.tab.active {
+  border-bottom: 2px solid #6200ea;
+  color: #6200ea;
+}
+
+.notification-items {
+  max-height: 300px; /* 고정된 높이 */
+  overflow-y: auto; /* 스크롤 생성 */
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.notification-text {
+  flex-grow: 1;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #888;
+}
+
+.notification-item.read .notification-text p {
+  color: black;
+}
+
+.notification-item.unread .notification-text p {
+  color: gray;
+}
