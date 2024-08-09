@@ -1,9 +1,12 @@
-async function recordMatchingApi(matchingType, gameMode, mike, mainP, subP, wantP, gameStyle1, gameStyle2, gameStyle3) {
+async function recordMatchingApi(matchingType, gameMode, mike, manner ,mainP, subP, wantP, gameStyle1, gameStyle2, gameStyle3) {
     console.log("recordMatchingAPI : ");
     try {
         const jwtToken = localStorage.getItem("jwtToken");
-        const gameStyleIdList = [gameStyle1, gameStyle2, gameStyle3];;
-        
+
+        // GamegooSocketServer 프론트에서 gameStyle 3개 중 하나라도 빠지면 API에서 500 인터널 에러가 발생하지만 JAVA API 자체는 문제 없다.
+        // 나중에 React로 프론트 구현할 때 gameStyle 개수에 따라서 예외처리하면 해결된다.
+        const gameStyleIdList = [gameStyle1, gameStyle2, gameStyle3];
+
         const response = await fetch(`${API_SERVER_URL}/v1/matching`, {
             method: "POST",
             headers: {
@@ -17,6 +20,7 @@ async function recordMatchingApi(matchingType, gameMode, mike, mainP, subP, want
                 mainP: mainP,
                 subP: subP,
                 wantP: wantP,
+                manner: manner,
                 gameStyleIdList: gameStyleIdList
             })
         });
