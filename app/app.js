@@ -83,14 +83,18 @@ app.get("/", (req, res) => {
         </div>
           <div class="content">
             <div class="column">
-              <h2>친구 목록</h2>
+              <h2>
+                친구 목록
+                <button id="fetchFriendsButton"> ↻ </button>
+              </h2>
               <ul id="friendsList"></ul>
-              <button id="fetchFriendsButton">친구 목록 입장</button>
             </div>
-            <div class="column">
-              <h2>채팅방 목록</h2>
+            <div class="column chatroomList">
+              <h2>
+                채팅방 목록
+                <button id="fetchChatroomsButton"> ↻ </button>
+              </h2>
               <ul id="chatroomList"></ul>
-              <button id="fetchChatroomsButton">채팅방 목록 페이지 입장</button>
             </div>
             <div class="column chatroom">
               <h2>채팅방</h2>

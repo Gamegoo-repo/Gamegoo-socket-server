@@ -265,12 +265,12 @@ p[data-new-count] {
 }
 
 /* 채팅방 내부 메뉴 버튼 */
-.column.chatroom {
+.column {
   position: relative;
 }
 
 /* h2 요소 스타일 */
-.column.chatroom h2 {
+.column h2 {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
@@ -286,6 +286,25 @@ p[data-new-count] {
   cursor: pointer;
   font-size: 24px; /* 텍스트 크기 설정 */
   font-weight: bold; /* 텍스트 굵게 처리 */
+}
+
+/* 새로고침 버튼 스타일 */
+#fetchChatroomsButton {
+  position: absolute;
+  right: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 30px; /* 텍스트 크기 설정 */
+}
+
+#fetchFriendsButton {
+  position: absolute;
+  right: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 30px; /* 텍스트 크기 설정 */
 }
 
 /* 팝업 메뉴 스타일 */
