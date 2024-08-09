@@ -99,6 +99,16 @@ app.get("/", (req, res) => {
             <div class="column chatroom">
               <h2>채팅방</h2>
               <ul id="messages" class="messages"></ul>
+
+              <!-- 팝업 추가 -->
+              <div id="blockPopup" class="popup" style="display: none;">
+                <div class="popup-content">
+                  <p>해당 회원을 차단하면 채팅방에서 나가기 처리 됩니다. 차단하시겠습니까?</p>
+                  <button id="confirmBlock">예</button>
+                  <button id="cancelBlock">아니요</button>
+                </div>
+              </div>
+
               <form id="form" class="chat-form" action="">
                 <input id="input" autocomplete="off" />
                 <button>Send</button>
