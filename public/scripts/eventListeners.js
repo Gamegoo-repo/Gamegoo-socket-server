@@ -137,18 +137,8 @@ fetchFriendsButton.addEventListener("click", () => {
               chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
               chatroomHeader.appendChild(statusElement);
 
-              // 채팅방 나가기 버튼 생성
-              const exitButton = document.createElement("button");
-              exitButton.textContent = "나가기";
-              exitButton.style.marginLeft = "10px";
-
-              // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
-              exitButton.addEventListener("click", () => {
-                exitChatroom(result.uuid);
-              });
-
-              // 헤더에 채팅방 나가기 버튼 추가
-              chatroomHeader.appendChild(exitButton);
+              // 채팅방 내부 메뉴 버튼 생성
+              createChatroomMenuButton(true);
 
               // 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
               const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${result.uuid}"] p[data-new-count]`);
@@ -327,18 +317,9 @@ function enterChatroom(chatroomUuid) {
       chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
       chatroomHeader.appendChild(statusElement);
 
-      // 채팅방 나가기 버튼 생성
-      const exitButton = document.createElement("button");
-      exitButton.textContent = "나가기";
-      exitButton.style.marginLeft = "10px";
-
-      // 채팅방 나가기 버튼 클릭 이벤트 리스너 추가
-      exitButton.addEventListener("click", () => {
-        exitChatroom(chatroomUuid);
-      });
-
-      // 헤더에 채팅방 나가기 버튼 추가
-      chatroomHeader.appendChild(exitButton);
+      // 채팅방 내부 메뉴 버튼 생성
+      // isFriend 여부는 result에서 추출해서 파라미터로 담아줘야 함, 지금은 일단 true라고 가정
+      createChatroomMenuButton(true);
 
       // (#9-7) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
       const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"] p[data-new-count]`);
@@ -355,95 +336,15 @@ function enterChatroom(chatroomUuid) {
   });
 }
 
-// 채팅 전송 폼 제출 시
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (input.value) {
-    const msg = input.value;
-    // (#10-1) "chat-message" event emit
-    socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
-    input.value = "";
-  }
-});
-
-// 알림 아이콘 클릭 시
-document.getElementById("notificationButton").addEventListener("click", () => {
-  const notificationList = document.getElementById("notificationList");
-  notificationList.style.display = notificationList.style.display === "block" ? "none" : "block";
-});
-
-// 알림 창에서 탭 클릭 시
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", (e) => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-
-    // 현재 클릭한 tab에 active 부여
-    e.target.classList.add("active");
-    const tabType = e.target.getAttribute("data-tab");
-
-    // 모든 알림 type을 안보이게 변경 후, 현재 클릭한 tab만 보이게 변경
-    document.querySelectorAll(".notification-type").forEach((nt) => (nt.style.display = "none"));
-    document.getElementById(`${tabType}Notifications`).style.display = "block";
-  });
-});
-
-// 알림 요소 추가
-function addNotification(type, message, time, isRead) {
-  const notificationContainer = document.getElementById(`${type}Notifications`);
-  const div = document.createElement("div");
-  div.className = `notification-item ${isRead ? "read" : "unread"}`;
-  div.innerHTML = `
-    <div class="notification-text">
-      <p>${message}</p>
-      <p class="notification-time">${time}</p>
-    </div>
-  `;
-  notificationContainer.appendChild(div);
-}
-
-// 채팅방 퇴장 시
-function exitChatroom(chatroomUuid) {
-  console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
-
-  exitChatroomApi(chatroomUuid).then(() => {
-    // chatroom 영역 초기화
-    // 기존 메시지 element 초기화
-    const messagesElement = document.getElementById("messages");
-    messagesElement.innerHTML = "";
-
-    // 채팅방 내부 헤더 초기화
-    const chatroomHeader = document.querySelector(".column.chatroom h2");
-    chatroomHeader.innerHTML = "채팅방";
-
-    // 채팅방 목록 영역에서 해당 채팅방 삭제
-    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"]`);
-    if (chatroomItem) {
-      chatroomItem.remove();
-    } else {
-      console.log("chatroom delete not found: ", chatroomUuid);
-    }
-
-    // messagesFromThisChatroom array 초기화
-    messagesFromThisChatroom = null;
-
-    // hasNextChat 업데이트
-    hasNextChat = null;
-
-    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
-    currentViewingChatroomUuid = null;
-    currentChattingMemberId = null;
-  });
-}
-
 // 채팅방 내부에서 스크롤이 가장 위에 닿았을 때
 document.addEventListener("DOMContentLoaded", () => {
   const messagesElement = document.getElementById("messages");
 
   messagesElement.addEventListener("scroll", () => {
+    // 스크롤이 끝까지 올라갔을 때
     if (messagesElement.scrollTop === 0) {
-      // 스크롤이 끝까지 올라갔을 때
+      // 더 조회해올 다음 chat 내역이 있다면
       if (hasNextChat) {
-        // 더 조회해올 다음 chat 내역이 있다면
         fetchOlderMessages();
       } else {
         console.log("=== End of Chat Messages, No fecth ==");
@@ -452,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// timestamp cursor 기반으로 이전 메시지 내역 조회 api 호출
+// timestamp cursor 기반으로 이전 메시지 내역 조회 api 호출 및 렌더링
 function fetchOlderMessages() {
   const jwtToken = localStorage.getItem("jwtToken");
   if (!jwtToken) {
@@ -512,4 +413,186 @@ function fetchOlderMessages() {
       messagesElement.scrollTop = messagesElement.scrollHeight - scrollPosition;
     }
   });
+}
+
+// 채팅 전송 폼 제출 시
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (input.value) {
+    const msg = input.value;
+    // (#10-1) "chat-message" event emit
+    socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    input.value = "";
+  }
+});
+
+// 알림 아이콘 클릭 시
+document.getElementById("notificationButton").addEventListener("click", () => {
+  const notificationList = document.getElementById("notificationList");
+  notificationList.style.display = notificationList.style.display === "block" ? "none" : "block";
+});
+
+// 알림 닫기 버튼 클릭 시
+document.getElementById("notiCloseButton").addEventListener("click", function () {
+  document.getElementById("notificationList").style.display = "none";
+});
+
+// 알림 창에서 특정 탭 클릭 시
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", (e) => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+
+    // 현재 클릭한 tab에 active 부여
+    e.target.classList.add("active");
+    const tabType = e.target.getAttribute("data-tab");
+
+    // 모든 알림 type을 안보이게 변경 후, 현재 클릭한 tab만 보이게 변경
+    document.querySelectorAll(".notification-type").forEach((nt) => (nt.style.display = "none"));
+    document.getElementById(`${tabType}Notifications`).style.display = "block";
+  });
+});
+
+// 알림 요소 추가 메소드
+function addNotification(type, message, time, isRead) {
+  const notificationContainer = document.getElementById(`${type}Notifications`);
+  const div = document.createElement("div");
+  div.className = `notification-item ${isRead ? "read" : "unread"}`;
+  div.innerHTML = `
+    <div class="notification-text">
+      <p>${message}</p>
+      <p class="notification-time">${time}</p>
+    </div>
+  `;
+  notificationContainer.appendChild(div);
+}
+
+// 채팅방 퇴장 시
+function exitChatroom(chatroomUuid) {
+  console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
+
+  exitChatroomApi(chatroomUuid).then(() => {
+    // chatroom 영역 초기화
+    // 기존 메시지 element 초기화
+    const messagesElement = document.getElementById("messages");
+    messagesElement.innerHTML = "";
+
+    // 채팅방 내부 헤더 초기화
+    const chatroomHeader = document.querySelector(".column.chatroom h2");
+    chatroomHeader.innerHTML = "채팅방";
+
+    // 채팅방 목록 영역에서 해당 채팅방 삭제
+    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"]`);
+    if (chatroomItem) {
+      chatroomItem.remove();
+    } else {
+      console.log("chatroom delete not found: ", chatroomUuid);
+    }
+
+    // messagesFromThisChatroom array 초기화
+    messagesFromThisChatroom = null;
+
+    // hasNextChat 업데이트
+    hasNextChat = null;
+
+    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
+    currentViewingChatroomUuid = null;
+    currentChattingMemberId = null;
+  });
+}
+
+// 채팅방 내부 메뉴 버튼 생성 메소드
+function createChatroomMenuButton(isFriend) {
+  const chatroomHeader = document.querySelector(".column.chatroom h2");
+
+  // 메뉴 버튼 생성
+  const menuButton = document.createElement("button");
+  menuButton.textContent = "⋮";
+  menuButton.id = "menuButton"; // 버튼에 ID 추가
+
+  // 팝업 메뉴 생성
+  const popupMenu = document.createElement("div");
+  popupMenu.id = "popupMenu";
+  popupMenu.className = "popup-menu";
+
+  // 팝업 메뉴 항목 생성
+  //const menuItems = ["채팅방 나가기", "친구 추가", "차단하기", "신고하기", "매너 평가", "비매너 평가"];
+  const ul = document.createElement("ul");
+
+  popupMenu.appendChild(ul);
+
+  // 채팅방 나가기 메뉴 생성
+  createMenuItem(ul, "채팅방 나가기", () => {
+    exitChatroom(currentViewingChatroomUuid);
+  });
+
+  if (isFriend) {
+    // 친구 삭제 메뉴 생성
+    createMenuItem(ul, "친구 삭제", () => {
+      // 친구 삭제 API 연결
+    });
+  } else {
+    // 친구 추가 메뉴 생성
+    createMenuItem(ul, "친구 추가", () => {
+      // 친구 요청 전송 API 연결
+    });
+  }
+
+  // 차단하기 메뉴 생성
+  createMenuItem(ul, "차단하기", () => {
+    // 회원 차단 API 연결
+  });
+
+  // 신고하기 메뉴 생성
+  createMenuItem(ul, "신고하기", () => {
+    // 회원 신고 API 연결
+  });
+
+  // 매너 평가 메뉴 생성
+  createMenuItem(ul, "매너 평가", () => {
+    // 매너 평가 API 연결
+  });
+
+  // 비매너 평가 메뉴 생성
+  createMenuItem(ul, "비매너 평가", () => {
+    // 비매너 평가 API 연결
+  });
+
+  // 채팅방 메뉴 버튼 클릭 시
+  menuButton.addEventListener("click", () => {
+    const isVisible = popupMenu.style.display === "block";
+    popupMenu.style.display = isVisible ? "none" : "block";
+  });
+
+  // 팝업 메뉴 외부를 클릭했을 때 닫히도록 설정
+  document.addEventListener("click", (event) => {
+    if (event.target !== menuButton && !popupMenu.contains(event.target)) {
+      popupMenu.style.display = "none";
+    }
+  });
+
+  // 헤더에 채팅방 메뉴 버튼 및 팝업 메뉴 추가
+  chatroomHeader.appendChild(menuButton);
+  chatroomHeader.appendChild(popupMenu);
+}
+
+// 메뉴 아이템 생성 메소드
+function createMenuItem(ulElement, text, onClick) {
+  const li = document.createElement("li");
+  const button = document.createElement("button");
+  button.className = "menu-item";
+  button.textContent = text;
+
+  button.addEventListener("mouseover", () => {
+    button.style.backgroundColor = "#f1f1f1";
+  });
+
+  button.addEventListener("mouseout", () => {
+    button.style.backgroundColor = "transparent";
+  });
+
+  // 버튼 클릭 시 동작 연결
+  button.addEventListener("click", onClick);
+
+  li.appendChild(button);
+  ulElement.appendChild(li);
 }

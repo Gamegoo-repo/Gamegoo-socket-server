@@ -69,7 +69,7 @@ app.get("/", (req, res) => {
             <div id="notificationList" class="notifications">
               <div class="notification-header">
                 <h2>알림</h2>
-                <button id="viewAllButton">전체보기</button>
+                <button id="notiCloseButton">닫기</button>
               </div>
             <div class="tabs">
               <div class="tab active" data-tab="received">받은 알림</div>
@@ -115,7 +115,7 @@ app.get("/", (req, res) => {
           addNotification('received', '알림 내용', '1시간 전', true);
           addNotification('received', '알림 내용', '1시간 전', false);
           addNotification('friendRequest', '12345 님이 친구요청을 보냈습니다.', '1시간 전', true);
-          addNotification('friendRequest', '알림 내용', '1시간 전', false);
+          addNotification('friendRequest', '67890 님이 친구요청을 보냈습니다.', '1시간 전', false);
         </script>
       </body>
     </html>
