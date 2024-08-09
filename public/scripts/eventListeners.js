@@ -622,6 +622,17 @@ function createChatroomMenuButton(isFriend) {
     // 친구 삭제 메뉴 생성
     createMenuItem(ul, "친구 삭제", () => {
       // 친구 삭제 API 연결
+      deleteFriendApi(currentChattingMemberId).then((result) => {
+        // 친구 목록 영역 새로고침
+        const fetchFriendsButton = document.getElementById("fetchFriendsButton");
+        fetchFriendsButton.click(); // 버튼 클릭 이벤트 발생
+
+        // 채팅방 헤더에 상태 element 제거
+        const chatroomHeaderSpan = document.querySelector(".column.chatroom h2 span");
+        if (chatroomHeaderSpan) {
+          chatroomHeaderSpan.textContent = ""; // span 내부 텍스트 초기화
+        }
+      });
     });
   } else {
     // 친구 추가 메뉴 생성
