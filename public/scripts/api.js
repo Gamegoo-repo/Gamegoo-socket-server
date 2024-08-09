@@ -257,3 +257,23 @@ async function deleteFriendApi(memberId) {
     console.error("Error:", error);
   }
 }
+
+async function sendFriendRequestApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/request/${memberId}`, {
+      method: "POST", // POST 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("starFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}

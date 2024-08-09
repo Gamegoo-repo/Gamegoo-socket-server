@@ -638,6 +638,7 @@ function createChatroomMenuButton(isFriend) {
     // 친구 추가 메뉴 생성
     createMenuItem(ul, "친구 추가", () => {
       // 친구 요청 전송 API 연결
+      sendFriendRequestApi(currentChattingMemberId);
     });
   }
 
