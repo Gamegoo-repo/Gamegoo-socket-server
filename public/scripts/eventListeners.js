@@ -71,14 +71,32 @@ fetchFriendsButton.addEventListener("click", () => {
         statusElement.classList.add(isOnline ? "online" : "offline");
 
         li.setAttribute("data-member-id", friend.memberId);
-        li.innerHTML = `
-                  <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
-                  <span>${friend.name}</span>
-                `;
+
+        // 사용자 정보를 담는 div 생성
+        const userInfoDiv = document.createElement("div");
+        userInfoDiv.className = "user-info"; // CSS 클래스 추가
+        userInfoDiv.innerHTML = `
+                <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
+                <span>${friend.name}</span>
+            `;
+        li.appendChild(userInfoDiv);
         li.appendChild(statusElement);
 
+        // 별 아이콘 추가
+        const star = document.createElement("span");
+        star.className = "star";
+        star.innerHTML = "☆";
+
+        // liked가 true인 경우 보라색으로 설정
+        if (friend.liked) {
+          star.classList.add("liked");
+        }
+
+        // li 요소에 별 아이콘 추가
+        li.appendChild(star);
+
         // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
-        li.addEventListener("click", () => {
+        userInfoDiv.addEventListener("click", () => {
           startChatApi(friend.memberId)
             .then((result) => {
               // messagesFromThisChatroom array 초기화
