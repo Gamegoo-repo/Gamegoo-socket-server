@@ -121,6 +121,7 @@ async function readChatApi(chatroomUuid, timestamp) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/read?timestamp=${timestamp}`, {
+      method: "PATCH", // PATCH 메서드로 요청
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -181,6 +182,7 @@ async function exitChatroomApi(chatroomUuid) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/exit`, {
+      method: "PATCH", // PATCH 메서드로 요청
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -190,6 +192,46 @@ async function exitChatroomApi(chatroomUuid) {
       return data.result;
     } else {
       throw new Error("exitChatroomApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function starFriendApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/${memberId}/star`, {
+      method: "PATCH", // PATCH 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("starFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function unstarFriendApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/${memberId}/star`, {
+      method: "DELETE", // DELETE 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("unstarFriendApi failed");
     }
   } catch (error) {
     console.error("Error:", error);

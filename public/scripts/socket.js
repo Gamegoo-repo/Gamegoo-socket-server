@@ -172,6 +172,15 @@ function setupSocketListeners() {
         `;
               chatroomListElement.appendChild(li);
 
+              // 새로 생성한 채팅방 목록 요소의 채팅방 입장 버튼에 eventListener 추가
+              const enterChatroomButtons = document.querySelectorAll(".enter-chatroom-btn");
+              enterChatroomButtons.forEach((button) => {
+                button.addEventListener("click", (event) => {
+                  const chatroomUuid = event.target.getAttribute("data-chatroom-uuid");
+                  enterChatroom(chatroomUuid);
+                });
+              });
+
               // 채팅방 목록 내 li 요소 재정렬
               reorderChatroomsByLastMsgTime();
             }

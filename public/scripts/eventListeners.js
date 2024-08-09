@@ -71,21 +71,39 @@ fetchFriendsButton.addEventListener("click", () => {
         statusElement.classList.add(isOnline ? "online" : "offline");
 
         li.setAttribute("data-member-id", friend.memberId);
-        li.innerHTML = `
-                  <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
-                  <span>${friend.name}</span>
-                `;
+
+        // 사용자 정보를 담는 div 생성
+        const userInfoDiv = document.createElement("div");
+        userInfoDiv.className = "user-info"; // CSS 클래스 추가
+        userInfoDiv.innerHTML = `
+                <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
+                <span>${friend.name}</span>
+            `;
+        li.appendChild(userInfoDiv);
         li.appendChild(statusElement);
 
+        // 별 아이콘 추가
+        const star = document.createElement("span");
+        star.className = "star";
+        star.innerHTML = "☆";
+
+        // liked가 true인 경우 보라색으로 설정
+        if (friend.liked) {
+          star.classList.add("liked");
+        }
+
+        // li 요소에 별 아이콘 추가
+        li.appendChild(star);
+
         // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
-        li.addEventListener("click", () => {
+        userInfoDiv.addEventListener("click", () => {
           startChatApi(friend.memberId)
             .then((result) => {
               // messagesFromThisChatroom array 초기화
               messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
 
               console.log("============== fetch chat messages result ===============");
-              console.log(result.chatMessageList);
+              console.log(result.chatMessageList.chatMessageDtoList);
 
               // hasNextChat 업데이트
               hasNextChat = result.chatMessageList.has_next;
@@ -124,21 +142,26 @@ fetchFriendsButton.addEventListener("click", () => {
               // 채팅방 내부 헤더 렌더링
               const chatroomHeader = document.querySelector(".column.chatroom h2");
 
-              // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
-              const isOnline = onlineFriendMemberIdList.includes(result.memberId);
-              const statusText = isOnline ? "online" : "offline";
-
-              // 상태 element에 class 부여
-              const statusElement = document.createElement("span");
-              statusElement.textContent = `(${statusText})`;
-              statusElement.classList.add(isOnline ? "online" : "offline");
-
-              // 헤더의 profile image, name, 상태 element 업데이트
+              // 헤더의 profile image, name 업데이트
               chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
-              chatroomHeader.appendChild(statusElement);
 
-              // 채팅방 내부 메뉴 버튼 생성
-              createChatroomMenuButton(true);
+              // 상대 회원과 내가 친구 관계인 경우에만
+              if (result.friend) {
+                // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
+                const isOnline = onlineFriendMemberIdList.includes(result.memberId);
+                const statusText = isOnline ? "online" : "offline";
+
+                // 상태 element에 class 부여
+                const statusElement = document.createElement("span");
+                statusElement.textContent = `(${statusText})`;
+                statusElement.classList.add(isOnline ? "online" : "offline");
+
+                // 채팅방 헤더에 상태 element 추가
+                chatroomHeader.appendChild(statusElement);
+              }
+
+              // 채팅방 내부 헤더 메뉴 버튼 생성
+              createChatroomMenuButton(result.friend);
 
               // 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
               const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${result.uuid}"] p[data-new-count]`);
@@ -151,8 +174,51 @@ fetchFriendsButton.addEventListener("click", () => {
               // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
               currentViewingChatroomUuid = result.uuid;
               currentChattingMemberId = result.memberId;
+
+              // 채팅 전송 폼 부분 렌더링
+              // chat-form 부분 추출
+              const chatForm = document.querySelector(".chat-form");
+              const inputField = chatForm.querySelector("input");
+              const sendButton = chatForm.querySelector("button");
+
+              // 상대가 나를 차단한 경우, 채팅 전송 불가하도록 막기
+              if (result.blocked) {
+                // input 필드에 텍스트 설정
+                inputField.value = "대화를 보낼 수 없는 상대입니다.";
+                inputField.disabled = true; // 입력 필드 비활성화
+
+                // 버튼 클릭(폼 전송) 불가 처리
+                sendButton.disabled = true; // 버튼 비활성화
+              } else {
+                // input 필드에 텍스트 초기화
+                inputField.value = "";
+                inputField.disabled = false; // 입력 필드 활성화
+
+                // 버튼 클릭(폼 전송) 가능 처리
+                sendButton.disabled = false; // 버튼 활성화
+              }
             })
             .catch((error) => console.error("Error:", error));
+        });
+
+        // 별 아이콘 클릭 시, 해당 친구 즐겨찾기 설정/해제 요청 전송
+        star.addEventListener("click", () => {
+          // liked 클래스가 있는지 확인
+          if (star.classList.contains("liked")) {
+            // 즐겨찾기 해제 api 요청
+            unstarFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.remove("liked");
+              console.log("즐겨찾기 해제 성공, memberId: ", friend.memberId);
+            });
+          } else {
+            // 즐겨찾기 설정 api 요청
+            starFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.add("liked");
+              console.log("즐겨찾기 설정 성공, memberId: ", friend.memberId);
+            });
+          }
         });
 
         friendsElement.appendChild(li);
@@ -265,7 +331,7 @@ function enterChatroom(chatroomUuid) {
       messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
 
       console.log("============== fetch chat messages result ===============");
-      console.log(result.chatMessageList);
+      console.log(result.chatMessageList.chatMessageDtoList);
 
       // (#9-4) hasNextChat 업데이트
       hasNextChat = result.chatMessageList.has_next;
@@ -304,22 +370,26 @@ function enterChatroom(chatroomUuid) {
       // (#9-6) 채팅방 내부 헤더 렌더링
       const chatroomHeader = document.querySelector(".column.chatroom h2");
 
-      // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
-      const isOnline = onlineFriendMemberIdList.includes(result.memberId);
-      const statusText = isOnline ? "online" : "offline";
-
-      // 상태 element에 class 부여
-      const statusElement = document.createElement("span");
-      statusElement.textContent = `(${statusText})`;
-      statusElement.classList.add(isOnline ? "online" : "offline");
-
-      // 헤더의 profile image, name, 상태 element 업데이트
+      // 헤더의 profile image, name 업데이트
       chatroomHeader.innerHTML = `<img src="${result.memberProfileImg}" alt="Profile Image" width="30" height="30" style="vertical-align: middle;">${result.gameName}`;
-      chatroomHeader.appendChild(statusElement);
 
-      // 채팅방 내부 메뉴 버튼 생성
-      // isFriend 여부는 result에서 추출해서 파라미터로 담아줘야 함, 지금은 일단 true라고 가정
-      createChatroomMenuButton(true);
+      // 상대 회원과 내가 친구 관계인 경우에만
+      if (result.friend) {
+        // 상대 회원이 현재 온라인인 친구 목록에 있는지 여부를 따져서 상태 text 설정
+        const isOnline = onlineFriendMemberIdList.includes(result.memberId);
+        const statusText = isOnline ? "online" : "offline";
+
+        // 상태 element에 class 부여
+        const statusElement = document.createElement("span");
+        statusElement.textContent = `(${statusText})`;
+        statusElement.classList.add(isOnline ? "online" : "offline");
+
+        // 채팅방 헤더에 상태 element 추가
+        chatroomHeader.appendChild(statusElement);
+      }
+
+      // 채팅방 내부 헤더 메뉴 버튼 생성
+      createChatroomMenuButton(result.friend);
 
       // (#9-7) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
       const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${chatroomUuid}"] p[data-new-count]`);
@@ -332,6 +402,29 @@ function enterChatroom(chatroomUuid) {
       // (#9-8) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
       currentViewingChatroomUuid = chatroomUuid;
       currentChattingMemberId = result.memberId;
+
+      // 채팅 전송 폼 부분 렌더링
+      // chat-form 부분 추출
+      const chatForm = document.querySelector(".chat-form");
+      const inputField = chatForm.querySelector("input");
+      const sendButton = chatForm.querySelector("button");
+
+      // 상대가 나를 차단한 경우, 채팅 전송 불가하도록 막기
+      if (result.blocked) {
+        // input 필드에 텍스트 설정
+        inputField.value = "대화를 보낼 수 없는 상대입니다.";
+        inputField.disabled = true; // 입력 필드 비활성화
+
+        // 버튼 클릭(폼 전송) 불가 처리
+        sendButton.disabled = true; // 버튼 비활성화
+      } else {
+        // input 필드에 텍스트 초기화
+        inputField.value = "";
+        inputField.disabled = false; // 입력 필드 활성화
+
+        // 버튼 클릭(폼 전송) 가능 처리
+        sendButton.disabled = false; // 버튼 활성화
+      }
     }
   });
 }
