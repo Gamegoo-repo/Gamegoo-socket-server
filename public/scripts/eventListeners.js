@@ -372,6 +372,11 @@ document.getElementById("notificationButton").addEventListener("click", () => {
   notificationList.style.display = notificationList.style.display === "block" ? "none" : "block";
 });
 
+// 알림 닫기 버튼 클릭 시
+document.getElementById("notiCloseButton").addEventListener("click", function () {
+  document.getElementById("notificationList").style.display = "none";
+});
+
 // 알림 창에서 탭 클릭 시
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", (e) => {
