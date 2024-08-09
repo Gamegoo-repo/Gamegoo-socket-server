@@ -71,6 +71,13 @@ app.get("/match", (req, res) => {
         <input type="number" id="wantP" min="0" max="5" placeholder="원하는 상대 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
       </div>
   
+  
+      <div class="input-group">
+        <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (int 1~17)">
+        <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (int 1~17)">
+        <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (int 1~17)">
+      </div>
+  
       <button id="match-btn">Match</button>
     
     
@@ -83,33 +90,10 @@ app.get("/match", (req, res) => {
   <script src="scripts/socket.js"></script>
   <script src="scripts/api.js"></script>
   <script src="scripts/eventListeners.js"></script>
-  <script>
-    const matchBtn = document.getElementById('match-btn');
+  <script src="matching/scripts/socket.js"></script>
+  <script src="matching/scripts/api.js"></script>
+  <script src="matching/scripts/eventListeners.js"></script>
 
-    matchBtn.addEventListener('click', () => {
-      const matchingType = document.getElementById('matching-type').value;
-      const gameMode = document.getElementById('game-mode').value;
-      const mike = document.getElementById('mike').checked;
-      const tier = document.getElementById('tier').value;
-      const rank = document.getElementById('rank').value;
-      const manner = document.getElementById('manner').value;
-      const mainP = document.getElementById('mainP').value;
-      const subP = document.getElementById('subP').value;
-      const wantP = document.getElementById('wantP').value;
-
-      console.log('========== Matching Information ==========');
-      console.log('Matching Type: ' + matchingType);
-      console.log('Game Mode: ' + gameMode);
-      console.log('Mike: ' + mike);
-      console.log('Tier: ' + tier);
-      console.log('Rank: ' + rank);
-      console.log('Manner: ' + manner);
-      console.log('Main P: ' + mainP);
-      console.log('Sub P: ' + subP);
-      console.log('Want P: ' + wantP);
-      console.log('==========================================');
-    });
-  </script>
 </body>
 
 </html>
