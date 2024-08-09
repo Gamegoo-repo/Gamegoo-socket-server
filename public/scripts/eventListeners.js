@@ -173,6 +173,26 @@ fetchFriendsButton.addEventListener("click", () => {
             .catch((error) => console.error("Error:", error));
         });
 
+        // 별 아이콘 클릭 시, 해당 친구 즐겨찾기 설정/해제 요청 전송
+        star.addEventListener("click", () => {
+          // liked 클래스가 있는지 확인
+          if (star.classList.contains("liked")) {
+            // 즐겨찾기 해제 api 요청
+            unstarFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.remove("liked");
+              console.log("즐겨찾기 해제 성공, memberId: ", friend.memberId);
+            });
+          } else {
+            // 즐겨찾기 설정 api 요청
+            starFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.add("liked");
+              console.log("즐겨찾기 설정 성공, memberId: ", friend.memberId);
+            });
+          }
+        });
+
         friendsElement.appendChild(li);
       });
     }
