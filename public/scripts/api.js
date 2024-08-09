@@ -121,6 +121,7 @@ async function readChatApi(chatroomUuid, timestamp) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/read?timestamp=${timestamp}`, {
+      method: "PATCH", // PATCH 메서드로 요청
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -181,6 +182,7 @@ async function exitChatroomApi(chatroomUuid) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/exit`, {
+      method: "PATCH", // PATCH 메서드로 요청
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
