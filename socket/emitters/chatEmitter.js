@@ -16,6 +16,16 @@ function emitChatMessage(socket, chatroomUuid, data) {
   socket.emit("my-message-broadcast-success", formatResponse("my-message-broadcast-success", data));
 }
 
+/**
+ * 해당 socket이 새로운 chatroom에 join되었음을 전달
+ * @param {*} socket
+ */
+function emitJoinedNewChatroom(socket) {
+  const data = "새로운 채팅방 room에 socket join 되었습니다. 채팅방 목록을 업데이트 해주세요.";
+  socket.emit("joined-new-chatroom", formatResponse("joined-new-chatroom", data));
+}
+
 module.exports = {
   emitChatMessage,
+  emitJoinedNewChatroom,
 };
