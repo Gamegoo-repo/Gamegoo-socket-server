@@ -26,13 +26,13 @@ function setupSocketListeners() {
   socket.on("member-info", (response) => {
     loginStatus.textContent = "You are Login User, member Id: " + response.data.memberId;
 
-    // (#1-11),(#2-4) memberId 전역변수 초기화
+    // (#1-8),(#2-4) memberId 전역변수 초기화
     memberId = response.data.memberId;
   });
 
   // init-online-friend-list event listener
   socket.on("init-online-friend-list", (response) => {
-    // (#1-21),(#2-13) 현재 온라인인 친구 목록 초기화
+    // (#1-18),(#2-13) 현재 온라인인 친구 목록 초기화
     onlineFriendMemberIdList = response.data.onlineFriendMemberIdList;
 
     // 로그 확인

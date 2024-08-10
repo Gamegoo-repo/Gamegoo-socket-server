@@ -25,7 +25,7 @@ function login(io) {
     if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
       jwtToken = authorizationHeader.substring(7); // 'Bearer ' 이후의 부분이 토큰임
     }
-    // (#1-9) jwt 검증 및 socket 바인딩
+    // (#1-6) jwt 검증 및 socket 바인딩
     // jwt token 존재 여부 검증
     if (!jwtToken) {
       return res.status(401).json(failResponse("AUTH", "JWT 토큰이 없습니다."));
@@ -59,16 +59,16 @@ function login(io) {
         return res.status(404).json(failResponse("SOCKET_NOT_FOUND", "socket id에 해당하는 socket 객체를 찾을 수 없습니다. socket 초기화 실패."));
       }
 
-      // (#1-10) "member-info" event emit
+      // (#1-7) "member-info" event emit
       emitMemberInfo(socket);
 
-      // (#1-12) socket 초기화 함수들 호출
+      // (#1-9) socket 초기화 함수들 호출
       initChat(socket, io);
       initAlarm(socket, io);
       initMatching(socket, io);
       initFriend(socket, io);
 
-      // (#1-20) return 200
+      // (#1-17) return 200
       res.status(200).json(successResponse("socket 초기화 성공"));
     });
   };

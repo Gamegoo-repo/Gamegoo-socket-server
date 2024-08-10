@@ -26,18 +26,8 @@ loginButton.addEventListener("click", () => {
       alert("Login successful! Token received.");
       console.log("Using existing socket. Socket ID:", socket.id);
 
-      // (#1-5) 8080서버로 나의 회원 정보 요청
-      getMemberInfoApi().then((result) => {
-        // (#1-6) 8080서버로부터 나의 회원 정보 정상 응답 받음
-        if (result) {
-          // (#1-7) localStorage에 나의 회원 정보 저장
-          localStorage.setItem("profileImg", result.profileImg);
-          localStorage.setItem("name", result.gameName);
-
-          // (#1-8) 3000서버로 login api 요청 (소켓 초기화를 위함)
-          loginNodeApi();
-        }
-      });
+      // (#1-5) 3000서버로 login api 요청 (소켓 초기화를 위함)
+      loginNodeApi();
     }
   });
 });
