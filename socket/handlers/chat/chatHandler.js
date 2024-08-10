@@ -21,8 +21,8 @@ function setupChatListeners(socket) {
     // (#10-2) 8080서버에 채팅 저장 api 요청
     postChatMessage(socket, chatroomUuid, msg)
       .then((response) => {
-        // (#10-3) 채팅 저장 정상 응답 받음
-        // (#10-4),(#10-5) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
+        // (#10-8) 채팅 저장 정상 응답 받음
+        // (#10-9),(#10-10) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
         emitChatMessage(socket, chatroomUuid, response);
       })
       .catch((error) => {
@@ -39,6 +39,7 @@ function setupChatListeners(socket) {
   // exit-chatroom event 발생 시, 해당 socket을 chatroom에서 leave 처리
   socket.on("exit-chatroom", (request) => {
     const chatroomUuid = request.uuid;
+    // (#14-4), (#15-4) 해당 socket을 해당 chatroom에서 leave 처리
     socket.leave("CHAT_" + chatroomUuid);
     console.log("memberId:", socket.memberId, ", SOCKET LEFT ROOM: " + "CHAT_" + chatroomUuid);
     console.log("======================= chatroom uuid List START =======================");

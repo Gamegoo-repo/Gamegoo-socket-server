@@ -26,13 +26,13 @@ function setupSocketListeners() {
   socket.on("member-info", (response) => {
     loginStatus.textContent = "You are Login User, member Id: " + response.data.memberId;
 
-    // (#1-11),(#2-4) memberId 전역변수 초기화
+    // (#1-8),(#2-4) memberId 전역변수 초기화
     memberId = response.data.memberId;
   });
 
   // init-online-friend-list event listener
   socket.on("init-online-friend-list", (response) => {
-    // (#1-21),(#2-13) 현재 온라인인 친구 목록 초기화
+    // (#1-18),(#2-13) 현재 온라인인 친구 목록 초기화
     onlineFriendMemberIdList = response.data.onlineFriendMemberIdList;
 
     // 로그 확인
@@ -106,7 +106,7 @@ function setupSocketListeners() {
 
   // my-message-broadcast-success event listener
   socket.on("my-message-broadcast-success", (response) => {
-    // (#10-6) messagesFromThisChatroom array 업데이트
+    // (#10-11) messagesFromThisChatroom array 업데이트
     const { chatroomUuid, ...newMessage } = response.data;
 
     messagesFromThisChatroom.push(newMessage);
@@ -114,7 +114,7 @@ function setupSocketListeners() {
     console.log("============== messagesFromThisChatroom Updated ==============");
     console.log(messagesFromThisChatroom);
 
-    // (#10-7) 내가 보낸 메시지 요소 생성
+    // (#10-12) 내가 보낸 메시지 요소 생성
     const messagesElement = document.getElementById("messages");
     const li = document.createElement("li");
     li.classList.add("message-item");
@@ -131,7 +131,7 @@ function setupSocketListeners() {
                                             `;
     messagesElement.appendChild(li);
 
-    // (#10-8) 채팅방 목록 내 element 업데이트
+    // (#10-13) 채팅방 목록 내 element 업데이트
     // 채팅방 목록 내의 마지막 전송시각 업데이트
     const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
     if (chatroomItemLastTime) {
@@ -218,8 +218,7 @@ function setupSocketListeners() {
 
   // joined-new-chatroom event listener
   socket.on("joined-new-chatroom", (response) => {
-    // 채팅방 목록 다시 요청 후 업데이트
-
+    // (#10-6) 채팅방 목록 다시 요청 후 업데이트
     // 채팅방 목록 조회 api 요청
     getChatroomListApi().then((result) => {
       if (result) {

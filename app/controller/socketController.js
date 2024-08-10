@@ -28,8 +28,11 @@ function socketRoomJoin(io) {
     // memberId를 가진 socket이 존재하면, 해당 socket을 chatroom join, joined-new-chatroom event emit
     if (socket) {
       try {
+        // (#10-4) socket room join
         socket.join("CHAT_" + chatroomUuid);
         console.log("memberId: ", memberId, ", JOINED TO ROOM:", "CHAT_" + chatroomUuid);
+
+        // (#10-5) "joined-new-chatroom" event emit
         emitJoinedNewChatroom(socket);
       } catch (error) {
         res.status(500).json(failResponse("SOCKET502", "socket room join 및 event emit 실패"));
