@@ -388,11 +388,15 @@ function exitChatroom(chatroomUuid) {
   console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
 
   exitChatroomApi(chatroomUuid).then(() => {
+    // socket 서버에 exit-chatroom event emit
+    socket.emit("exit-chatroom", { uuid: currentViewingChatroomUuid });
+
+    // 채팅방 영역 초기화
     resetChatroomDiv(chatroomUuid);
   });
 }
 
-// 채팅방 내부 메뉴 버튼 생성 메소드
+// 채팅방 내부 메뉴 버튼 생성
 function createChatroomMenuButton(isFriend) {
   const chatroomHeader = document.querySelector(".column.chatroom h2");
 
@@ -414,13 +418,14 @@ function createChatroomMenuButton(isFriend) {
 
   // 채팅방 나가기 메뉴 생성
   createMenuItem(ul, "채팅방 나가기", () => {
+    // 8080서버에 채팅방 나가기 API 요청
     exitChatroom(currentViewingChatroomUuid);
   });
 
   if (isFriend) {
     // 친구 삭제 메뉴 생성
     createMenuItem(ul, "친구 삭제", () => {
-      // 친구 삭제 API 연결
+      // 8080서버에 친구 삭제 API 요청
       deleteFriendApi(currentChattingMemberId).then((result) => {
         // 친구 목록 영역 새로고침
         const fetchFriendsButton = document.getElementById("fetchFriendsButton");
@@ -436,7 +441,7 @@ function createChatroomMenuButton(isFriend) {
   } else {
     // 친구 추가 메뉴 생성
     createMenuItem(ul, "친구 추가", () => {
-      // 친구 요청 전송 API 연결
+      // 8080서버에 친구 요청 전송 API 요청
       sendFriendRequestApi(currentChattingMemberId).then((result) => {
         alert(result.result);
       });
@@ -455,10 +460,13 @@ function createChatroomMenuButton(isFriend) {
 
     // "예" 버튼 클릭 시 실제 이벤트 발생
     confirmButton.addEventListener("click", () => {
-      // 회원 차단 API 연결
+      // 8080서버에 회원 차단 API 요청
       blockMemberApi(currentChattingMemberId).then((result) => {
         blockPopup.style.display = "none"; // 팝업 창 닫기
         alert(result);
+
+        // socket 서버에 exit-chatroom event emit
+        socket.emit("exit-chatroom", { uuid: currentViewingChatroomUuid });
 
         // 채팅방 영역 초기화
         resetChatroomDiv(currentViewingChatroomUuid);

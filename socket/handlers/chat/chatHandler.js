@@ -35,6 +35,17 @@ function setupChatListeners(socket) {
         }
       });
   });
+
+  // exit-chatroom event 발생 시, 해당 socket을 chatroom에서 leave 처리
+  socket.on("exit-chatroom", (request) => {
+    const chatroomUuid = request.uuid;
+    socket.leave("CHAT_" + chatroomUuid);
+    console.log("memberId:", socket.memberId, ", SOCKET LEFT ROOM: " + "CHAT_" + chatroomUuid);
+    console.log("======================= chatroom uuid List START =======================");
+    const rooms = Array.from(socket.rooms);
+    console.log("현재 소켓이 join되어 있는 room 목록:", rooms);
+    console.log("======================= chatroom uuid List END =======================");
+  });
 }
 
 module.exports = { setupChatListeners };
