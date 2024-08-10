@@ -52,17 +52,9 @@ app.get("/match", (req, res) => {
           <option value="PRECISE">PRECISE</option>
         </select>
         <input type="number" id="game-mode" min="1" max="4" placeholder="게임 모드 (1: 빠른 대전, 2: 솔로 랭크, 3: 자유 랭크, 4: 칼바람 나락)">
-      </div>
-  
-      <div class="input-group">
-        <input type="text" id="tier" placeholder="티어 (IRON, BRONZE, SILVER, GOLD, PLATINUM, EMERALD, DIAMOND, MASTER, GRANDMASTER, CHALLENGER)">
-        <input type="number" id="rank" min="1" max="5" placeholder="랭크 (int 1~5)">
-      </div>
-  
-      <div class="input-group">
+
         <label for="mike">Mike:</label>
         <input type="checkbox" id="mike">
-        <input type="number" id="manner" min="1" max="999" placeholder="매너 점수 (int 1~5)">
       </div>
   
       <div class="input-group">

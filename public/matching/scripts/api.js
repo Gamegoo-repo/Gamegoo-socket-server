@@ -1,5 +1,4 @@
-async function recordMatchingApi(matchingType, gameMode, mike, manner ,mainP, subP, wantP, gameStyle1, gameStyle2, gameStyle3) {
-    console.log("recordMatchingAPI : ");
+async function recordMatchingApi(matchingType, gameMode, mike ,mainP, subP, wantP, gameStyle1, gameStyle2, gameStyle3) {
     try {
         const jwtToken = localStorage.getItem("jwtToken");
 
@@ -20,7 +19,6 @@ async function recordMatchingApi(matchingType, gameMode, mike, manner ,mainP, su
                 mainP: mainP,
                 subP: subP,
                 wantP: wantP,
-                manner: manner,
                 gameStyleIdList: gameStyleIdList
             })
         });
