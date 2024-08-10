@@ -387,11 +387,13 @@ function addNotification(type, message, time, isRead) {
 function exitChatroom(chatroomUuid) {
   console.log(`Exit chatroom with UUID: ${chatroomUuid}`);
 
+  // (#14-1) 8080서버에 채팅방 나가기 API 요청
   exitChatroomApi(chatroomUuid).then(() => {
-    // socket 서버에 exit-chatroom event emit
+    // (#14-2) 채팅방 나가기 API 정상 응답 받음
+    // (#14-3) socket 서버에 exit-chatroom event emit
     socket.emit("exit-chatroom", { uuid: currentViewingChatroomUuid });
 
-    // 채팅방 영역 초기화
+    // (#14-5) 채팅방 영역 초기화
     resetChatroomDiv(chatroomUuid);
   });
 }
@@ -460,15 +462,16 @@ function createChatroomMenuButton(isFriend) {
 
     // "예" 버튼 클릭 시 실제 이벤트 발생
     confirmButton.addEventListener("click", () => {
-      // 8080서버에 회원 차단 API 요청
+      // (#15-1) 8080서버에 회원 차단 API 요청
       blockMemberApi(currentChattingMemberId).then((result) => {
+        // (#15-2) 회원 차단 API 정상 응답 받음
         blockPopup.style.display = "none"; // 팝업 창 닫기
         alert(result);
 
-        // socket 서버에 exit-chatroom event emit
+        // (#15-3) socket 서버에 exit-chatroom event emit
         socket.emit("exit-chatroom", { uuid: currentViewingChatroomUuid });
 
-        // 채팅방 영역 초기화
+        // (#15-5) 채팅방 영역 초기화
         resetChatroomDiv(currentViewingChatroomUuid);
       });
       blockPopup.style.display = "none"; // 팝업 창 닫기
@@ -572,7 +575,7 @@ function renderChatroomDiv(result) {
 
   messagesElement.innerHTML = "";
 
-  // (#9-6) API 응답의 chatMessageDtoList에 대해 각 messgae 요소 렌더링
+  // (#9-6),(#13-6) API 응답의 chatMessageDtoList에 대해 각 messgae 요소 렌더링
   result.chatMessageList.chatMessageDtoList.forEach((message) => {
     const li = document.createElement("li");
     li.classList.add("message-item");
@@ -597,7 +600,7 @@ function renderChatroomDiv(result) {
     messagesElement.scrollTop = messagesElement.scrollHeight;
   }
 
-  // (#9-7) 채팅방 내부 헤더 렌더링
+  // (#9-7),(#13-7) 채팅방 내부 헤더 렌더링
   const chatroomHeader = document.querySelector(".column.chatroom h2");
 
   // 헤더의 profile image, name 업데이트
@@ -618,10 +621,10 @@ function renderChatroomDiv(result) {
     chatroomHeader.appendChild(statusElement);
   }
 
-  // (#9-8) 채팅방 내부 헤더 메뉴 버튼 생성
+  // (#9-8),(#13-8) 채팅방 내부 헤더 메뉴 버튼 생성
   createChatroomMenuButton(result.friend);
 
-  // (#9-9) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
+  // (#9-9),(#13-9) 채팅방 목록에 읽지 않은 메시지 개수를 0으로 업데이트
   const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${result.uuid}"] p[data-new-count]`);
   if (chatroomItem) {
     chatroomItem.textContent = "0";
@@ -629,7 +632,7 @@ function renderChatroomDiv(result) {
     console.error(`Could not find chatroom item with UUID ${result.uuid} to update new count.`);
   }
 
-  // (#9-10) 채팅 전송 폼 부분 렌더링
+  // (#9-10),(#13-10) 채팅 전송 폼 부분 렌더링
   // chat-form 부분 추출
   const chatForm = document.querySelector(".chat-form");
   const inputField = chatForm.querySelector("input");

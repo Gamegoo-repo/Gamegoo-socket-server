@@ -39,6 +39,7 @@ function setupChatListeners(socket) {
   // exit-chatroom event 발생 시, 해당 socket을 chatroom에서 leave 처리
   socket.on("exit-chatroom", (request) => {
     const chatroomUuid = request.uuid;
+    // (#14-4), (#15-4) 해당 socket을 해당 chatroom에서 leave 처리
     socket.leave("CHAT_" + chatroomUuid);
     console.log("memberId:", socket.memberId, ", SOCKET LEFT ROOM: " + "CHAT_" + chatroomUuid);
     console.log("======================= chatroom uuid List START =======================");
