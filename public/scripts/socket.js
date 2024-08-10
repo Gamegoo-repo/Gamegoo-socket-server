@@ -132,78 +132,20 @@ function setupSocketListeners() {
     messagesElement.appendChild(li);
 
     // (#10-8) 채팅방 목록 내 element 업데이트
-    // chatroomUuid에 해당하는 chatroomItem이 없는 경우: 채팅방 목록 조회 다시 요청해 채팅방 목록 html update
-    const chatroomItem = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"]`);
-    if (!chatroomItem) {
-      const jwtToken = localStorage.getItem("jwtToken");
-
-      fetch(`${API_SERVER_URL}/v1/member/chatroom`, {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.isSuccess && data.result) {
-            const chatroomListElement = document.getElementById("chatroomList");
-
-            // api 응답값 중에서 새로 추가해야할 채팅방 정보만 필터링
-            const newChatroom = data.result.find((chatroom) => chatroom.uuid === currentViewingChatroomUuid);
-
-            if (newChatroom) {
-              const li = document.createElement("li");
-              li.classList.add("chatroom-item");
-              li.setAttribute("data-chatroom-uuid", newChatroom.uuid); // data-chatroom-uuid 값 세팅
-
-              li.innerHTML = `
-          <div>
-            <img src="${newChatroom.targetMemberImg}" alt="Profile Image" width="30" height="30">
-          </div>
-          <div class="chatroom-info">
-            <span>${newChatroom.targetMemberName}</span>
-            <p last-msg-text>${newChatroom.lastMsg ? newChatroom.lastMsg : " "}</p>
-          </div>
-          <div>
-            <p last-msg-time>${new Date(newChatroom.lastMsgAt).toLocaleString()}</p>
-            <p data-new-count>${newChatroom.notReadMsgCnt}</p>
-            <button class="enter-chatroom-btn" data-chatroom-uuid="${newChatroom.uuid}">채팅방 입장</button>
-          </div>
-        `;
-              chatroomListElement.appendChild(li);
-
-              // 새로 생성한 채팅방 목록 요소의 채팅방 입장 버튼에 eventListener 추가
-              const enterChatroomButtons = document.querySelectorAll(".enter-chatroom-btn");
-              enterChatroomButtons.forEach((button) => {
-                button.addEventListener("click", (event) => {
-                  const chatroomUuid = event.target.getAttribute("data-chatroom-uuid");
-                  enterChatroom(chatroomUuid);
-                });
-              });
-
-              // 채팅방 목록 내 li 요소 재정렬
-              reorderChatroomsByLastMsgTime();
-            }
-          } else {
-            throw new Error("Failed to fetch chatroom list");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    } else {
-      // chatroomUuid에 해당하는 chatroomItem이 있는 경우: 채팅방 목록 내 마지막 전송 시각, 메시지 업데이트
-      // 채팅방 목록 내의 마지막 전송시각 업데이트
-      const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
+    // 채팅방 목록 내의 마지막 전송시각 업데이트
+    const chatroomItemLastTime = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-time]`);
+    if (chatroomItemLastTime) {
       chatroomItemLastTime.textContent = `${new Date(response.data.createdAt).toLocaleString()}`;
-
-      // 채팅방 목록 내의 마지막 메시지 업데이트
-      const chatroomItemLastMsg = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-text]`);
-      chatroomItemLastMsg.textContent = response.data.message;
-
-      // 채팅방 목록 내 li 요소 재정렬
-      reorderChatroomsByLastMsgTime();
     }
+
+    // 채팅방 목록 내의 마지막 메시지 업데이트
+    const chatroomItemLastMsg = document.querySelector(`.chatroom-item[data-chatroom-uuid="${currentViewingChatroomUuid}"] p[last-msg-text]`);
+    if (chatroomItemLastMsg) {
+      chatroomItemLastMsg.textContent = response.data.message;
+    }
+
+    // 채팅방 목록 내 li 요소 재정렬
+    reorderChatroomsByLastMsgTime();
   });
 
   // chat-message event listener
@@ -273,8 +215,57 @@ function setupSocketListeners() {
     // 채팅방 목록 li 요소 재정렬
     reorderChatroomsByLastMsgTime();
   });
+
+  // joined-new-chatroom event listener
+  socket.on("joined-new-chatroom", (response) => {
+    // 채팅방 목록 다시 요청 후 업데이트
+
+    // 채팅방 목록 조회 api 요청
+    getChatroomListApi().then((result) => {
+      if (result) {
+        // 채팅방 목록 조회 성공 응답 받음
+        // 채팅방 목록 element 초기화
+        const chatroomListElement = document.getElementById("chatroomList");
+        chatroomListElement.innerHTML = "";
+
+        // 채팅방 목록 렌더링
+        // api result data를 돌면서 html 요소 생성
+        result.forEach((chatroom) => {
+          const li = document.createElement("li");
+          li.classList.add("chatroom-item");
+          li.setAttribute("data-chatroom-uuid", chatroom.uuid); // data-chatroom-uuid 값 세팅
+
+          li.innerHTML = `
+                                                            <div>
+                                                                <img src="${chatroom.targetMemberImg}" alt="Profile Image" width="30" height="30">
+                                                            </div>
+                                                            <div class="chatroom-info">
+                                                                <span>${chatroom.targetMemberName}</span>
+                                                                <p last-msg-text>${chatroom.lastMsg ? chatroom.lastMsg : " "}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p last-msg-time>${new Date(chatroom.lastMsgAt).toLocaleString()}</p>
+                                                                <p data-new-count>${chatroom.notReadMsgCnt}</p>
+                                                                <button class="enter-chatroom-btn" data-chatroom-uuid="${chatroom.uuid}">채팅방 입장</button>
+                                                            </div>
+                                                        `;
+          chatroomListElement.appendChild(li);
+        });
+
+        // 채팅방 입장 버튼에 eventListener 추가
+        const enterChatroomButtons = document.querySelectorAll(".enter-chatroom-btn");
+        enterChatroomButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const chatroomUuid = event.target.getAttribute("data-chatroom-uuid");
+            enterChatroom(chatroomUuid);
+          });
+        });
+      }
+    });
+  });
 }
 
+// 화면 새로 로드 시 socket 다시 연결
 window.addEventListener("load", () => {
   const jwtToken = localStorage.getItem("jwtToken");
   connectSocket(jwtToken);

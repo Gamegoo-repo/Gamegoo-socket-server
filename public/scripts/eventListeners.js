@@ -568,7 +568,7 @@ function exitChatroom(chatroomUuid) {
   });
 }
 
-// 채팅방 내부 메뉴 버튼 생성 메소드
+// 채팅방 내부 메뉴 버튼 생성
 function createChatroomMenuButton(isFriend) {
   const chatroomHeader = document.querySelector(".column.chatroom h2");
 
