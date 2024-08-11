@@ -318,19 +318,39 @@ function fetchOlderMessages() {
       olderMessages.reverse().forEach((message) => {
         const li = document.createElement("li");
         li.classList.add("message-item");
-        if (message.senderId === memberId) {
-          li.classList.add("mine");
-        }
-        li.innerHTML = `
-                  <div class="message-content">
-                    <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
-                    <div>
-                      <p class="sender-name">${message.senderName}</p>
-                      <p class="message-text">${message.message}</p>
-                      <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+        if (message.senderId === 0) {
+          // 해당 메시지가 시스템 메시지인 경우
+
+          li.classList.add("system-message");
+          if (message.boardId) {
+            li.setAttribute("data-board-id", message.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
+            li.addEventListener("click", function () {
+              // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
+              alert(`게시판 글 조회 페이지로 이동, board id: ${message.boardId}`);
+            });
+          }
+
+          li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${message.message}</p>
                     </div>
-                  </div>
-                `;
+                  `;
+        } else {
+          // 시스템 메시지가 아닌 경우
+          if (message.senderId === memberId) {
+            li.classList.add("mine");
+          }
+          li.innerHTML = `
+                    <div class="message-content">
+                      <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
+                      <div>
+                        <p class="sender-name">${message.senderName}</p>
+                        <p class="message-text">${message.message}</p>
+                        <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  `;
+        }
         messagesElement.prepend(li);
       });
 
@@ -346,6 +366,8 @@ form.addEventListener("submit", (e) => {
   if (input.value) {
     const msg = input.value;
     // (#10-1) "chat-message" event emit
+    console.log("CHAT-MESSAGE EVENT EMIT ====== currentSystemFlag: ", currentSystemFlag);
+
     if (currentSystemFlag) {
       // 보내야 할 systemFlag가 있는 경우
       socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg, system: currentSystemFlag });
