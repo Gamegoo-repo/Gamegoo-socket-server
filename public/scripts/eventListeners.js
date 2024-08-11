@@ -504,6 +504,7 @@ document.getElementById("mathingMemberIdForm").addEventListener("submit", (event
   document.getElementById("matchingMemberIdPopup").style.display = "none";
 
   const matchingMemberId = document.getElementById("mathingMemberIdInput").value;
+  socket.emit("test-matching-request", { matchingMemberId: matchingMemberId });
 });
 
 // 채팅방 퇴장 시

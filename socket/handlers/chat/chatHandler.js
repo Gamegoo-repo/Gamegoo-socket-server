@@ -1,13 +1,15 @@
 const JWTTokenError = require("../../../common/JWTTokenError");
 
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
-const { postChatMessage } = require("../../apis/chatApi");
-const { emitChatMessage, emitChatSystemMessage } = require("../../emitters/chatEmitter");
+const { postChatMessage, startTestChattingByMatching } = require("../../apis/chatApi");
+const { emitChatMessage, emitChatSystemMessage, emitTestMatchingChattingSuccess } = require("../../emitters/chatEmitter");
+const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
+
 /**
  * socket event에 대한 listener
  * @param {*} socket
  */
-function setupChatListeners(socket) {
+function setupChatListeners(socket, io) {
   // chat-message event 발생 시, 8080서버에 채팅 등록 api 요청 및 해당 room에 event emit
   socket.on("chat-message", (request) => {
     const chatroomUuid = request.uuid;
@@ -67,6 +69,20 @@ function setupChatListeners(socket) {
     const rooms = Array.from(socket.rooms);
     console.log("현재 소켓이 join되어 있는 room 목록:", rooms);
     console.log("======================= chatroom uuid List END =======================");
+  });
+
+  socket.on("test-matching-request", (request) => {
+    const targetMemberId = request.matchingMemberId;
+    startTestChattingByMatching(socket, targetMemberId).then(async (chatroomUuid) => {
+      // 내 socket room join
+      socket.join("CHAT_" + chatroomUuid);
+
+      // 상대 socket room join
+      const targetSocket = await getSocketIdByMemberId(io, targetMemberId);
+      targetSocket.join("CHAT_" + chatroomUuid);
+
+      emitTestMatchingChattingSuccess(io, chatroomUuid);
+    });
   });
 }
 

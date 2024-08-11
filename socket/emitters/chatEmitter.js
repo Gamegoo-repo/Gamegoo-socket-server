@@ -36,8 +36,19 @@ function emitJoinedNewChatroom(socket) {
   socket.emit("joined-new-chatroom", formatResponse("joined-new-chatroom", data));
 }
 
+/**
+ * 매칭을 통한 채팅방 시작 테스트 성공되었음을 chatroom에 있는 모든 socket 에게 전달
+ * @param {*} io
+ * @param {*} chatroomUuid
+ */
+function emitTestMatchingChattingSuccess(io, chatroomUuid) {
+  const data = { chatroomUuid: chatroomUuid };
+  io.to("CHAT_" + chatroomUuid).emit("test-matching-chatting-success", formatResponse("test-matching-chatting-success", data));
+}
+
 module.exports = {
   emitChatMessage,
   emitJoinedNewChatroom,
   emitChatSystemMessage,
+  emitTestMatchingChattingSuccess,
 };
