@@ -156,22 +156,40 @@ async function getMessageApi(chatroomUuid, cursor) {
   }
 }
 
-async function startChatApi(memberId) {
+async function startChatByMemberIdApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/chat/start`, {
-      method: "POST",
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/start/member/${memberId}`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ targetMemberId: memberId }),
     });
     const data = await response.json();
     if (data.isSuccess && data.result) {
       return data.result;
     } else {
-      throw new Error("startChatApi failed");
+      throw new Error("startChatByMemberIdApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function startChatByBoardIdApi(boardId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/start/board/${boardId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("startChatByBoardIdApi failed");
     }
   } catch (error) {
     console.error("Error:", error);

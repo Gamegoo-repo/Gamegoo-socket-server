@@ -375,8 +375,30 @@ p[data-new-count] {
   margin-right: 10px;
 }
 
+/* 시스템 메시지 */
+.system-message {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #5d5d5d;
+  color: white;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.system-message .message-content {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* 수평 가운데 정렬 */
+  align-items: center; /* 수직 가운데 정렬 */
+  height: 100%; /* 부모 요소의 높이를 채우도록 설정 */
+}
+
+.system-message .message-content .message-text {
+  font-size: small;
+}
+
 /* 차단 팝업 */
-.popup {
+#blockPopup {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -388,12 +410,124 @@ p[data-new-count] {
   border-radius: 10px;
 }
 
-.popup-content {
+#blockPopup .popup-content {
   text-align: center;
 }
 
-.popup button {
+#blockPopup button {
   margin: 10px;
   padding: 10px 20px;
   cursor: pointer;
+}
+
+/* 게시판 말걸어보기 테스트 팝업 스타일 */
+#boardIdPopup {
+  display: none;
+  position: fixed;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /*transform: translate(-50%, -50%); */
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+#boardIdPopup .popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#boardIdPopup .popup-content form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#boardIdPopup .popup-content label {
+  color: black;
+}
+
+#boardIdPopup .popup-content input {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#boardIdPopup .popup-content button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+#boardIdPopup .popup-content button[type="submit"] {
+  background-color: #6200ea;
+  color: white;
+}
+
+#boardIdPopup .popup-content button[type="button"] {
+  background-color: #ccc;
+  color: black;
+}
+
+/* 매칭 채팅방 테스트 팝업 스타일 */
+#matchingMemberIdPopup {
+  display: none;
+  position: fixed;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /*transform: translate(-50%, -50%); */
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+#matchingMemberIdPopup .popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#matchingMemberIdPopup .popup-content form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#matchingMemberIdPopup .popup-content label {
+  color: black;
+}
+
+#matchingMemberIdPopup .popup-content input {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#matchingMemberIdPopup .popup-content button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+#matchingMemberIdPopup .popup-content button[type="submit"] {
+  background-color: #6200ea;
+  color: white;
+}
+
+#matchingMemberIdPopup .popup-content button[type="button"] {
+  background-color: #ccc;
+  color: black;
 }

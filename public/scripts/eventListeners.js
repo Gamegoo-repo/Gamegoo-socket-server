@@ -89,7 +89,7 @@ fetchFriendsButton.addEventListener("click", () => {
         // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
         userInfoDiv.addEventListener("click", () => {
           // (#13-1) 채팅방 시작 API 요청
-          startChatApi(friend.memberId).then((result) => {
+          startChatByMemberIdApi(friend.memberId).then((result) => {
             // (#13-2) 채팅방 시작 API 정상 응답 받음
             // (#13-3) messagesFromThisChatroom array 초기화
             messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
@@ -103,6 +103,9 @@ fetchFriendsButton.addEventListener("click", () => {
             // (#13-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
             currentViewingChatroomUuid = result.uuid;
             currentChattingMemberId = result.memberId;
+
+            // systemFlag 초기화, 특정 회원과의 채팅방 시작 시 systemFlag는 항상 null임
+            currentSystemFlag = null;
 
             renderChatroomDiv(result);
           });
@@ -243,6 +246,11 @@ function enterChatroom(chatroomUuid) {
       // (#9-4) hasNextChat 업데이트
       hasNextChat = result.chatMessageList.has_next;
 
+      // systemFlag update, 기존에 보던 채팅방과 다른 방에 입장한 경우에만
+      if (currentViewingChatroomUuid != chatroomUuid) {
+        currentSystemFlag = null; // uuid를 통한 채팅방 입장 시 systemFlag 값 없음
+      }
+
       // (#9-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
       currentViewingChatroomUuid = chatroomUuid;
       currentChattingMemberId = result.memberId;
@@ -310,19 +318,39 @@ function fetchOlderMessages() {
       olderMessages.reverse().forEach((message) => {
         const li = document.createElement("li");
         li.classList.add("message-item");
-        if (message.senderId === memberId) {
-          li.classList.add("mine");
-        }
-        li.innerHTML = `
-                  <div class="message-content">
-                    <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
-                    <div>
-                      <p class="sender-name">${message.senderName}</p>
-                      <p class="message-text">${message.message}</p>
-                      <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+        if (message.senderId === 0) {
+          // 해당 메시지가 시스템 메시지인 경우
+
+          li.classList.add("system-message");
+          if (message.boardId) {
+            li.setAttribute("data-board-id", message.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
+            li.addEventListener("click", function () {
+              // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
+              alert(`게시판 글 조회 페이지로 이동, board id: ${message.boardId}`);
+            });
+          }
+
+          li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${message.message}</p>
                     </div>
-                  </div>
-                `;
+                  `;
+        } else {
+          // 시스템 메시지가 아닌 경우
+          if (message.senderId === memberId) {
+            li.classList.add("mine");
+          }
+          li.innerHTML = `
+                    <div class="message-content">
+                      <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
+                      <div>
+                        <p class="sender-name">${message.senderName}</p>
+                        <p class="message-text">${message.message}</p>
+                        <p class="message-time">${new Date(message.createdAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  `;
+        }
         messagesElement.prepend(li);
       });
 
@@ -338,7 +366,17 @@ form.addEventListener("submit", (e) => {
   if (input.value) {
     const msg = input.value;
     // (#10-1) "chat-message" event emit
-    socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    console.log("CHAT-MESSAGE EVENT EMIT ====== currentSystemFlag: ", currentSystemFlag);
+
+    if (currentSystemFlag) {
+      // 보내야 할 systemFlag가 있는 경우
+      socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg, system: currentSystemFlag });
+
+      // systemFlag 초기화
+      currentSystemFlag = null;
+    } else {
+      socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    }
     input.value = "";
   }
 });
@@ -382,6 +420,92 @@ function addNotification(type, message, time, isRead) {
   `;
   notificationContainer.appendChild(div);
 }
+
+// 게시판 말걸어보기 테스트 버튼 클릭 시
+document.getElementById("boardTestButton").addEventListener("click", () => {
+  document.getElementById("boardIdPopup").style.display = "block";
+});
+
+// 게시판 말걸어보기 팝업 닫기 버튼 클릭 시
+document.getElementById("closeBoardIdPopupButton").addEventListener("click", () => {
+  document.getElementById("boardIdPopup").style.display = "none";
+});
+
+// 게시판 말걸어보기 팝업 제출 버튼 클릭 시
+// 게시글을 통한 채팅방 시작
+document.getElementById("boardIdForm").addEventListener("submit", (event) => {
+  event.preventDefault(); // 기본 제출 동작 방지
+  document.getElementById("boardIdPopup").style.display = "none";
+
+  const boardId = document.getElementById("boardIdInput").value;
+  // 특정 글을 통한 채팅방 시작 API 요청
+  startChatByBoardIdApi(boardId).then((result) => {
+    // 채팅방 시작 API 정상 응답 받음
+    // messagesFromThisChatroom array 초기화
+    messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
+
+    // messagesFromThisChatroom 맨 뒤에 시스템 메시지 임의로 추가 (프론트 화면에서 보여지기 위함)
+    if (result.system.flag === 1) {
+      const systemMessage = {
+        senderId: 0,
+        senderName: "SYSTEM",
+        senderProfileImg: 0,
+        message: "상대방이 게시한 글을 보고 말을 걸었어요. 대화를 시작해보세요~",
+        createdAt: null,
+        timestamp: null,
+        boardId: result.system.boardId,
+      };
+      messagesFromThisChatroom.push(systemMessage);
+    } else {
+      const systemMessage = {
+        senderId: 0,
+        senderName: "SYSTEM",
+        senderProfileImg: 0,
+        message: "상대방이 게시한 글을 보고 말을 걸었어요.",
+        createdAt: null,
+        timestamp: null,
+        boardId: result.system.boardId,
+      };
+      messagesFromThisChatroom.push(systemMessage);
+    }
+
+    console.log("============== fetch chat messages result ===============");
+    console.log(result.chatMessageList.chatMessageDtoList);
+
+    // hasNextChat 업데이트
+    hasNextChat = result.chatMessageList.has_next;
+
+    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
+    currentViewingChatroomUuid = result.uuid;
+    currentChattingMemberId = result.memberId;
+
+    // systemFlag 초기화
+    currentSystemFlag = result.system;
+    console.log("currentSystemFlag: ", currentSystemFlag);
+
+    renderChatroomDiv(result);
+  });
+});
+
+// 매칭 채팅방 입장 테스트 버튼 클릭 시
+document.getElementById("matchingTestButton").addEventListener("click", () => {
+  document.getElementById("matchingMemberIdPopup").style.display = "block";
+});
+
+// 매칭 채팅방 입장 팝업 닫기 버튼 클릭 시
+document.getElementById("closeMatchingMemberIdPopupButton").addEventListener("click", () => {
+  document.getElementById("matchingMemberIdPopup").style.display = "none";
+});
+
+// 매칭 채팅방 입장 팝업 제출 버튼 클릭 시
+// 매칭을 통한 채팅방 시작
+document.getElementById("mathingMemberIdForm").addEventListener("submit", (event) => {
+  event.preventDefault(); // 기본 제출 동작 방지
+  document.getElementById("matchingMemberIdPopup").style.display = "none";
+
+  const matchingMemberId = document.getElementById("mathingMemberIdInput").value;
+  socket.emit("test-matching-request", { matchingMemberId: matchingMemberId });
+});
 
 // 채팅방 퇴장 시
 function exitChatroom(chatroomUuid) {
@@ -565,6 +689,9 @@ function resetChatroomDiv(chatroomUuid) {
   // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
   currentViewingChatroomUuid = null;
   currentChattingMemberId = null;
+
+  // systemFlag 초기화
+  currentSystemFlag = null;
 }
 
 // 채팅방 입장/시작 API 응답으로 채팅방 영역 화면 렌더링 메소드
@@ -579,10 +706,30 @@ function renderChatroomDiv(result) {
   result.chatMessageList.chatMessageDtoList.forEach((message) => {
     const li = document.createElement("li");
     li.classList.add("message-item");
-    if (message.senderId === memberId) {
-      li.classList.add("mine");
-    }
-    li.innerHTML = `
+
+    if (message.senderId === 0) {
+      // 해당 메시지가 시스템 메시지인 경우
+
+      li.classList.add("system-message");
+      if (message.boardId) {
+        li.setAttribute("data-board-id", message.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
+        li.addEventListener("click", function () {
+          // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
+          alert(`게시판 글 조회 페이지로 이동, board id: ${message.boardId}`);
+        });
+      }
+
+      li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${message.message}</p>
+                    </div>
+                  `;
+    } else {
+      // 시스템 메시지가 아닌 경우
+      if (message.senderId === memberId) {
+        li.classList.add("mine");
+      }
+      li.innerHTML = `
                     <div class="message-content">
                       <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
                       <div>
@@ -592,6 +739,7 @@ function renderChatroomDiv(result) {
                       </div>
                     </div>
                   `;
+    }
     messagesElement.appendChild(li);
   });
 
