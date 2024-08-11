@@ -18,8 +18,15 @@ function setupChatListeners(socket) {
       emitError(socket, "Fail listening chat-message event: chatroomUuid is missing");
     }
 
+    let requestData = { message: msg };
+
+    // 시스템 값 담아 보내야 하는 경우
+    if (request.system) {
+      requestData.system = request.system;
+    }
+
     // (#10-2) 8080서버에 채팅 저장 api 요청
-    postChatMessage(socket, chatroomUuid, msg)
+    postChatMessage(socket, chatroomUuid, requestData)
       .then((response) => {
         // (#10-8) 채팅 저장 정상 응답 받음
         // (#10-9),(#10-10) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit

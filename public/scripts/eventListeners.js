@@ -89,7 +89,7 @@ fetchFriendsButton.addEventListener("click", () => {
         // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
         userInfoDiv.addEventListener("click", () => {
           // (#13-1) 채팅방 시작 API 요청
-          startChatApi(friend.memberId).then((result) => {
+          startChatByMemberIdApi(friend.memberId).then((result) => {
             // (#13-2) 채팅방 시작 API 정상 응답 받음
             // (#13-3) messagesFromThisChatroom array 초기화
             messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
@@ -103,6 +103,9 @@ fetchFriendsButton.addEventListener("click", () => {
             // (#13-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
             currentViewingChatroomUuid = result.uuid;
             currentChattingMemberId = result.memberId;
+
+            // systemFlag 초기화, 특정 회원과의 채팅방 시작 시 systemFlag는 항상 null임
+            currentSystemFlag = null;
 
             renderChatroomDiv(result);
           });
@@ -243,6 +246,11 @@ function enterChatroom(chatroomUuid) {
       // (#9-4) hasNextChat 업데이트
       hasNextChat = result.chatMessageList.has_next;
 
+      // systemFlag update, 기존에 보던 채팅방과 다른 방에 입장한 경우에만
+      if (currentViewingChatroomUuid != chatroomUuid) {
+        currentSystemFlag = null; // uuid를 통한 채팅방 입장 시 systemFlag 값 없음
+      }
+
       // (#9-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
       currentViewingChatroomUuid = chatroomUuid;
       currentChattingMemberId = result.memberId;
@@ -338,7 +346,15 @@ form.addEventListener("submit", (e) => {
   if (input.value) {
     const msg = input.value;
     // (#10-1) "chat-message" event emit
-    socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    if (currentSystemFlag) {
+      // 보내야 할 systemFlag가 있는 경우
+      socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg, system: currentSystemFlag });
+
+      // systemFlag 초기화
+      currentSystemFlag = null;
+    } else {
+      socket.emit("chat-message", { uuid: currentViewingChatroomUuid, message: msg });
+    }
     input.value = "";
   }
 });
@@ -565,6 +581,9 @@ function resetChatroomDiv(chatroomUuid) {
   // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 초기화
   currentViewingChatroomUuid = null;
   currentChattingMemberId = null;
+
+  // systemFlag 초기화
+  currentSystemFlag = null;
 }
 
 // 채팅방 입장/시작 API 응답으로 채팅방 영역 화면 렌더링 메소드

@@ -156,7 +156,7 @@ async function getMessageApi(chatroomUuid, cursor) {
   }
 }
 
-async function startChatApi(memberId) {
+async function startChatByMemberIdApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/start/member/${memberId}`, {
@@ -169,7 +169,7 @@ async function startChatApi(memberId) {
     if (data.isSuccess && data.result) {
       return data.result;
     } else {
-      throw new Error("startChatApi failed");
+      throw new Error("startChatByMemberIdApi failed");
     }
   } catch (error) {
     console.error("Error:", error);

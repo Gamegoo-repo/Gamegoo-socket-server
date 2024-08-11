@@ -35,17 +35,20 @@ async function fetchChatroomUuid(socket) {
   }
 }
 
-async function postChatMessage(socket, chatroomUuid, message) {
+/**
+ * 해당 채팅방에 메시지를 등록을 요청하는 메소드
+ * @param {*} socket
+ * @param {*} chatroomUuid
+ * @param {*} requestData
+ * @returns
+ */
+async function postChatMessage(socket, chatroomUuid, requestData) {
   try {
-    const response = await axios.post(
-      `${API_SERVER_URL}/v1/chat/${chatroomUuid}`,
-      { message: message },
-      {
-        headers: {
-          Authorization: `Bearer ${socket.token}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_SERVER_URL}/v1/chat/${chatroomUuid}`, requestData, {
+      headers: {
+        Authorization: `Bearer ${socket.token}`,
+      },
+    });
     if (response.data.isSuccess) {
       return response.data.result;
     }
