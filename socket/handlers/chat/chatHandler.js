@@ -2,7 +2,7 @@ const JWTTokenError = require("../../../common/JWTTokenError");
 
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
 const { postChatMessage } = require("../../apis/chatApi");
-const { emitChatMessage } = require("../../emitters/chatEmitter");
+const { emitChatMessage, emitChatSystemMessage } = require("../../emitters/chatEmitter");
 /**
  * socket event에 대한 listener
  * @param {*} socket
@@ -20,9 +20,23 @@ function setupChatListeners(socket) {
 
     let requestData = { message: msg };
 
-    // 시스템 값 담아 보내야 하는 경우
+    // 시스템 값이 있는 경우
     if (request.system) {
       requestData.system = request.system;
+
+      // 상대방 socket에게 시스템 메시지 먼저 emit
+      // chat-system-message emit
+      const targetSystemMessage = {
+        chatroomUuid: chatroomUuid,
+        senderId: 0,
+        senderName: "SYSTEM",
+        senderProfileImg: 0,
+        message: "내가 게시한 글을 보고 말을 걸어왔어요.",
+        createdAt: null,
+        timestamp: null,
+        boardId: request.system.boardId,
+      };
+      emitChatSystemMessage(socket, chatroomUuid, targetSystemMessage);
     }
 
     // (#10-2) 8080서버에 채팅 저장 api 요청

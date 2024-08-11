@@ -263,6 +263,40 @@ function setupSocketListeners() {
       }
     });
   });
+
+  socket.on("chat-system-message", (response) => {
+    const { chatroomUuid, ...newMessage } = response.data;
+    console.log("===================== chat-system-message EVENT LISTEN  ===================== ");
+    console.log("chatroomUuid: ", chatroomUuid, ", currentViewingChatroomUuid: ", currentViewingChatroomUuid);
+
+    // 현재 보고 있는 채팅방에서 온 시스템 메시지인 경우
+    if (chatroomUuid === currentViewingChatroomUuid) {
+      messagesFromThisChatroom.push(newMessage);
+
+      console.log("============== messagesFromThisChatroom Updated ==============");
+      console.log(messagesFromThisChatroom);
+
+      // 시스템 메시지 요소 동적 생성
+      const messagesElement = document.getElementById("messages");
+      const li = document.createElement("li");
+      li.classList.add("message-item");
+      li.classList.add("system-message");
+      if (newMessage.boardId) {
+        li.setAttribute("data-board-id", newMessage.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
+        li.addEventListener("click", function () {
+          // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
+          alert(`게시판 글 조회 페이지로 이동, board id: ${newMessage.boardId}`);
+        });
+      }
+
+      li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${newMessage.message}</p>
+                    </div>
+                  `;
+      messagesElement.appendChild(li);
+    }
+  });
 }
 
 // 화면 새로 로드 시 socket 다시 연결

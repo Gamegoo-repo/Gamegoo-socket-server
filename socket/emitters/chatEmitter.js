@@ -17,6 +17,17 @@ function emitChatMessage(socket, chatroomUuid, data) {
 }
 
 /**
+ * system message를 chatroomUuid room에 있는 상대 socket에게 전달
+ * @param {*} socket
+ * @param {*} chatroomUuid
+ * @param {*} targetSystemMessage
+ */
+function emitChatSystemMessage(socket, chatroomUuid, targetSystemMessage) {
+  // uuid에 해당하는 room에 있는 socket 중 나를 제외한 socket에 broadcast
+  socket.broadcast.to("CHAT_" + chatroomUuid).emit("chat-system-message", formatResponse("chat-system-message", targetSystemMessage));
+}
+
+/**
  * 해당 socket이 새로운 chatroom에 join되었음을 전달
  * @param {*} socket
  */
@@ -28,4 +39,5 @@ function emitJoinedNewChatroom(socket) {
 module.exports = {
   emitChatMessage,
   emitJoinedNewChatroom,
+  emitChatSystemMessage,
 };
