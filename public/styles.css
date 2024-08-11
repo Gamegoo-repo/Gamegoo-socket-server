@@ -397,3 +397,25 @@ p[data-new-count] {
   padding: 10px 20px;
   cursor: pointer;
 }
+
+/* 시스템 메시지 */
+.system-message {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #5d5d5d;
+  color: white;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.system-message .message-content {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* 수평 가운데 정렬 */
+  align-items: center; /* 수직 가운데 정렬 */
+  height: 100%; /* 부모 요소의 높이를 채우도록 설정 */
+}
+
+.system-message .message-content .message-text {
+  font-size: small;
+}
