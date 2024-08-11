@@ -427,7 +427,7 @@ document.getElementById("boardTestButton").addEventListener("click", () => {
 });
 
 // 게시판 말걸어보기 팝업 닫기 버튼 클릭 시
-document.getElementById("closePopupButton").addEventListener("click", () => {
+document.getElementById("closeBoardIdPopupButton").addEventListener("click", () => {
   document.getElementById("boardIdPopup").style.display = "none";
 });
 
@@ -485,6 +485,25 @@ document.getElementById("boardIdForm").addEventListener("submit", (event) => {
 
     renderChatroomDiv(result);
   });
+});
+
+// 매칭 채팅방 입장 테스트 버튼 클릭 시
+document.getElementById("matchingTestButton").addEventListener("click", () => {
+  document.getElementById("matchingMemberIdPopup").style.display = "block";
+});
+
+// 매칭 채팅방 입장 팝업 닫기 버튼 클릭 시
+document.getElementById("closeMatchingMemberIdPopupButton").addEventListener("click", () => {
+  document.getElementById("matchingMemberIdPopup").style.display = "none";
+});
+
+// 매칭 채팅방 입장 팝업 제출 버튼 클릭 시
+// 매칭을 통한 채팅방 시작
+document.getElementById("mathingMemberIdForm").addEventListener("submit", (event) => {
+  event.preventDefault(); // 기본 제출 동작 방지
+  document.getElementById("matchingMemberIdPopup").style.display = "none";
+
+  const matchingMemberId = document.getElementById("mathingMemberIdInput").value;
 });
 
 // 채팅방 퇴장 시

@@ -475,3 +475,59 @@ p[data-new-count] {
   background-color: #ccc;
   color: black;
 }
+
+/* 매칭 채팅방 테스트 팝업 스타일 */
+#matchingMemberIdPopup {
+  display: none;
+  position: fixed;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /*transform: translate(-50%, -50%); */
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+#matchingMemberIdPopup .popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#matchingMemberIdPopup .popup-content form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#matchingMemberIdPopup .popup-content label {
+  color: black;
+}
+
+#matchingMemberIdPopup .popup-content input {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#matchingMemberIdPopup .popup-content button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+#matchingMemberIdPopup .popup-content button[type="submit"] {
+  background-color: #6200ea;
+  color: white;
+}
+
+#matchingMemberIdPopup .popup-content button[type="button"] {
+  background-color: #ccc;
+  color: black;
+}
