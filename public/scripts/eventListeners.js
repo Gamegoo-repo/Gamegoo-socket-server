@@ -399,6 +399,24 @@ function addNotification(type, message, time, isRead) {
   notificationContainer.appendChild(div);
 }
 
+// 게시판 말걸어보기 테스트 버튼 클릭 시
+document.getElementById("boardTestButton").addEventListener("click", () => {
+  document.getElementById("boardIdPopup").style.display = "block";
+});
+
+// 게시판 말걸어보기 팝업 닫기 버튼 클릭 시
+document.getElementById("closePopupButton").addEventListener("click", () => {
+  document.getElementById("boardIdPopup").style.display = "none";
+});
+
+// 게시판 말걸어보기 팝업 제출 버튼 클릭 시
+document.getElementById("boardIdForm").addEventListener("submit", (event) => {
+  event.preventDefault(); // 기본 제출 동작 방지
+  const boardId = document.getElementById("boardIdInput").value;
+  alert(`Board ID: ${boardId} 제출 완료`);
+  document.getElementById("boardIdPopup").style.display = "none";
+});
+
 // 채팅방 퇴장 시
 function exitChatroom(chatroomUuid) {
   console.log(`Exit chatroom with UUID: ${chatroomUuid}`);

@@ -61,6 +61,18 @@ app.get("/", (req, res) => {
               <input id="userPw" type="string" placeholder="Enter your Pw" />
               <button id="loginButton">Login</button>
               <button id="logoutButton">Logout</button>
+              <button id="boardTestButton">게시글 말 걸어보기</button>
+              <!-- 게시판 ID 입력 폼을 위한 팝업 추가 -->
+              <div id="boardIdPopup" class="popup">
+                <div class="popup-content">
+                <form id="boardIdForm">
+                    <label for="boardIdInput">말 걸어보기 게시글 ID 입력</label>
+                    <input type="text" id="boardIdInput" name="boardId" placeholder="Enter board ID" />
+                    <button type="submit">제출</button>
+                    <button type="button" id="closePopupButton">취소</button>
+                  </form>
+                </div>
+              </div>
             </div>
             <div>
               <p id="loginStatus">You are not Login User</p>
@@ -78,7 +90,7 @@ app.get("/", (req, res) => {
             <div id="notificationItems">
               <div id="receivedNotifications" class="notification-type"></div>
               <div id="friendRequestNotifications" class="notification-type" style="display: none;"></div>
-            </div>
+            </div>  
           </div>
         </div>
           <div class="content">
