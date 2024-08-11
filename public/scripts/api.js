@@ -159,13 +159,11 @@ async function getMessageApi(chatroomUuid, cursor) {
 async function startChatApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/chat/start`, {
-      method: "POST",
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/start/member/${memberId}`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ targetMemberId: memberId }),
     });
     const data = await response.json();
     if (data.isSuccess && data.result) {
