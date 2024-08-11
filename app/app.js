@@ -66,7 +66,7 @@ app.get("/", (req, res) => {
               <div id="boardIdPopup" class="popup">
                 <div class="popup-content">
                 <form id="boardIdForm">
-                    <label for="boardIdInput">말 걸어보기 게시글 ID 입력</label>
+                    <label for="boardIdInput">채팅 시작할 게시글 ID 입력</label>
                     <input type="text" id="boardIdInput" name="boardId" placeholder="Enter board ID" />
                     <button type="submit">제출</button>
                     <button type="button" id="closePopupButton">취소</button>

@@ -410,11 +410,59 @@ document.getElementById("closePopupButton").addEventListener("click", () => {
 });
 
 // 게시판 말걸어보기 팝업 제출 버튼 클릭 시
+// 게시글을 통한 채팅방 시작
 document.getElementById("boardIdForm").addEventListener("submit", (event) => {
   event.preventDefault(); // 기본 제출 동작 방지
-  const boardId = document.getElementById("boardIdInput").value;
-  alert(`Board ID: ${boardId} 제출 완료`);
   document.getElementById("boardIdPopup").style.display = "none";
+
+  const boardId = document.getElementById("boardIdInput").value;
+  // 특정 글을 통한 채팅방 시작 API 요청
+  startChatByBoardIdApi(boardId).then((result) => {
+    // 채팅방 시작 API 정상 응답 받음
+    // messagesFromThisChatroom array 초기화
+    messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
+
+    // messagesFromThisChatroom 맨 뒤에 시스템 메시지 임의로 추가 (프론트 화면에서 보여지기 위함)
+    if (result.system.flag === 1) {
+      const systemMessage = {
+        senderId: 0,
+        senderName: "SYSTEM",
+        senderProfileImg: 0,
+        message: "상대방이 게시한 글을 보고 말을 걸었어요. 대화를 시작해보세요~",
+        createdAt: null,
+        timestamp: null,
+        boardId: result.system.boardId,
+      };
+      messagesFromThisChatroom.push(systemMessage);
+    } else {
+      const systemMessage = {
+        senderId: 0,
+        senderName: "SYSTEM",
+        senderProfileImg: 0,
+        message: "상대방이 게시한 글을 보고 말을 걸었어요.",
+        createdAt: null,
+        timestamp: null,
+        boardId: result.system.boardId,
+      };
+      messagesFromThisChatroom.push(systemMessage);
+    }
+
+    console.log("============== fetch chat messages result ===============");
+    console.log(result.chatMessageList.chatMessageDtoList);
+
+    // hasNextChat 업데이트
+    hasNextChat = result.chatMessageList.has_next;
+
+    // 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
+    currentViewingChatroomUuid = result.uuid;
+    currentChattingMemberId = result.memberId;
+
+    // systemFlag 초기화
+    currentSystemFlag = result.system;
+    console.log("currentSystemFlag: ", currentSystemFlag);
+
+    renderChatroomDiv(result);
+  });
 });
 
 // 채팅방 퇴장 시
