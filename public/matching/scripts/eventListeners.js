@@ -28,30 +28,20 @@ matchBtn.addEventListener('click', () => {
         return;
     }
 
-    // (#5-1) tier, rank, manner 정보 riot API로부터 가져오기
-    getMemberInfoApi().then((result) => {
-        if (result) {
-            const tier = result.tier;
-            const rank = result.rank;
-            const manner = result.manner;
-
-            // (#5-2) 매칭 알림 소켓으로 보내기
-            socket.emit("matching_started", {
-                matchingType: matchingType,
-                gameMode: gameMode,
-                mike: mike,
-                tier: tier,
-                rank: rank,
-                manner: manner,
-                mainP: mainP,
-                subP: subP,
-                wantP: wantP
-            });
-
-            // (#5-3) 매칭 기록하기 (Java API)
-            recordMatchingApi(matchingType, gameMode, mike, mainP, subP, wantP, gameStyle1, gameStyle2, gameStyle3);
-
-        }
-      });
+    // (#5-1) 매칭 시작 emit
+    socket.emit("matching_started", {
+        matchingType: matchingType,
+        gameMode: gameMode,
+        mike: mike,
+        tier: tier,
+        rank: rank,
+        manner: manner,
+        mainP: mainP,
+        subP: subP,
+        wantP: wantP,
+        gameStyle1: gameStyle1,
+        gameStyle2: gameStyle2,
+        gameStyle3: gameStyle3
+    });
 
 });
