@@ -63,7 +63,7 @@ async function loginNodeApi() {
 async function getFriendListApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/member/friends`, {
+    const response = await fetch(`${API_SERVER_URL}/v1/friends`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -121,6 +121,7 @@ async function readChatApi(chatroomUuid, timestamp) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/read?timestamp=${timestamp}`, {
+      method: "PATCH", // PATCH 메서드로 요청
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
@@ -149,6 +150,166 @@ async function getMessageApi(chatroomUuid, cursor) {
       return data.result;
     } else {
       throw new Error("readChatApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function startChatByMemberIdApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/start/member/${memberId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("startChatByMemberIdApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function startChatByBoardIdApi(boardId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/start/board/${boardId}`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("startChatByBoardIdApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function exitChatroomApi(chatroomUuid) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/chat/${chatroomUuid}/exit`, {
+      method: "PATCH", // PATCH 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("exitChatroomApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function starFriendApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/${memberId}/star`, {
+      method: "PATCH", // PATCH 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("starFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function unstarFriendApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/${memberId}/star`, {
+      method: "DELETE", // DELETE 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("unstarFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function deleteFriendApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/${memberId}`, {
+      method: "DELETE", // DELETE 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("unstarFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function sendFriendRequestApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/friends/request/${memberId}`, {
+      method: "POST", // POST 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("starFriendApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function blockMemberApi(memberId) {
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/member/block/${memberId}`, {
+      method: "POST", // POST 메서드로 요청
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+      },
+    });
+    const data = await response.json();
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("starFriendApi failed");
     }
   } catch (error) {
     console.error("Error:", error);
