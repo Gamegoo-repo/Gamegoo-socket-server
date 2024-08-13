@@ -2,7 +2,6 @@
 const { app, server } = require("./app/app");
 const initializeSocket = require("./socket/socket");
 const cors = require("cors");
-const path = require("path");
 
 const io = initializeSocket(server);
 
