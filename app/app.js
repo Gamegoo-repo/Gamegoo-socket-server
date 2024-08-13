@@ -22,6 +22,77 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "../public")));
 
+app.get("/match", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>겜구 매칭 테스트</title>
+  <link rel="stylesheet" href="styles.css" /> 
+</head>
+
+<body>
+  <div class="container">
+    <h2>Gamegoo Matching</h3>
+    <div class="top-bar">
+      <div>
+        <input id="userEmail" type="string" placeholder="Enter your Email" />
+        <input id="userPw" type="string" placeholder="Enter your Pw" />
+        <button id="loginButton">Login</button>
+        <button id="logoutButton">Logout</button>
+      </div>
+      <p id="loginStatus">You are not Login User</p>
+    </div>
+      <div class="input-group">
+        <select id="matching-type">
+          <option value="BASIC">BASIC</option>
+          <option value="PRECISE">PRECISE</option>
+        </select>
+        <input type="number" id="game-mode" min="1" max="4" placeholder="게임 모드 (1: 빠른 대전, 2: 솔로 랭크, 3: 자유 랭크, 4: 칼바람 나락)">
+
+        <label for="mike">Mike:</label>
+        <input type="checkbox" id="mike">
+      </div>
+  
+      <div class="input-group">
+        <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
+        <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
+        <input type="number" id="wantP" min="0" max="5" placeholder="원하는 상대 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
+      </div>
+  
+  
+      <div class="input-group">
+        <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (int 1~17)">
+        <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (int 1~17)">
+        <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (int 1~17)">
+      </div>
+  
+      <button id="match-btn">Match</button>
+    
+    
+  </div>
+  <script>
+    const API_SERVER_URL = '${API_SERVER_URL}';
+    const NODE_SERVER_URL = '${NODE_SERVER_URL}';
+  </script>
+  <script src="${SOCKETIO_URL}"></script>
+  <script src="scripts/socket.js"></script>
+  <script src="scripts/api.js"></script>
+  <script src="scripts/eventListeners.js"></script>
+  <script src="matching/scripts/socket.js"></script>
+  <script src="matching/scripts/api.js"></script>
+  <script src="matching/scripts/eventListeners.js"></script>
+
+</body>
+
+</html>
+    `
+  )
+})
+
 // 프로필 이미지 제공
 app.get("/:id", (req, res) => {
   const id = req.params.id;
