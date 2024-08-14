@@ -28,15 +28,16 @@ function socketRoomJoin(io) {
     // memberId를 가진 socket이 존재하면, 해당 socket을 chatroom join, joined-new-chatroom event emit
     if (socket) {
       try {
-        // (#10-4) socket room join
+        // (#10-6) socket room join
         socket.join("CHAT_" + chatroomUuid);
         console.log("memberId: ", memberId, ", JOINED TO ROOM:", "CHAT_" + chatroomUuid);
 
-        // (#10-5) "joined-new-chatroom" event emit
+        // (#10-7) "joined-new-chatroom" event emit
         emitJoinedNewChatroom(socket);
       } catch (error) {
         res.status(500).json(failResponse("SOCKET502", "socket room join 및 event emit 실패"));
       }
+      // (#10-8) return 200
       res.status(200).json(successResponse("socket room join 및 event emit 성공"));
     } else {
       res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));

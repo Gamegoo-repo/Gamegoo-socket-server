@@ -17,7 +17,7 @@ module.exports = (io) => {
 
   router.post("/logout", logout);
 
-  // (#10-3) 8080 -> 3000 으로 보낼 api. 특정 socket을 특정 chatroom에 join시키기
+  // (#10-5) 8080 -> 3000 으로 보낼 api. 특정 socket을 특정 chatroom에 join시키기
   router.post("/socket/room/join", socketRoomJoin);
 
   return router;
