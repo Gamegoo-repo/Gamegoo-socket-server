@@ -27,7 +27,6 @@ function setupChatListeners(socket, io) {
       requestData.system = request.system;
 
       // 상대방 socket에게 시스템 메시지 먼저 emit
-      // chat-system-message emit
       const targetSystemMessage = {
         chatroomUuid: chatroomUuid,
         senderId: 0,
@@ -38,14 +37,15 @@ function setupChatListeners(socket, io) {
         timestamp: null,
         boardId: request.system.boardId,
       };
+      // (#10-3) 상대 socket에게 chat-system-message emit
       emitChatSystemMessage(socket, chatroomUuid, targetSystemMessage);
     }
 
-    // (#10-2) 8080서버에 채팅 저장 api 요청
+    // (#10-4) 8080서버에 채팅 저장 api 요청
     postChatMessage(socket, chatroomUuid, requestData)
       .then((response) => {
-        // (#10-8) 채팅 저장 정상 응답 받음
-        // (#10-9),(#10-10) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
+        // (#10-10) 채팅 저장 정상 응답 받음
+        // (#10-11),(#10-12) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
         emitChatMessage(socket, chatroomUuid, response);
       })
       .catch((error) => {
