@@ -2,6 +2,7 @@ const JWTTokenError = require("../../../common/JWTTokenError");
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 const { fetchMatching } = require("../../apis/matchApi");
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
+const { PriorityTree } = require("../../common/PriorityTree");  // 올바르게 가져오기
 
 /**
  * Matching socket event 관련 리스너
@@ -21,65 +22,67 @@ async function setupMatchListeners(socket, io) {
       const myPriorityList = result.myPriorityList;
       const otherPriorityList = result.otherPriorityList;
 
-      // 가장 큰 우선순위 값, memberId 구하기
-      let highestPriorityValue = -999;
-      let highestPriorityMember = null;
-
       /* 
-        현재 들어온 사용자의 priorityTable 계산
-       */
-      socket.priorityTable = {}; // socket.priorityTable 초기화
-
+        현재 들어온 사용자의 priorityTree 계산
+      */
       myPriorityList.forEach((item) => {
-        socket.priorityTable[item.memberId] = item.priorityValue;
-
-        // 가장 큰 priority 값을 가진 memberId와 값을 저장
-        if (item.priorityValue > highestPriorityValue) {
-          highestPriorityValue = item.priorityValue;
-          highestPriorityMember = item.memberId;
-        }
+        socket.priorityTree.insert(item.memberId, item.priorityValue);
       });
 
-      // 가장 큰 priority 값을 socket 객체에 저장
-      socket.highestPriorityMember = highestPriorityMember;
-      socket.highestPriorityValue = highestPriorityValue;
+      // 가장 큰 priority 값을 socket 객체에 저장 (루트 노드가 항상 최대값을 가짐)
+      const maxNode = socket.priorityTree.getMax();
 
-      // socket.priorityTable을 출력
+      // maxNode가 null인지 확인
+      if (maxNode) {
+        socket.highestPriorityMember = maxNode.memberId;
+        socket.highestPriorityValue = maxNode.priorityValue;
+      } else {
+        socket.highestPriorityMember = null;
+        socket.highestPriorityValue = null;
+      }
+
+      // socket.priorityTree를 출력
       console.log('==================================================');
-      console.log(`My Socket (${socket.memberId}) Priority Table:`, JSON.stringify(socket.priorityTable, null, 2));
+      console.log(`My Socket (${socket.memberId}) Priority Tree (sorted):`, JSON.stringify(socket.priorityTree.getSortedList(), null, 2));
       console.log('Highest Priority Member:', socket.highestPriorityMember);
       console.log('Highest Priority Value:', socket.highestPriorityValue);
 
       /* 
-        원래 있던 사용자의 priorityTable 계산
-       */
+        원래 있던 사용자의 priorityTree 계산
+      */
       for (const item of otherPriorityList) {
         const otherSocket = await getSocketIdByMemberId(io, item.memberId); // getSocketIdByMemberId 함수 사용
 
         if (otherSocket) {
-          // otherSocket의 priorityTable이 초기화되지 않은 경우 초기화
-          if (!otherSocket.priorityTable) {
-            otherSocket.priorityTable = {};
+          // otherSocket의 priorityTree가 초기화되지 않은 경우 초기화
+          if (!otherSocket.priorityTree) {
+            otherSocket.priorityTree = new PriorityTree();
           }
 
-          // 현재 소켓의 ID와 우선순위 값을 otherSocket의 priorityTable에 추가
-          otherSocket.priorityTable[socket.memberId] = item.priorityValue;
+          // 현재 소켓의 ID와 우선순위 값을 otherSocket의 priorityTree에 추가
+          otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
 
-          // 다른 소켓에서도 가장 큰 priority 값을 업데이트
-          if (item.priorityValue > (otherSocket.highestPriorityValue || -999)) {
-            otherSocket.highestPriorityMember = socket.memberId;
-            otherSocket.highestPriorityValue = item.priorityValue;
+          // 가장 큰 priority 값을 otherSocket 객체에 저장
+          const otherMaxNode = otherSocket.priorityTree.getMax();
+          
+          // otherMaxNode가 null인지 확인
+          if (otherMaxNode) {
+            otherSocket.highestPriorityMember = otherMaxNode.memberId;
+            otherSocket.highestPriorityValue = otherMaxNode.priorityValue;
+          } else {
+            otherSocket.highestPriorityMember = null;
+            otherSocket.highestPriorityValue = null;
           }
 
-          // otherSocket의 priorityTable을 출력
+          // otherSocket의 priorityTree를 출력
           console.log('==================================================');
-          console.log(`Other Socket (${otherSocket.memberId}) Priority Table:`, JSON.stringify(otherSocket.priorityTable, null, 2));
+          console.log(`Other Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(otherSocket.priorityTree.getSortedList(), null, 2));
           console.log('Other Socket Highest Priority Member:', otherSocket.highestPriorityMember);
           console.log('Other Socket Highest Priority Value:', otherSocket.highestPriorityValue);
         }
       }
 
-      console.log('Other Priority Tables updated based on response.');
+      console.log('Other Priority Trees updated based on response.');
     } catch (error) {
       if (error instanceof JWTTokenError) {
         console.error("JWT Token Error:", error.message);
@@ -95,12 +98,10 @@ async function setupMatchListeners(socket, io) {
 
     // 룸에 있는 모든 사용자 출력
     const usersInRoom = getUsersInRoom(io, "GAMEMODE_" + gameMode);
-    console.log('==================================================');
     console.log(`Room ${gameMode} has the following users: ${usersInRoom.join(", ")}`);
 
     // 사용자 정보 로그
     console.log(`User ${socket.id} joined room: GAMEMODE_${gameMode}`);
-
   });
 
   // 2. 매칭 중 상대방을 찾았을 때 
