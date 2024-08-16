@@ -40,8 +40,8 @@ async function fetchMatching(socket, request) {
                 console.error("JWT token Error: ", data.message);
                 throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
             }
-            console.error("Failed GET chatroom uuid: ", data.message);
-            throw new Error(`Failed GET chatroom uuid: ${data.message}`);
+            console.error("Failed POST matching API ", data.message);
+            throw new Error(`Failed POST matching API: ${data.message}`);
         } else {
             throw new Error(`Request failed: ${error.message}`);
         }
