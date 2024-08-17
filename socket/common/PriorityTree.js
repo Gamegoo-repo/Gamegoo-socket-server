@@ -48,6 +48,13 @@ class PriorityTree {
     return node;
   }
 
+  getMaxbeforeNode(node,ExceptNode) {
+    if(node.right !== null && node !== ExceptNode){
+      node = this.getMax(node.right);
+    }
+    return node;
+  }
+
   inOrderTraverse(node, result = []) {
     if (node !== null) {
       this.inOrderTraverse(node.left, result);
