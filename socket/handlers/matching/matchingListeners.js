@@ -1,6 +1,5 @@
 const { fetchMatching } = require("../../apis/matchApi");
-const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom } = require("./matchingHandler/matchingStartedHandler");
-const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
+const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 
 /**
  * Matching socket event 관련 리스너
@@ -21,18 +20,13 @@ async function setupMatchListeners(socket, io) {
       await updateOtherPriorityTrees(io, socket, result.otherPriorityList);
 
       // priorityTree의 maxNode가 55를 넘는지 확인
-      if (socket.highestPriorityValue !== null) {
-        if (socket.highestPriorityValue >= 55) {
-          // 해당 maxNode의 짝이 55를 넘는지 확인
-          const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityMember);
-          if (otherSocket && otherSocket.highestPriorityValue >= 55) {
-            socket.emit("matching_found", {
-              myMemberId: socket.memberId,
-              otherMemberId: socket.highestPriorityMember
-            });
-          }
-        }
-      }
+      await findMatching(socket, io, 55);
+
+      // 2분 후에 findMatching을 다시 실행
+      setTimeout(async () => {
+        await findMatching(socket, io, 50);
+      }, 2 * 60 * 1000); // 2분 = 120,000ms
+
     } catch (error) {
       handleSocketError(socket, error);
     }
@@ -44,6 +38,8 @@ async function setupMatchListeners(socket, io) {
   socket.on("matching_success", handleMatchingSuccess);
   socket.on("matching_failed", handleMatchingFailed);
 }
+
+
 
 function handleMatchingFound(request) {
   console.log("matching_found",request);

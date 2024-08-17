@@ -28,8 +28,6 @@ function updatePriorityTree(socket, priorityList) {
     console.log(`Socket (${socket.memberId}) Priority Tree (sorted):`, JSON.stringify(socket.priorityTree.getSortedList(), null, 2));
     console.log('Highest Priority Member:', socket.highestPriorityMember);
     console.log('Highest Priority Value:', socket.highestPriorityValue);
-
-    return false; // 중복 없음
 }
 
 /**
@@ -47,7 +45,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
             if (!otherSocket.priorityTree) {
                 otherSocket.priorityTree = new PriorityTree();
             }
-            
+
             otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
 
             if (otherSocket.priorityTree.root) {
@@ -64,7 +62,22 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
     }
 
     console.log('Other Priority Trees updated based on response.');
-    return false; // 중복 없음
+}
+
+async function findMatching(socket, io, minute) {
+    if (socket.highestPriorityValue !== null) {
+        if (socket.highestPriorityValue >= minute) {
+            // 해당 maxNode의 짝이 55를 넘는지 확인
+            const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityMember);
+            if (otherSocket && otherSocket.highestPriorityValue >= minute) {
+                console.log("MATCHING FOUND");
+                socket.emit("matching_found", {
+                    myMemberId: socket.memberId,
+                    otherMemberId: socket.highestPriorityMember
+                });
+            }
+        }
+    }
 }
 
 /**
@@ -105,11 +118,12 @@ function joinGameModeRoom(socket, io, gameMode) {
 function getUsersInRoom(io, room) {
     const clients = io.sockets.adapter.rooms.get(room) || new Set();
     return Array.from(clients);
-}  
+}
 
-module.exports = { 
+module.exports = {
     updatePriorityTree,
     updateOtherPriorityTrees,
     handleSocketError,
-    joinGameModeRoom
+    joinGameModeRoom,
+    findMatching
 };
