@@ -16,7 +16,7 @@ async function setupMatchListeners(socket, io) {
     const usersInRoom = io.sockets.adapter.rooms.get(roomName) || new Set();
     console.log(usersInRoom);
     if (usersInRoom.has(socket.id)) {
-      console.log("DDD");
+      console.log("ERROR : 이미 매칭을 시도한 소켓입니다.");
       emitError(socket, "You are already in the matching room for this game mode.");
       return;
     }
@@ -36,7 +36,7 @@ async function setupMatchListeners(socket, io) {
       // 2분 후에 findMatching을 다시 실행
       setTimeout(async () => {
         await findMatching(socket, io, 50);
-      }, 30 * 1000); // 2분 = 120,000ms
+      }, 2 * 60 * 1000); // 2분 = 120,000ms
 
     } catch (error) {
       handleSocketError(socket, error);

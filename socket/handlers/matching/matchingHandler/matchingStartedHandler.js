@@ -14,20 +14,22 @@ function updatePriorityTree(socket, priorityList) {
         socket.priorityTree = new PriorityTree();
     }
 
+    // 내 소켓에 다른 사용자 우선순위 값 넣기
     for (const item of priorityList) {
-        socket.priorityTree.insert(item.memberId, item.priorityValue);
+        if(!socket.priorityTree.contains(item.memberId)){
+            socket.priorityTree.insert(item.memberId, item.priorityValue);
+        }
     }
 
+    // 내 소켓의 우선순위 최댓값 노드 변경
     if (socket.priorityTree.root) {
-        const maxNode = socket.priorityTree.getMax(socket.priorityTree.root);
-        socket.highestPriorityMember = maxNode.memberId;
-        socket.highestPriorityValue = maxNode.priorityValue;
+        socket.highestPriorityNode = socket.priorityTree.getMax(socket.priorityTree.root);
     }
 
     console.log('==================================================');
     console.log(`Socket (${socket.memberId}) Priority Tree (sorted):`, JSON.stringify(socket.priorityTree.getSortedList(), null, 2));
-    console.log('Highest Priority Member:', socket.highestPriorityMember);
-    console.log('Highest Priority Value:', socket.highestPriorityValue);
+    console.log('Highest Priority Member:', socket.highestPriorityNode.memberId);
+    console.log('Highest Priority Value:', socket.highestPriorityNode.priorityValue);
 }
 
 /**
@@ -45,36 +47,41 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
             if (!otherSocket.priorityTree) {
                 otherSocket.priorityTree = new PriorityTree();
             }
-
-            otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
-
+            
+            // 다른 사용자 소켓에 내 우선순위 값 넣기
+            if(!otherSocket.priorityTree.contains(socket.memberId)){
+                otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
+            }
+            // 다른 사용자의 우선순위 최댓값 노드 변경
             if (otherSocket.priorityTree.root) {
-                const otherMaxNode = otherSocket.priorityTree.getMax(otherSocket.priorityTree.root);
-                otherSocket.highestPriorityMember = otherMaxNode.memberId;
-                otherSocket.highestPriorityValue = otherMaxNode.priorityValue;
+                otherSocket.highestPriorityNode = otherSocket.priorityTree.getMax(otherSocket.priorityTree.root);
             }
 
             console.log('==================================================');
             console.log(`Other Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(otherSocket.priorityTree.getSortedList(), null, 2));
-            console.log('Other Socket Highest Priority Member:', otherSocket.highestPriorityMember);
-            console.log('Other Socket Highest Priority Value:', otherSocket.highestPriorityValue);
+            console.log('Other Socket Highest Priority Member:', otherSocket.highestPriorityNode.memberId);
+            console.log('Other Socket Highest Priority Value:', otherSocket.highestPriorityNode.priorityValue);
         }
     }
 
     console.log('Other Priority Trees updated based on response.');
 }
 
-async function findMatching(socket, io, minute) {
-    if (socket.highestPriorityValue !== null) {
-        if (socket.highestPriorityValue >= minute) {
-            // 해당 maxNode의 짝이 55를 넘는지 확인
-            const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityMember);
-            if (otherSocket && otherSocket.highestPriorityValue >= minute) {
+async function findMatching(socket, io, value) {
+    if (socket.highestPriorityNode !== null) {
+        // 우선순위 값 55를 넘는 모든 소켓 확인하기
+        while (socket.highestPriorityNode.priorityValue >= value) {
+            const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityNode.memberId);
+            if (otherSocket && otherSocket.highestPriorityNode.priorityValue >= value) {
                 console.log("MATCHING FOUND");
                 socket.emit("matching_found", {
                     myMemberId: socket.memberId,
-                    otherMemberId: socket.highestPriorityMember
+                    otherMemberId: socket.highestPriorityNode.memberId
                 });
+                return;
+            } else {
+                // 최댓값을 가지는 노드의 전 노드 확인
+                socket.highestPriorityNode = socket.priorityTree.getMaxBeforeNode(socket.priorityTree.root, socket.highestPriorityNode);
             }
         }
     }

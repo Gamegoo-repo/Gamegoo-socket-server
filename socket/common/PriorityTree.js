@@ -41,21 +41,21 @@ class PriorityTree {
   }
   // root
   getMax(node) {
-    if(node === null){
+    if (node === null) {
       return null;
     }
 
-    if(node.right !== null){
+    if (node.right !== null) {
       node = this.getMax(node.right);
     }
     return node;
   }
 
-  getMaxbeforeNode(node,ExceptNode) {
-    if(node === null){
+  getMaxBeforeNode(node, ExceptNode) {
+    if (node === null) {
       return null;
     }
-    if(node.right !== null && node !== ExceptNode){
+    if (node.right !== null && node !== ExceptNode) {
       node = this.getMax(node.right);
     }
     return node;
@@ -76,6 +76,33 @@ class PriorityTree {
   getSortedList() {
     return this.inOrderTraverse(this.root);
   }
+
+  // 특정 memberId가 트리에 존재하는지 확인
+  contains(memberId) {
+    return this.inOrderContains(this.root, memberId);
+  }
+
+  // 중위 순회로 특정 memberId가 있는지 확인하는 메서드
+  inOrderContains(node, memberId) {
+    if (node === null) {
+      return false; // 노드가 없으면 false 반환
+    }
+
+    // 왼쪽 자식 노드 탐색
+    if (this.inOrderContains(node.left, memberId)) {
+      return true;
+    }
+
+    // 현재 노드가 찾는 memberId인지 확인
+    if (node.memberId === memberId) {
+      return true;
+    }
+
+    // 오른쪽 자식 노드 탐색
+    return this.inOrderContains(node.right, memberId);
+  }
+
+
 }
 
 // PriorityTree.js
