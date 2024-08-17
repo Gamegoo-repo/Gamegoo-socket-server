@@ -13,7 +13,9 @@ class PriorityTree {
     this.root = null;
   }
 
+  // 새로운 노드를 트리에 삽입
   insert(memberId, priorityValue) {
+
     const newNode = new TreeNode(memberId, priorityValue);
     if (this.root === null) {
       this.root = newNode;
@@ -23,15 +25,13 @@ class PriorityTree {
   }
 
   insertNode(node, newNode) {
-    // 새로운 노드가 기존 노드보다 더 작으면 왼쪽으로
     if (newNode.priorityValue < node.priorityValue) {
       if (node.left === null) {
         node.left = newNode;
       } else {
         this.insertNode(node.left, newNode);
       }
-    } else { 
-    // 새로운 노드가 기존 노드보다 더 크면 오른쪽으로 
+    } else {
       if (node.right === null) {
         node.right = newNode;
       } else {
@@ -39,9 +39,12 @@ class PriorityTree {
       }
     }
   }
-
   // root
   getMax(node) {
+    if(node === null){
+      return null;
+    }
+
     if(node.right !== null){
       node = this.getMax(node.right);
     }
@@ -49,12 +52,17 @@ class PriorityTree {
   }
 
   getMaxbeforeNode(node,ExceptNode) {
+    if(node === null){
+      return null;
+    }
     if(node.right !== null && node !== ExceptNode){
       node = this.getMax(node.right);
     }
     return node;
   }
 
+
+  // 중위 순회로 정렬된 리스트를 반환
   inOrderTraverse(node, result = []) {
     if (node !== null) {
       this.inOrderTraverse(node.left, result);
@@ -64,6 +72,7 @@ class PriorityTree {
     return result;
   }
 
+  // 트리의 정렬된 리스트를 반환
   getSortedList() {
     return this.inOrderTraverse(this.root);
   }

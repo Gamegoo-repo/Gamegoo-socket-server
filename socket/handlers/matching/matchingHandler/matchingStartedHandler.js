@@ -7,15 +7,16 @@ const { PriorityTree } = require("../../../common/PriorityTree");
  * 내 우선순위 트리 갱신
  * @param {*} socket 
  * @param {*} priorityList 
+ * @returns {boolean} 중복 여부
  */
 function updatePriorityTree(socket, priorityList) {
     if (!socket.priorityTree) {
         socket.priorityTree = new PriorityTree();
     }
 
-    priorityList.forEach((item) => {
+    for (const item of priorityList) {
         socket.priorityTree.insert(item.memberId, item.priorityValue);
-    });
+    }
 
     if (socket.priorityTree.root) {
         const maxNode = socket.priorityTree.getMax(socket.priorityTree.root);
@@ -27,6 +28,8 @@ function updatePriorityTree(socket, priorityList) {
     console.log(`Socket (${socket.memberId}) Priority Tree (sorted):`, JSON.stringify(socket.priorityTree.getSortedList(), null, 2));
     console.log('Highest Priority Member:', socket.highestPriorityMember);
     console.log('Highest Priority Value:', socket.highestPriorityValue);
+
+    return false; // 중복 없음
 }
 
 /**
@@ -34,6 +37,7 @@ function updatePriorityTree(socket, priorityList) {
  * @param {*} io 
  * @param {*} socket 
  * @param {*} otherPriorityList 
+ * @returns {boolean} 중복 여부
  */
 async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
     for (const item of otherPriorityList) {
@@ -43,7 +47,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
             if (!otherSocket.priorityTree) {
                 otherSocket.priorityTree = new PriorityTree();
             }
-
+            
             otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
 
             if (otherSocket.priorityTree.root) {
@@ -60,6 +64,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
     }
 
     console.log('Other Priority Trees updated based on response.');
+    return false; // 중복 없음
 }
 
 /**
