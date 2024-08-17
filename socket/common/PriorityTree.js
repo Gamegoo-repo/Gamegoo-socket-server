@@ -32,11 +32,26 @@ class PriorityTree {
       } else {
         this.insertNode(node.left, newNode);
       }
-    } else {
+    } else if (newNode.priorityValue > node.priorityValue) {
       if (node.right === null) {
         node.right = newNode;
       } else {
         this.insertNode(node.right, newNode);
+      }
+    } else {
+      // priorityValue가 같은 경우 MemberId로 비교
+      if (newNode.memberId < node.memberId) {
+        if (node.left === null) {
+          node.left = newNode;
+        } else {
+          this.insertNode(node.left, newNode);
+        }
+      } else if (newNode.memberId > node.memberId) {
+        if (node.right === null) {
+          node.right = newNode;
+        } else {
+          this.insertNode(node.right, newNode);
+        }
       }
     }
   }
@@ -103,6 +118,77 @@ class PriorityTree {
 
     // 오른쪽 자식 노드 탐색
     return this.inOrderContains(node.right, memberId);
+  }
+
+  // 트리를 완전히 비우는 메서드
+  clear() {
+    this.root = null;
+  }
+
+  // 특정 memberId를 갖는 노드를 삭제
+  removeByMemberId(memberId) {
+    const { node, parent } = this.findNodeAndParent(this.root, null, memberId);
+    if (!node) {
+      return null; // 노드를 찾지 못하면 null 반환
+    }
+    this.removeNode(node, parent);
+  }
+
+  // 노드와 부모 노드를 찾는 메서드
+  findNodeAndParent(node, parent, memberId) {
+    if (node === null) {
+      return { node: null, parent: null };
+    }
+    if (node.memberId === memberId) {
+      return { node, parent };
+    }
+    if (node.left) {
+      const leftResult = this.findNodeAndParent(node.left, node, memberId);
+      if (leftResult.node) return leftResult;
+    }
+    if (node.right) {
+      const rightResult = this.findNodeAndParent(node.right, node, memberId);
+      if (rightResult.node) return rightResult;
+    }
+    return { node: null, parent: null };
+  }
+
+  // 노드를 삭제하는 메서드
+  removeNode(node, parent) {
+    if (node.left === null && node.right === null) { // 리프 노드인 경우
+      if (node === this.root) {
+        this.root = null;
+      } else if (parent.left === node) {
+        parent.left = null;
+      } else {
+        parent.right = null;
+      }
+    } else if (node.left === null || node.right === null) { // 자식이 하나인 경우
+      const child = node.left || node.right;
+      if (node === this.root) {
+        this.root = child;
+      } else if (parent.left === node) {
+        parent.left = child;
+      } else {
+        parent.right = child;
+      }
+    } else { // 자식이 둘인 경우
+      const successor = this.findMinNode(node.right);
+      const successorMemberId = successor.memberId;
+      const successorPriorityValue = successor.priorityValue;
+      this.removeByMemberId(successor.memberId); // 후속 노드 삭제
+      node.memberId = successorMemberId;
+      node.priorityValue = successorPriorityValue;
+    }
+  }
+
+  // 트리 내에서 가장 작은 값을 갖는 노드 찾기
+  findMinNode(node) {
+    if (node.left === null) {
+      return node;
+    } else {
+      return this.findMinNode(node.left);
+    }
   }
 
 
