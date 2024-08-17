@@ -101,12 +101,12 @@ function handleSocketError(socket, error) {
  * @param {*} io 
  * @param {*} gameMode 
  */
-function joinGameModeRoom(socket, io, gameMode) {
-    socket.join("GAMEMODE_" + gameMode);
+function joinGameModeRoom(socket, io, roomName) {
+    socket.join(roomName);
 
-    const usersInRoom = getUsersInRoom(io, "GAMEMODE_" + gameMode);
-    console.log(`Room ${gameMode} has the following users: ${usersInRoom.join(", ")}`);
-    console.log(`User ${socket.id} joined room: GAMEMODE_${gameMode}`);
+    const usersInRoom = getUsersInRoom(io, roomName);
+    console.log(`Room ${roomName} has the following users: ${usersInRoom.join(", ")}`);
+    console.log(`User ${socket.id} joined room: ${roomName}`);
 }
 
 /**
