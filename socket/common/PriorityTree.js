@@ -24,6 +24,7 @@ class PriorityTree {
     }
   }
 
+  // Node 삽입 로직
   insertNode(node, newNode) {
     if (newNode.priorityValue < node.priorityValue) {
       if (node.left === null) {
@@ -39,7 +40,8 @@ class PriorityTree {
       }
     }
   }
-  // root
+
+  // 트리 내 가장 priority가 높은 Node 찾기
   getMax(node) {
     if (node === null) {
       return null;
@@ -51,6 +53,7 @@ class PriorityTree {
     return node;
   }
 
+  // 트리 내에서 ExceptNode의 우선순위 값보다 작지만 가장 priority가 큰 노드 찾기
   getMaxBeforeNode(node, ExceptNode) {
     if (node === null) {
       return null;

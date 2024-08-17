@@ -47,7 +47,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
             if (!otherSocket.priorityTree) {
                 otherSocket.priorityTree = new PriorityTree();
             }
-            
+
             // 다른 사용자 소켓에 내 우선순위 값 넣기
             if(!otherSocket.priorityTree.contains(socket.memberId)){
                 otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
@@ -67,6 +67,13 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
     console.log('Other Priority Trees updated based on response.');
 }
 
+/**
+ * 매칭 상대 찾기
+ * @param {*} socket 
+ * @param {*} io 
+ * @param {*} value 
+ * @returns 
+ */
 async function findMatching(socket, io, value) {
     if (socket.highestPriorityNode !== null) {
         // 우선순위 값 55를 넘는 모든 소켓 확인하기

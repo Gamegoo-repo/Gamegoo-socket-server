@@ -42,6 +42,7 @@ async function setupMatchListeners(socket, io) {
       handleSocketError(socket, error);
     }
 
+    // 게임 모드에 따라 소켓룸에 조인
     joinGameModeRoom(socket, io, roomName);
   });
 
