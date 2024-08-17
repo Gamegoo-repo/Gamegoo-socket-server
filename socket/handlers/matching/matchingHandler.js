@@ -23,22 +23,19 @@ async function setupMatchListeners(socket, io) {
       const otherPriorityList = result.otherPriorityList;
 
       /* 
-        현재 들어온 사용자의 priorityTree 계산
+        현재 들어온 사용자의 priorityTree 갱신
       */
       myPriorityList.forEach((item) => {
         socket.priorityTree.insert(item.memberId, item.priorityValue);
       });
 
-      // 가장 큰 priority 값을 socket 객체에 저장 (루트 노드가 항상 최대값을 가짐)
-      const maxNode = socket.priorityTree.getMax();
+      // priorityTree가 null이 아닐 경우에만 최댓값 찾기
+      if (socket.priorityTree.root) {
+        // 가장 큰 priority 값을 socket 객체에 저장
+        const maxNode = socket.priorityTree.getMax(socket.priorityTree.root);
 
-      // maxNode가 null인지 확인
-      if (maxNode) {
         socket.highestPriorityMember = maxNode.memberId;
         socket.highestPriorityValue = maxNode.priorityValue;
-      } else {
-        socket.highestPriorityMember = null;
-        socket.highestPriorityValue = null;
       }
 
       // socket.priorityTree를 출력
@@ -48,10 +45,10 @@ async function setupMatchListeners(socket, io) {
       console.log('Highest Priority Value:', socket.highestPriorityValue);
 
       /* 
-        원래 있던 사용자의 priorityTree 계산
+        원래 있던 사용자의 priorityTree 갱신
       */
       for (const item of otherPriorityList) {
-        const otherSocket = await getSocketIdByMemberId(io, item.memberId); // getSocketIdByMemberId 함수 사용
+        const otherSocket = await getSocketIdByMemberId(io, item.memberId); 
 
         if (otherSocket) {
           // otherSocket의 priorityTree가 초기화되지 않은 경우 초기화
@@ -62,18 +59,15 @@ async function setupMatchListeners(socket, io) {
           // 현재 소켓의 ID와 우선순위 값을 otherSocket의 priorityTree에 추가
           otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
 
-          // 가장 큰 priority 값을 otherSocket 객체에 저장
-          const otherMaxNode = otherSocket.priorityTree.getMax();
-          
-          // otherMaxNode가 null인지 확인
-          if (otherMaxNode) {
+          // priorityTree가 null이 아닐 경우에만 최댓값 찾기
+          if (otherSocket.priorityTree.root) {
+            // 가장 큰 priority 값을 otherSocket 객체에 저장
+            const otherMaxNode = otherSocket.priorityTree.getMax(otherSocket.priorityTree.root);
+
             otherSocket.highestPriorityMember = otherMaxNode.memberId;
             otherSocket.highestPriorityValue = otherMaxNode.priorityValue;
-          } else {
-            otherSocket.highestPriorityMember = null;
-            otherSocket.highestPriorityValue = null;
-          }
 
+          }
           // otherSocket의 priorityTree를 출력
           console.log('==================================================');
           console.log(`Other Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(otherSocket.priorityTree.getSortedList(), null, 2));

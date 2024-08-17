@@ -19,21 +19,19 @@ class PriorityTree {
       this.root = newNode;
     } else {
       this.insertNode(this.root, newNode);
-      if (newNode.priorityValue > this.root.priorityValue) {
-        // 가장 큰 값을 가진 노드가 루트가 되도록
-        this.root = newNode;
-      }
     }
   }
 
   insertNode(node, newNode) {
+    // 새로운 노드가 기존 노드보다 더 작으면 왼쪽으로
     if (newNode.priorityValue < node.priorityValue) {
       if (node.left === null) {
         node.left = newNode;
       } else {
         this.insertNode(node.left, newNode);
       }
-    } else {
+    } else { 
+    // 새로운 노드가 기존 노드보다 더 크면 오른쪽으로 
       if (node.right === null) {
         node.right = newNode;
       } else {
@@ -42,8 +40,12 @@ class PriorityTree {
     }
   }
 
-  getMax() {
-    return this.root ? { memberId: this.root.memberId, priorityValue: this.root.priorityValue } : null;
+  // root
+  getMax(node) {
+    if(node.right !== null){
+      node = this.getMax(node.right);
+    }
+    return node;
   }
 
   inOrderTraverse(node, result = []) {
