@@ -9,7 +9,6 @@ const { PriorityTree } = require("../../common/PriorityTree");  // 올바르게 
 function initializeMatching(socket, io) {
   // 우선순위 큐 설정
   socket.priorityTree = new PriorityTree(); // socket.priorityTree 초기화
-
   return;
 }
 

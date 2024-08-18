@@ -1,4 +1,4 @@
-const { fetchMatching } = require("../../apis/matchApi");
+const { fetchMatching, updateMatchingStatus } = require("../../apis/matchApi");
 const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching, deleteSocketFromMatching } = require("./matchingHandler/matchingStartedHandler");
 const { emitError } = require("../../emitters/errorEmitter");
 
@@ -35,22 +35,27 @@ async function setupMatchListeners(socket, io) {
       await updateOtherPriorityTrees(io, socket, result.otherPriorityList);
 
       // priorityTree의 maxNode가 55를 넘는지 확인
-      // TODO: 소켓 id를 리턴 받아서 여기에서 matching_found 를 
       const otherSocket = await findMatching(socket, io, 55);
+
       if (otherSocket) {
         // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
         deleteSocketFromMatching(socket, io,otherSocket, roomName);
+        await updateMatchingStatus(socket,"FOUND");
         console.log("Matching Found");
+
       } else {
         // 우선순위 값이 55 이상인 매칭을 못찾았을 경우
         // 2분 후에 findMatching을 다시 실행
         setTimeout(async () => {
-          if (await findMatching(socket, io, 50)) {
+          const otherSocket = await findMatching(socket, io, 50);
+          if (otherSocket) {
             // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
             deleteSocketFromMatching(socket, io, otherSocket, roomName);
-            console.log("Matching Found and Deleted");
+            await updateMatchingStatus(socket,"FOUND");
+
+            console.log("Matching Found after 2 mins");
           }
-        }, 2 * 60 * 1000); // 2분 = 120,000ms
+        }, 1 * 15 * 1000); // 2분 = 120,000ms
       }
     } catch (error) {
       handleSocketError(socket, error);
