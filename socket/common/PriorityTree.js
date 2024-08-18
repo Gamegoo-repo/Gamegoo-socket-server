@@ -73,7 +73,8 @@ class PriorityTree {
     if (node === null) {
       return null;
     }
-    if (node.right !== null && node !== ExceptNode) {
+    // 오른쪽이 비어있지 않거나, Exception 노드가 아니라면 한번 더 가기
+    if (node.right !== null || node !== ExceptNode) {
       node = this.getMax(node.right);
     }
     return node;

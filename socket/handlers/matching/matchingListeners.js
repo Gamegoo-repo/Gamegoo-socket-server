@@ -14,6 +14,7 @@ async function setupMatchListeners(socket, io) {
 
     // socket.id가 소켓 룸 "GAMEMODE_" + gameMode에 있는지 확인
     const usersInRoom = io.sockets.adapter.rooms.get(roomName) || new Set();
+    console.log(socket.id, " ",socket.memberId);
     console.log(usersInRoom);
     if (usersInRoom.has(socket.id)) {
       console.log("ERROR : 이미 매칭을 시도한 소켓입니다.");
@@ -38,7 +39,7 @@ async function setupMatchListeners(socket, io) {
       const otherSocket = await findMatching(socket, io, 55);
       if (otherSocket) {
         // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-        // deleteSocketFromMatching(socket, io,otherSocket, roomName);
+        deleteSocketFromMatching(socket, io,otherSocket, roomName);
         console.log("Matching Found");
       } else {
         // 우선순위 값이 55 이상인 매칭을 못찾았을 경우
@@ -46,7 +47,7 @@ async function setupMatchListeners(socket, io) {
         setTimeout(async () => {
           if (await findMatching(socket, io, 50)) {
             // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-            // deleteSocketFromMatching(socket, io, otherSocket, roomName);
+            deleteSocketFromMatching(socket, io, otherSocket, roomName);
             console.log("Matching Found and Deleted");
           }
         }, 2 * 60 * 1000); // 2분 = 120,000ms

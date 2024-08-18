@@ -11,7 +11,7 @@ const { PriorityTree } = require("../../../common/PriorityTree");
  */
 function updatePriorityTree(socket, priorityList) {
     if (!socket.priorityTree) {
-        socket.priorityTree = new PriorityTree();
+        return;
     }
 
     // 내 소켓에 다른 사용자 우선순위 값 넣기
@@ -47,7 +47,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
 
         if (otherSocket) {
             if (!otherSocket.priorityTree) {
-                otherSocket.priorityTree = new PriorityTree();
+                return;
             }
 
             // 다른 사용자 소켓에 내 우선순위 값 넣기
@@ -81,59 +81,21 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
 async function findMatching(socket, io, value) {
     if (socket.highestPriorityNode) {
         // 우선순위 값이 value를 넘는 모든 소켓 확인하기
-        // FIXME: 무한루프 해결하기
         while (socket.highestPriorityNode.priorityValue >= value) {
             const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityNode.memberId);
-            if (otherSocket && otherSocket.highestPriorityNode.priorityValue >= value) {
+            console.log("해당 소켓에 우선순위 값이 55를 넘는 다른 소켓이 있다.", socket.memberId, " ", otherSocket.memberId);
+            if (!otherSocket.highestPriorityNode) {
+                return null;
+            } else if (otherSocket.highestPriorityNode.priorityValue >= value) {
                 console.log("MATCHING FOUND");
                 return otherSocket;
             } else {
                 // 최댓값을 가지는 노드의 전 노드 확인
-                socket.highestPriorityNode = socket.priorityTree.getMaxBeforeNode(socket.priorityTree.root, socket.highestPriorityNode);
+                socket.highestPriorityNode = socket.highestPriorityNode !== socket.priorityTree.getMaxBeforeNode(socket.priorityTree.root, socket.highestPriorityNode) ? socket.highestPriorityNode : null;
             }
         }
     }
     return null;
-}
-
-/**
- * 나, 매칭된 사용자 두 개의 소켓을 매칭 풀에서 삭제 (소켓룸, priorityTree)
- * @param {*} socket 
- * @param {*} otherSocket 
- * @param {*} roomName 
- */
-function deleteSocketFromMatching(socket,io,otherSocket,roomName){
-    // 소켓 룸에서 제거
-    socket.leave(roomName);
-    otherSocket.leave(roomName);
-    
-    // priorityTree에서 삭제
-    const room = io.sockets.adapter.rooms.get(roomName);
-
-    if (room) {
-        // 룸에 있는 각 소켓에 대해 콜백 함수 실행
-        room.forEach((socketId) => {
-            const roomSocket = io.sockets.sockets.get(socketId);
-            if (roomSocket) {
-                // roomSocket의 priorityTree에서 socket, otherSocket의 값을 지우기
-                roomSocket.priorityTree.removeByMemberId(socket.memberId);
-                roomSocket.priorityTree.removeByMemberId(otherSocket.memberId);
-                console.log('==================================================');
-                console.log(`Room Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(roomSocket.priorityTree.getSortedList(), null, 2));
-
-            }
-        });
-    } else {
-        console.log(`Room ${roomName} does not exist or is empty.`);
-    }
-
-    // 각자의 priorityTree 삭제
-    socket.priorityTree.clear();
-    otherSocket.priorityTree.clear();
-
-    // 각자의 highestPriorityNode 삭제
-    socket.highestPriorityNode=null;
-    otherSocket.highestPriorityNode=null;
 }
 
 /**
