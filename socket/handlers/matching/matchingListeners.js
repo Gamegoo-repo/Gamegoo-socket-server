@@ -39,8 +39,9 @@ async function setupMatchListeners(socket, io) {
 
       if (otherSocket) {
         // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-        deleteSocketFromMatching(socket, io,otherSocket, roomName);
+        deleteSocketFromMatching(socket, io, otherSocket, roomName);
         await updateMatchingStatus(socket,"FOUND");
+        await updateMatchingStatus(otherSocket,"FOUND");
         console.log("Matching Found");
 
       } else {
@@ -52,8 +53,8 @@ async function setupMatchListeners(socket, io) {
             // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
             deleteSocketFromMatching(socket, io, otherSocket, roomName);
             await updateMatchingStatus(socket,"FOUND");
-
-            console.log("Matching Found after 2 mins");
+            await updateMatchingStatus(otherSocket,"FOUND");
+            console.log("Matching Found after 2 mins : ",socket.memberId," & ",otherSocket.memberId);
           }
         }, 1 * 15 * 1000); // 2분 = 120,000ms
       }
