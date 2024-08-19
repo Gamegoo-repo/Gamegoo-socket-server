@@ -1,20 +1,14 @@
-const { fetchMatchingApi, updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
-const {
-  updateOtherPriorityTrees,
-  updatePriorityTree,
-  handleSocketError,
-  joinGameModeRoom,
-  findMatching,
-  deleteSocketFromMatching,
-} = require("./matchingHandler/matchingStartedHandler");
+const { fetchMatchingApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
+const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { emitError } = require("../../emitters/errorEmitter");
+const eventEmitter = require("../../events/eventBus");
 
 /**
  * Matching socket event 관련 리스너
  * @param {*} socket
  * @param {*} io
  */
-async function setupMatchListeners(socket, io) {
+async function setupMatchSocketListeners(socket, io) {
   socket.on("matching_started", async (request) => {
     const gameMode = request.gameMode;
     const roomName = "GAMEMODE_" + gameMode;
@@ -46,12 +40,9 @@ async function setupMatchListeners(socket, io) {
       const otherSocket = await findMatching(socket, io, 55);
 
       if (otherSocket) {
-        // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-        // 9) ~ 11) room leave 및 socket priorityTree 초기화
-        deleteSocketFromMatching(socket, io, otherSocket, roomName);
-
-        // 12) 8080서버에 매칭 status 변경 API 요청
-        await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
+        // EventEmitter로 'event_matching_found' 이벤트 발생
+        console.log("===================== eventEmitter.emit =====================");
+        eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
 
         console.log("Matching Found");
       } else {
@@ -94,4 +85,4 @@ function handleMatchingFailed(request) {
   console.log(request);
 }
 
-module.exports = { setupMatchListeners };
+module.exports = { setupMatchSocketListeners };
