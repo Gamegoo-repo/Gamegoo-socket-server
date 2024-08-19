@@ -1,4 +1,5 @@
 const eventEmitter = require("./eventBus");
+const clearAllTimeout = require("../common/cleartTimeout");
 const { deleteSocketFromMatching } = require("./handlers/matchingHandler");
 const { updateBothMatchingStatusApi } = require("../apis/matchApi");
 
@@ -9,15 +10,23 @@ const { updateBothMatchingStatusApi } = require("../apis/matchApi");
  */
 async function setUpMatchEventsListeners(io) {
   eventEmitter.on("event_matching_found", async (socket, otherSocket, roomName) => {
-    console.log("===================== eventEmitter called =====================");
+    console.log("===================== event_matching_found eventListener called =====================");
     try {
-      // 9) ~ 11) room leave 및 socket priorityTree 초기화
+      // 각 socket의 setTimeout callback 함수 모두 취소
+      clearAllTimeout(socket);
+      clearAllTimeout(otherSocket);
+
+      // (#20-8), (#21-9) 각 socket의 matchingTarget 값 바인딩
+      socket.matchingTarget = otherSocket.memberId;
+      otherSocket.matchingTarget = socket.memberId;
+
+      // (#20-9) ~ (#20-11), (#21-10) ~ (#21-12) room leave 및 socket priorityTree 초기화
       deleteSocketFromMatching(socket, io, otherSocket, roomName);
 
-      // 12) 8080서버에 매칭 status 변경 API 요청
+      // (#20-12), (#21-13) 8080서버에 매칭 status 변경 API 요청
       await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
 
-      console.log("Matching process completed for:", socket.memberId, "and", otherSocket.memberId);
+      console.log("Matching process completed for:", socket.memberId, " & ", otherSocket.memberId);
     } catch (error) {
       console.error("Error handling matching-found event:", error);
     }

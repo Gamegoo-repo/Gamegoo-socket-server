@@ -41,27 +41,26 @@ async function setupMatchSocketListeners(socket, io) {
 
       if (otherSocket) {
         // EventEmitter로 'event_matching_found' 이벤트 발생
-        console.log("===================== eventEmitter.emit =====================");
         eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
-
-        console.log("Matching Found");
       } else {
         // 우선순위 값이 55 이상인 매칭을 못찾았을 경우
         // 2분 후에 findMatching을 다시 실행
-        setTimeout(async () => {
+        const timeoutId = setTimeout(async () => {
+          console.log(`================ setTimeout callback called, memberId:${socket.memberId} ================`);
+
           // (#21-8) 우선 순위 값 50점 이상인 노드 확인
           const otherSocket = await findMatching(socket, io, 50);
+
           if (otherSocket) {
-            // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-            // (#21-10) ~ (#21-12) room leave 및 socket priorityTree 초기화
-            deleteSocketFromMatching(socket, io, otherSocket, roomName);
-
-            // (#21-13) 8080서버에 매칭 status 변경 API 요청
-            await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
-
             console.log("Matching Found after 2 mins : ", socket.memberId, " & ", otherSocket.memberId);
+
+            // EventEmitter로 'event_matching_found' 이벤트 발생
+            eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
           }
-        }, 1 * 15 * 1000); // 2분 = 120,000ms
+        }, 1 * 30 * 1000); // 2분 = 120,000ms
+
+        // 타이머 ID를 배열에 저장
+        socket.retryTimeouts.push(timeoutId);
       }
     } catch (error) {
       handleSocketError(socket, error);
