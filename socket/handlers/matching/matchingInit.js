@@ -1,4 +1,4 @@
-const { setupMatchListeners } = require("./matchingHandler");
+const { setupMatchListeners } = require("./matchingListeners");
 const { initializeMatching } = require("./matchingInitializer");
 
 function initMatching(socket, io) {
