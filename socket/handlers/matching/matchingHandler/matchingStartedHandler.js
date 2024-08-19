@@ -83,7 +83,12 @@ async function findMatching(socket, io, value) {
     // 우선순위 값이 value를 넘는 모든 소켓 확인하기
     while (socket.highestPriorityNode.priorityValue >= value) {
       const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityNode.memberId);
-      console.log("해당 소켓에 우선순위 값이 value를 넘는 다른 소켓이 있다.", socket.memberId, " ", otherSocket.memberId);
+      console.log(
+        "해당 소켓에 우선순위 값이 value를 넘는 다른 소켓이 있다. socket.memberId:",
+        socket.memberId,
+        ", otherSocket.memberId:",
+        otherSocket.memberId
+      );
       if (!otherSocket.highestPriorityNode) {
         return null;
       } else if (otherSocket.highestPriorityNode.priorityValue >= value) {

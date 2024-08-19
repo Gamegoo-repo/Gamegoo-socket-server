@@ -24,9 +24,9 @@ async function getSocketIdsByMemberIds(io, memberIdList) {
  */
 async function getSocketIdByMemberId(io, memberId) {
   const connectedSockets = await io.fetchSockets();
-  console.log("requested memberId: ", memberId);
+  //console.log("requested memberId: ", memberId);
   for (const connSocket of connectedSockets) {
-    console.log("connSocket.memberId: ", connSocket.memberId);
+    //console.log("connSocket.memberId: ", connSocket.memberId);
     if (memberId == connSocket.memberId) {
       return connSocket;
     }

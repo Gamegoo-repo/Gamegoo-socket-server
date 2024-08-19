@@ -1,4 +1,4 @@
-const { fetchMatching, updateMatchingStatus } = require("../../apis/matchApi");
+const { fetchMatchingApi, updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
 const {
   updateOtherPriorityTrees,
   updatePriorityTree,
@@ -21,8 +21,8 @@ async function setupMatchListeners(socket, io) {
 
     // 2) socket.id가 소켓 룸 "GAMEMODE_" + gameMode에 있는지 확인
     const usersInRoom = io.sockets.adapter.rooms.get(roomName) || new Set();
-    console.log(socket.id, " ", socket.memberId);
-    console.log(usersInRoom);
+    // console.log(socket.id, " ", socket.memberId);
+    //console.log(usersInRoom);
     if (usersInRoom.has(socket.id)) {
       console.log("ERROR : 이미 매칭을 시도한 소켓입니다.");
       emitError(socket, "You are already in the matching room for this game mode.");
@@ -34,7 +34,7 @@ async function setupMatchListeners(socket, io) {
 
     try {
       // 4) 8080서버에 우선순위 계산 API 요청
-      const result = await fetchMatching(socket, request);
+      const result = await fetchMatchingApi(socket, request);
 
       // 5) 내 우선순위 트리 갱신
       updatePriorityTree(socket, result.myPriorityList);
@@ -51,8 +51,7 @@ async function setupMatchListeners(socket, io) {
         deleteSocketFromMatching(socket, io, otherSocket, roomName);
 
         // 12) 8080서버에 매칭 status 변경 API 요청
-        await updateMatchingStatus(socket, "FOUND");
-        await updateMatchingStatus(otherSocket, "FOUND");
+        await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
 
         console.log("Matching Found");
       } else {
@@ -65,8 +64,10 @@ async function setupMatchListeners(socket, io) {
             // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
             // (#21-10) ~ (#21-12) room leave 및 socket priorityTree 초기화
             deleteSocketFromMatching(socket, io, otherSocket, roomName);
-            await updateMatchingStatus(socket, "FOUND");
-            await updateMatchingStatus(otherSocket, "FOUND");
+
+            // (#21-13) 8080서버에 매칭 status 변경 API 요청
+            await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
+
             console.log("Matching Found after 2 mins : ", socket.memberId, " & ", otherSocket.memberId);
           }
         }, 1 * 15 * 1000); // 2분 = 120,000ms
