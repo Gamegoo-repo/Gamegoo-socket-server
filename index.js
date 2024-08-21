@@ -1,11 +1,15 @@
 // index.js
 const { app, server } = require("./app/app");
 const initializeSocket = require("./socket/socket");
+const setUpMatchEventsListeners = require("./socket/events/matchingEventsListener");
 const cors = require("cors");
 
 const io = initializeSocket(server);
 
 const routes = require("./app/routers/index")(io); // 라우터에 io 객체 전달
+
+// 이벤트 리스너를 io 객체와 연결
+setUpMatchEventsListeners(io);
 
 app.use(
   cors({

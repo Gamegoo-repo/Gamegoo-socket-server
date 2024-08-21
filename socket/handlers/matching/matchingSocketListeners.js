@@ -1,20 +1,14 @@
-const { fetchMatchingApi, updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
-const {
-  updateOtherPriorityTrees,
-  updatePriorityTree,
-  handleSocketError,
-  joinGameModeRoom,
-  findMatching,
-  deleteSocketFromMatching,
-} = require("./matchingHandler/matchingStartedHandler");
+const { fetchMatchingApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
+const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { emitError } = require("../../emitters/errorEmitter");
+const eventEmitter = require("../../events/eventBus");
 
 /**
  * Matching socket event 관련 리스너
  * @param {*} socket
  * @param {*} io
  */
-async function setupMatchListeners(socket, io) {
+async function setupMatchSocketListeners(socket, io) {
   socket.on("matching_started", async (request) => {
     const gameMode = request.gameMode;
     const roomName = "GAMEMODE_" + gameMode;
@@ -46,31 +40,24 @@ async function setupMatchListeners(socket, io) {
       const otherSocket = await findMatching(socket, io, 55);
 
       if (otherSocket) {
-        // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-        // 9) ~ 11) room leave 및 socket priorityTree 초기화
-        deleteSocketFromMatching(socket, io, otherSocket, roomName);
-
-        // 12) 8080서버에 매칭 status 변경 API 요청
-        await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
-
-        console.log("Matching Found");
+        // EventEmitter로 'event_matching_found' 이벤트 발생
+        eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
       } else {
         // 우선순위 값이 55 이상인 매칭을 못찾았을 경우
         // 2분 후에 findMatching을 다시 실행
-        setTimeout(async () => {
+        const timeoutId = setTimeout(async () => {
+          console.log(`================ setTimeout callback called, memberId:${socket.memberId} ================`);
+
           // (#21-8) 우선 순위 값 50점 이상인 노드 확인
           const otherSocket = await findMatching(socket, io, 50);
+
           if (otherSocket) {
-            // TODO: matching_found emit 보내기 (나 & 상대방 둘 다 보내야함)
-            // (#21-10) ~ (#21-12) room leave 및 socket priorityTree 초기화
-            deleteSocketFromMatching(socket, io, otherSocket, roomName);
-
-            // (#21-13) 8080서버에 매칭 status 변경 API 요청
-            await updateBothMatchingStatusApi(socket, "FOUND", otherSocket.memberId);
-
             console.log("Matching Found after 2 mins : ", socket.memberId, " & ", otherSocket.memberId);
+
+            // EventEmitter로 'event_matching_found' 이벤트 발생
+            eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
           }
-        }, 1 * 15 * 1000); // 2분 = 120,000ms
+        }, 1 * 30 * 1000); // 2분 = 120,000ms
       }
     } catch (error) {
       handleSocketError(socket, error);
@@ -94,4 +81,4 @@ function handleMatchingFailed(request) {
   console.log(request);
 }
 
-module.exports = { setupMatchListeners };
+module.exports = { setupMatchSocketListeners };
