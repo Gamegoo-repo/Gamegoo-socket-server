@@ -58,9 +58,6 @@ async function setupMatchSocketListeners(socket, io) {
             eventEmitter.emit("event_matching_found", socket, otherSocket, roomName);
           }
         }, 1 * 30 * 1000); // 2분 = 120,000ms
-
-        // 타이머 ID를 배열에 저장
-        socket.retryTimeouts.push(timeoutId);
       }
     } catch (error) {
       handleSocketError(socket, error);

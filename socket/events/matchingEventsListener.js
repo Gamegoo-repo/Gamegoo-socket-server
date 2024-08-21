@@ -1,5 +1,4 @@
 const eventEmitter = require("./eventBus");
-const clearAllTimeout = require("../common/cleartTimeout");
 const { deleteSocketFromMatching } = require("./handlers/matchingHandler");
 const { updateBothMatchingStatusApi } = require("../apis/matchApi");
 
@@ -12,10 +11,6 @@ async function setUpMatchEventsListeners(io) {
   eventEmitter.on("event_matching_found", async (socket, otherSocket, roomName) => {
     console.log("===================== event_matching_found eventListener called =====================");
     try {
-      // 각 socket의 setTimeout callback 함수 모두 취소
-      clearAllTimeout(socket);
-      clearAllTimeout(otherSocket);
-
       // (#20-8), (#21-9) 각 socket의 matchingTarget 값 바인딩
       socket.matchingTarget = otherSocket.memberId;
       otherSocket.matchingTarget = socket.memberId;
