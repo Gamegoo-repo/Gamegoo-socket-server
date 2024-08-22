@@ -1,5 +1,6 @@
 let elapsedSeconds = 0; // 타이머 경과된 시간 (초)
 let timerInterval;
+let timers = {};
 
 // 포지션 값을 텍스트로 변환하는 함수
 const positionMap = {
@@ -24,6 +25,40 @@ function setUpMatchingSocketListeners() {
 
     // 내 매칭 요청 정보 렌더링
     renderMyMatchingData(response.data);
+
+    // 2분 타이머 시작, matching retry call back
+    const timeoutId = setTimeout(() => {
+      // 2분 동안 "matching_found_sender" or "matching-found-receiver" 이벤트가 발생하지 않으면 매칭 재시작 요청
+      socket.emit("matching_retry");
+    }, 120000); // 120000ms = 2분
+
+    timers.matchingRetryCallback = timeoutId;
+    console.log(timers);
+  });
+
+  // "matching_found_sender" event listener : sender socket
+  socket.on("matching_found_sender", (response) => {
+    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
+    clearTimeout(timers.matchingRetryCallback);
+    delete timers.matchingRetryCallback;
+
+    // 10초 타이머 시작
+
+    // 매칭 상대 정보 렌더링
+
+    // 매칭 나가기 버튼 활성화 및 10초 카운트다운
+  });
+
+  // "matching_found_receiver" event listener : receiver socket
+  socket.on("matching_found_receiver", (response) => {
+    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
+    clearTimeout(timers.matchingRetryCallback);
+    delete timers.matchingRetryCallback;
+
+    socket.emit("matching_found_success", { senderMemberId: response.data.memberId });
+    // 10초 타이머 시작
+    // 매칭 상대 정보 렌더링
+    // 매칭 나가기 버튼 활성화 및 10초 카운트다운
   });
 }
 
