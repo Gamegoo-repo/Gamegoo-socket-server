@@ -2,6 +2,8 @@ let elapsedSeconds = 0; // 타이머 경과된 시간 (초)
 let timerInterval;
 let timers = {};
 
+let isMatchingSuccessSenderArrived = false; // matching-success-sender가 도착했는지 여부를 추적
+
 // 포지션 값을 텍스트로 변환하는 함수
 const positionMap = {
   0: "랜덤",
@@ -42,7 +44,24 @@ function setUpMatchingSocketListeners() {
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
 
-    // 10초 타이머 시작
+    // 10초 타이머 시작, matchingSuccessSender call back
+    setTimeout(() => {
+      // 10초 이내에 matching-success-sender가 내 소켓에 도착했으면, 10초 후에 matching-success-final emit
+      // 타이머 종료 시점에서 matching-success-sender가 도착했는지 확인
+      if (isMatchingSuccessSenderArrived) {
+        // matching-success-sender가 도착한 경우에만 matching-success-final을 emit
+        socket.emit("matching-success-final");
+        isMatchingSuccessSenderArrived = false;
+      }
+
+      // 10초 후, 3초 타이머 시작, matchingFail call back
+      const timeoutId = setTimeout(() => {
+        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        socket.emit("matching-fail");
+      }, 3000);
+
+      timers.matchingFailCallback = timeoutId;
+    }, 10000); // 10000ms = 10초
 
     // 매칭 상대 정보 렌더링
 
@@ -55,10 +74,44 @@ function setUpMatchingSocketListeners() {
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
 
-    socket.emit("matching-found-success", { senderMemberId: response.data.memberId });
-    // 10초 타이머 시작
+    // matching-found-success emit
+    socket.emit("matching-found-success", { senderMemberId: response.data.memberId, gameMode: response.data.gameMode });
+
+    // 10초 타이머 시작, matchingSuccessReceiver call back
+    const timeoutId = setTimeout(() => {
+      // 10초 동안 내가 매칭 다시하기 버튼 누르지 않으면, matching-success-receiver emit
+      socket.emit("matching-success-receiver");
+
+      // 10초 후, 5초 타이머 시작, MatchingFail call back
+      const timeoutId = setTimeout(() => {
+        // 5초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        socket.emit("matching-fail");
+      }, 5000);
+
+      timers.matchingFailCallback = timeoutId;
+    }, 10000); // 10000ms = 10초
+
+    timers.matchingSuccessReceiver = timeoutId;
+
     // 매칭 상대 정보 렌더링
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
+  });
+
+  socket.on("matching-success-sender", () => {
+    // matching-success-sender가 도착했음을 기록
+    isMatchingSuccessSenderArrived = true;
+  });
+
+  socket.on("matching-success", (response) => {
+    // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
+    clearTimeout(timers.matchingFailCallback);
+    delete timers.matchingFailCallback;
+  });
+
+  socket.on("matching-fail", (response) => {
+    // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
+    clearTimeout(timers.matchingFailCallback);
+    delete timers.matchingFailCallback;
   });
 }
 

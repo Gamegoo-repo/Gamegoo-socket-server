@@ -27,8 +27,17 @@ function emitMatchingFoundSender(socket, targetMatchingInfo) {
   socket.emit("matching-found-sender", formatResponse("matching-found-sender", targetMatchingInfo));
 }
 
+/**
+ * 해당 sender socket에게 receiver가 매칭을 수락했음을 전달
+ * @param {*} socket
+ */
+function emitMatchingSuccessSender(socket) {
+  socket.emit("matching-success-sender", formatResponse("matching-success-sender", "상대가 매칭을 수락했습니다."));
+}
+
 module.exports = {
   emitMatchingStarted,
   emitMatchingFoundReceiver,
   emitMatchingFoundSender,
+  emitMatchingSuccessSender,
 };
