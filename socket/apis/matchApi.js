@@ -133,11 +133,16 @@ async function updateMatchingStatusApi(socket, status) {
  */
 async function matchingFoundApi(socket, targetMemberId) {
   try {
-    const response = await axios.patch(`${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}`, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-      },
-    });
+    console.log("!!! socket.token : ", socket.token);
+    const response = await axios.patch(
+      `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
+        },
+      }
+    );
 
     if (response.data.isSuccess) {
       return response.data.result;

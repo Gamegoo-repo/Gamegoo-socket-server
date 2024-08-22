@@ -83,7 +83,7 @@ async function setupMatchSocketListeners(socket, io) {
   // receiver가 보낸 "matching_found_success" listener
   socket.on("matching_found_success", async (request) => {
     // senderSocket 객체 찾기
-    const senderSocket = getSocketIdByMemberId(io, request.senderMemberId);
+    const senderSocket = await getSocketIdByMemberId(io, request.senderMemberId);
 
     // 15) 각 socket의 matchingTarget 값 바인딩
     socket.matchingTarget = senderSocket.memberId;
@@ -94,12 +94,16 @@ async function setupMatchSocketListeners(socket, io) {
     deleteSocketFromMatching(socket, io, senderSocket, roomName);
 
     // 19) 8080서버에 매칭 FOUND API 요청
-    const result = await matchingFoundApi(socket, senderSocket.memberId);
+    try {
+      const result = await matchingFoundApi(socket, senderSocket.memberId);
 
-    // 20) API 정상 응답 받음
-    if (result) {
-      // 21) "matching_found_sender" emit
-      emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+      // 20) API 정상 응답 받음
+      if (result) {
+        // 21) "matching_found_sender" emit
+        emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+      }
+    } catch (error) {
+      handleSocketError(socket, error);
     }
   });
 
