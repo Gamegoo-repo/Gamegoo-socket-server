@@ -5,7 +5,13 @@ const { isSocketActiveAndInRoom } = require("./matchingHandler/matchingCommonHan
 const { deleteSocketFromMatching } = require("./matchingHandler/matchingFoundHandler");
 
 const { emitError } = require("../../emitters/errorEmitter");
-const { emitMatchingStarted, emitMatchingFoundReceiver, emitMatchingFoundSender, emitMatchingSuccessSender } = require("../../emitters/matchingEmitter");
+const {
+  emitMatchingStarted,
+  emitMatchingFoundReceiver,
+  emitMatchingFoundSender,
+  emitMatchingSuccessSender,
+  emitMatchingSuccess,
+} = require("../../emitters/matchingEmitter");
 
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 
@@ -98,11 +104,17 @@ async function setupMatchSocketListeners(socket, io) {
     emitMatchingSuccessSender(senderSocket);
   });
 
-  socket.on("matching_success_final", (request) => {
+  // sender가 보낸 matching-success-final listener
+  socket.on("matching-success-final", async () => {
     console.log("================= matching_success_final ======================");
+    // senderSocket 객체 찾기
+    const receiverSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
+
+    // 28) matching-success emit
+    emitMatchingSuccess(socket, receiverSocket);
   });
 
-  socket.on("matching_fail", (request) => {
+  socket.on("matching-fail", (request) => {
     console.log("================= matching_fail ======================");
     console.log("member ID:", socket.memberId);
   });

@@ -35,9 +35,19 @@ function emitMatchingSuccessSender(socket) {
   socket.emit("matching-success-sender", formatResponse("matching-success-sender", "상대가 매칭을 수락했습니다."));
 }
 
+/**
+ * sender, receiver socket에게 매칭 성공 및 채팅방 생성되었음을 전달
+ * @param {*} socket
+ */
+function emitMatchingSuccess(senderSocket, receiverSocket) {
+  senderSocket.emit("matching-success", formatResponse("matching-success", { chatroomUuid: "uuid" }));
+  receiverSocket.emit("matching-success", formatResponse("matching-success", { chatroomUuid: "uuid" }));
+}
+
 module.exports = {
   emitMatchingStarted,
   emitMatchingFoundReceiver,
   emitMatchingFoundSender,
   emitMatchingSuccessSender,
+  emitMatchingSuccess,
 };
