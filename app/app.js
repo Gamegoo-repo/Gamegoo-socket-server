@@ -89,15 +89,15 @@ app.get("/match", (req, res) => {
       </div>
       <div class="match-content">
         <div class="left-side">
-          <h4 class="user-nickname">유니콘의 비밀</h4> <!-- 닉네임 -->
-          <p class="user-tag">태그: <span>#KR1</span></p>
-          <p class="user-rank">등급: <span>B3</span></p> <!-- 등급 -->
+          <h4 class="user-nickname"></h4> <!-- 닉네임 -->
+          <p class="user-tag"></p>
+          <p class="user-rank"></p> <!-- 등급 -->
           <div class="profileImg">
             <img src="avatar.png" alt="avatar" class="profile-img"> <!-- 아바타 -->
           </div>
-          <p class="mike-status">마이크 <span>ON</span></p> <!-- 마이크 상태 -->
-          <div class="preferences">
-            <ul id="preferences-list">
+          <p class="mike-status">마이크 <span></span></p> <!-- 마이크 상태 -->
+          <div class="gamestyle">
+            <ul id="gamestyle-list">
               <!-- 이곳에 동적으로 <li> 요소가 추가됩니다 -->
             </ul>
           </div>
@@ -125,10 +125,10 @@ app.get("/match", (req, res) => {
     const NODE_SERVER_URL = '${NODE_SERVER_URL}';
   </script>
   <script src="${SOCKETIO_URL}"></script>
+  <script src="matching/scripts/socket.js"></script>
   <script src="scripts/socket.js"></script>
   <script src="scripts/api.js"></script>
   <script src="scripts/eventListeners.js"></script>
-  <script src="matching/scripts/socket.js"></script>
   <script src="matching/scripts/api.js"></script>
   <script src="matching/scripts/eventListeners.js"></script>
 

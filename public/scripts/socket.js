@@ -20,6 +20,7 @@ function connectSocket(jwtToken = null) {
   });
 
   setupSocketListeners();
+  setUpMatchingSocketListeners();
 }
 
 function setupSocketListeners() {
