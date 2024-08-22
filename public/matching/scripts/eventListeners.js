@@ -19,8 +19,8 @@ matchBtn.addEventListener("click", () => {
     return;
   }
 
-  // (#20-1) "matching_request" emit
-  socket.emit("matching_request", {
+  // (#20-1) "matching-request" emit
+  socket.emit("matching-request", {
     matchingType: matchingType,
     gameMode: gameMode,
     mike: mike,

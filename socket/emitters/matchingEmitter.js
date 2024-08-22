@@ -6,7 +6,7 @@ const formatResponse = require("../common/responseFormatter");
  * @param {*} myMatchingInfo
  */
 function emitMatchingStarted(socket, myMatchingInfo) {
-  socket.emit("matching_started", formatResponse("matching_started", myMatchingInfo));
+  socket.emit("matching-started", formatResponse("matching-started", myMatchingInfo));
 }
 
 /**
@@ -15,7 +15,7 @@ function emitMatchingStarted(socket, myMatchingInfo) {
  * @param {*} targetMatchingInfo
  */
 function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
-  socket.emit("matching_found_receiver", formatResponse("matching_found_receiver", targetMatchingInfo));
+  socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo));
 }
 
 /**
@@ -24,7 +24,7 @@ function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
  * @param {*} targetMatchingInfo
  */
 function emitMatchingFoundSender(socket, targetMatchingInfo) {
-  socket.emit("matching_found_sender", formatResponse("matching_found_sender", targetMatchingInfo));
+  socket.emit("matching-found-sender", formatResponse("matching-found-sender", targetMatchingInfo));
 }
 
 module.exports = {

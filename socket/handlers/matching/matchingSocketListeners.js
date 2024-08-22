@@ -17,7 +17,7 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
  * @param {*} io
  */
 async function setupMatchSocketListeners(socket, io) {
-  socket.on("matching_request", async (request) => {
+  socket.on("matching-request", async (request) => {
     const gameMode = request.gameMode;
     const roomName = "GAMEMODE_" + gameMode;
 
@@ -38,7 +38,7 @@ async function setupMatchSocketListeners(socket, io) {
 
       // 6) API 정상 응답 받음
       if (result) {
-        // 7) "matching_started" emit
+        // 7) "matching-started" emit
         emitMatchingStarted(socket, result.myMatchingInfo);
 
         // 8) 내 우선순위 트리 갱신
@@ -55,33 +55,16 @@ async function setupMatchSocketListeners(socket, io) {
         // 11) receiverSocket이 매칭 room에 존재하는지 여부 확인
         isSocketActiveAndInRoom(receiverSocket, io, roomName);
 
-        // 12) "matching_found_receiver" emit
+        // 12) "matching-found-receiver" emit
         emitMatchingFoundReceiver(receiverSocket, result.myMatchingInfo);
       }
-      // else {
-      //   // 우선순위 값이 55 이상인 매칭을 못찾았을 경우
-      //   // 2분 후에 findMatching을 다시 실행
-      //   setTimeout(async () => {
-      //     console.log(`================ setTimeout callback called, memberId:${socket.memberId} ================`);
-
-      //     // (#21-8) 우선 순위 값 50점 이상인 노드 확인
-      //     const receiverSocket = await findMatching(socket, io, 50);
-
-      //     if (receiverSocket) {
-      //       console.log("Matching Found after 2 mins : ", socket.memberId, " & ", receiverSocket.memberId);
-
-      //       // EventEmitter로 'event_matching_found' 이벤트 발생
-      //       eventEmitter.emit("event_matching_found", socket, receiverSocket, roomName);
-      //     }
-      //   }, 1 * 30 * 1000); // 2분 = 120,000ms
-      // }
     } catch (error) {
       handleSocketError(socket, error);
     }
   });
 
-  // receiver가 보낸 "matching_found_success" listener
-  socket.on("matching_found_success", async (request) => {
+  // receiver가 보낸 "matching-found-success" listener
+  socket.on("matching-found-success", async (request) => {
     // senderSocket 객체 찾기
     const senderSocket = await getSocketIdByMemberId(io, request.senderMemberId);
 
@@ -99,7 +82,7 @@ async function setupMatchSocketListeners(socket, io) {
 
       // 20) API 정상 응답 받음
       if (result) {
-        // 21) "matching_found_sender" emit
+        // 21) "matching-found-sender" emit
         emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
       }
     } catch (error) {
