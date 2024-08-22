@@ -1,5 +1,5 @@
 let elapsedSeconds = 0; // 타이머 경과된 시간 (초)
-let timerInterval;
+let searchingTimerInterval; // 매칭중 타이머
 let timers = {};
 
 let isMatchingSuccessSenderArrived = false; // matching-success-sender가 도착했는지 여부를 추적
@@ -22,8 +22,10 @@ function setUpMatchingSocketListeners() {
     document.getElementById("matching-screen").style.display = "block";
 
     // 매칭중 화면 스탑워치 시작
+    const timerElement = document.querySelector(".timer");
+    timerElement.style.display = "block";
     elapsedSeconds = 0; // 스탑워치 초기화
-    timerInterval = setInterval(updateTimer, 1000); // 1초마다 updateTimer 함수 실행
+    searchingTimerInterval = setInterval(updateTimer, 1000); // 1초마다 updateTimer 함수 실행
 
     // 내 매칭 요청 정보 렌더링
     renderMyMatchingData(response.data);
@@ -68,6 +70,9 @@ function setUpMatchingSocketListeners() {
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
+
+    // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
+    updateMatchingTopBar();
   });
 
   // "matching-found-sender" event listener : sender socket
@@ -101,6 +106,9 @@ function setUpMatchingSocketListeners() {
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
+
+    // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
+    updateMatchingTopBar();
   });
 
   socket.on("matching-success-sender", () => {
@@ -207,4 +215,18 @@ function startRetryCountdown() {
       retryButton.style.display = "none"; // 버튼 숨김
     }
   }, 1000); // 1초 간격으로 실행
+}
+
+function updateMatchingTopBar() {
+  // 매칭 중 스탑워치 종료
+  clearInterval(searchingTimerInterval); // 매칭중 스탑워치 멈춤
+  searchingTimerInterval = null; // 전역변수 초기화
+
+  // h3 요소의 텍스트를 "매칭 완료"로 변경
+  const titleElement = document.querySelector(".matching-title h3");
+  titleElement.textContent = "매칭 완료";
+
+  // 타이머 요소를 보이지 않게 설정
+  const timerElement = document.querySelector(".timer");
+  timerElement.style.display = "none";
 }
