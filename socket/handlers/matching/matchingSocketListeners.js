@@ -92,10 +92,19 @@ async function setupMatchSocketListeners(socket, io) {
 
   // receiver가 보낸 matching-success-receiver listener
   socket.on("matching-success-receiver", async () => {
-    const senderSocket = await getSocketIdByMemberId(socket.matchingTarget);
+    const senderSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 23) sender socket에게 matching-success-sender emit
     emitMatchingSuccessSender(senderSocket);
+  });
+
+  socket.on("matching_success_final", (request) => {
+    console.log("================= matching_success_final ======================");
+  });
+
+  socket.on("matching_fail", (request) => {
+    console.log("================= matching_fail ======================");
+    console.log("member ID:", socket.memberId);
   });
 
   socket.on("matching_found", handleMatchingFound);

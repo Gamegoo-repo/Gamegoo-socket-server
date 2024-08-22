@@ -38,43 +38,13 @@ function setUpMatchingSocketListeners() {
     console.log(timers);
   });
 
-  // "matching-found-sender" event listener : sender socket
-  socket.on("matching-found-sender", (response) => {
-    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
-    clearTimeout(timers.matchingRetryCallback);
-    delete timers.matchingRetryCallback;
-
-    // 10초 타이머 시작, matchingSuccessSender call back
-    setTimeout(() => {
-      // 10초 이내에 matching-success-sender가 내 소켓에 도착했으면, 10초 후에 matching-success-final emit
-      // 타이머 종료 시점에서 matching-success-sender가 도착했는지 확인
-      if (isMatchingSuccessSenderArrived) {
-        // matching-success-sender가 도착한 경우에만 matching-success-final을 emit
-        socket.emit("matching-success-final");
-        isMatchingSuccessSenderArrived = false;
-      }
-
-      // 10초 후, 3초 타이머 시작, matchingFail call back
-      const timeoutId = setTimeout(() => {
-        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
-        socket.emit("matching-fail");
-      }, 3000);
-
-      timers.matchingFailCallback = timeoutId;
-    }, 10000); // 10000ms = 10초
-
-    // 매칭 상대 정보 렌더링
-
-    // 매칭 나가기 버튼 활성화 및 10초 카운트다운
-  });
-
   // "matching-found-receiver" event listener : receiver socket
   socket.on("matching-found-receiver", (response) => {
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
 
-    // matching-found-success emit
+    // 13) matching-found-success emit
     socket.emit("matching-found-success", { senderMemberId: response.data.memberId, gameMode: response.data.gameMode });
 
     // 10초 타이머 시작, matchingSuccessReceiver call back
@@ -94,6 +64,40 @@ function setUpMatchingSocketListeners() {
     timers.matchingSuccessReceiver = timeoutId;
 
     // 매칭 상대 정보 렌더링
+    updateRightSide(response.data);
+
+    // 매칭 나가기 버튼 활성화 및 10초 카운트다운
+  });
+
+  // "matching-found-sender" event listener : sender socket
+  socket.on("matching-found-sender", (response) => {
+    // 23) matching-found-sender event listen
+    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
+    clearTimeout(timers.matchingRetryCallback);
+    delete timers.matchingRetryCallback;
+
+    // 10초 타이머 시작, matchingSuccessSender call back
+    setTimeout(() => {
+      // 10초 이내에 matching-success-sender가 내 소켓에 도착했으면, 10초 후에 matching-success-final emit
+      // 타이머 종료 시점에서 matching-success-sender가 도착했는지 확인
+      if (isMatchingSuccessSenderArrived) {
+        // 24) matching-success-sender가 도착한 경우에만 matching-success-final을 emit
+        socket.emit("matching-success-final");
+        isMatchingSuccessSenderArrived = false;
+      }
+
+      // 10초 후, 3초 타이머 시작, matchingFail call back
+      const timeoutId = setTimeout(() => {
+        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        socket.emit("matching-fail");
+      }, 3000);
+
+      timers.matchingFailCallback = timeoutId;
+    }, 10000); // 10000ms = 10초
+
+    // 매칭 상대 정보 렌더링
+    updateRightSide(response.data);
+
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
   });
 
@@ -152,4 +156,30 @@ function renderMyMatchingData(data) {
     li.textContent = style;
     gameStleList.appendChild(li);
   });
+}
+
+// 상대 매칭 요청 데이터 렌더링 메소드
+function updateRightSide(data) {
+  const rightSide = document.querySelector(".right-side");
+
+  // 동적으로 생성할 새로운 HTML
+  rightSide.innerHTML = `
+    <h4 class="user-nickname">${data.gameName}</h4> <!-- 닉네임 -->
+    <p class="user-tag">#${data.tag}</p> <!-- 태그 -->
+    <p class="user-rank">${data.tier} ${data.rank}</p> <!-- 등급 -->
+    <div class="profileImg">
+      <img src="${data.profileImg}" alt="avatar" class="profile-img"> <!-- 아바타 -->
+    </div>
+    <p class="mike-status">마이크 <span>${data.mike ? "ON" : "OFF"}</span></p> <!-- 마이크 상태 -->
+    <div class="gamestyle">
+      <ul id="gamestyle-list">
+        ${data.gameStyleList.map((style) => `<li>${style}</li>`).join("")}
+      </ul>
+    </div>
+    <div class="positions">
+      <div class="main-position">주 포지션: <span>${positionMap[data.mainPosition]}</span></div> <!-- 메인 포지션 -->
+      <div class="sub-position">부 포지션: <span>${positionMap[data.subPosition]}</span></div> <!-- 서브 포지션 -->
+      <div class="wanted-position">내가 찾는 포지션: <span>${positionMap[data.wantPosition]}</span></div> <!-- 원하는 상대 포지션 -->
+    </div>
+  `;
 }
