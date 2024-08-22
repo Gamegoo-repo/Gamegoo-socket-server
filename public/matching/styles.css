@@ -1,0 +1,290 @@
+/* body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2;
+}
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+h1 {
+  text-align: center;
+  color: #5c5c5c;
+}
+label {
+  display: block;
+  margin-bottom: 10px;
+  color: #5c5c5c;
+}
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.input-group input,
+.input-group select {
+  width: 48%;
+}
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #7b68ee;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+} */
+
+/* 컨테이너 전체 설정 */
+.container {
+  width: 100%;
+  height: 100vh; /* 화면 전체 높이 */
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  position: relative; /* 자식 요소들의 절대 위치 설정 */
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  position: fixed; /* 화면 맨 위에 고정 */
+  top: 0;
+  left: 0;
+  width: 100%; /* 가로로 화면 전체를 차지 */
+  z-index: 10; /* 다른 요소들 위에 표시되도록 */
+}
+
+/* top-bar 내부 요소를 가로로 배치 */
+.top-bar div {
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+}
+
+.top-bar input,
+.top-bar button,
+.top-bar p {
+  padding: 3px 5px;
+  margin: 0 10px;
+}
+
+/* 초기 화면 (initial-screen)과 매칭 화면 (matching-screen) 공통 설정 */
+#initial-screen,
+#matching-screen {
+  width: 100%;
+  height: 100%; /* 컨테이너 안에서 가득 차도록 설정 */
+  position: absolute; /* 두 화면이 겹치도록 설정 */
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* 초기 화면 스타일 */
+#initial-screen {
+  z-index: 1; /* 우선적으로 보여지도록 설정 */
+}
+
+.input-group {
+  margin: 10px 0;
+}
+
+#initial-screen input[type="number"],
+#initial-screen input[type="string"],
+select {
+  padding: 10px;
+  margin: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 80%;
+}
+
+#initial-screen button {
+  padding: 10px 15px;
+  margin-top: 10px;
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#initial-screen button:hover {
+  background-color: #3700b3;
+}
+
+/* 매칭 화면 스타일 */
+#matching-screen {
+  display: none; /* 처음엔 숨김 처리 */
+  z-index: 2;
+}
+
+.matching-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  background-color: #fff;
+  margin: 0 auto; /* 중앙 정렬 */
+  flex-direction: column; /* 세로로 배치 */
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* match-top-bar가 전체 너비를 차지하도록 설정 */
+.match-top-bar {
+  width: 100%; /* 전체 가로를 차지 */
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between; /* 좌우 끝으로 배치 */
+  align-items: center; /* 세로 중앙 정렬 */
+}
+
+.matching-title {
+  display: flex;
+  align-items: center;
+}
+
+.matching-title h3 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.timer {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+#timer-value {
+  font-size: 24px;
+}
+
+.back-button {
+  background-color: transparent; /* 투명 배경 */
+  border: none;
+  font-size: 24px; /* '<' 크기 */
+  cursor: pointer;
+  margin-right: 10px; /* 제목과의 간격 */
+  color: black;
+}
+
+.match-content {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between; /* 좌우로 공간 나누기 */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.left-side {
+  width: 47%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.right-side {
+  width: 47%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.left-side h4 {
+  margin-bottom: 10px;
+}
+
+.left-side p {
+  margin: 5px 0;
+}
+
+.avatar img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 10px 0;
+}
+
+.preferences {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.preferences p {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.positions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.positions div {
+  margin: 5px 0;
+}
+
+.right-side .waiting {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart-icon img {
+  width: 80px;
+  height: 80px;
+}
+
+.waiting p {
+  font-size: 16px;
+  color: #333;
+}

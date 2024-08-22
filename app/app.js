@@ -31,49 +31,95 @@ app.get("/match", (req, res) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>겜구 매칭 테스트</title>
-  <link rel="stylesheet" href="styles.css" /> 
+  <link rel="stylesheet" href="/matching/styles.css" /> 
 </head>
 
 <body>
   <div class="container">
-    <h2>Gamegoo Matching</h3>
-    <div class="top-bar">
+  <div class="top-bar">
       <div>
-        <input id="userEmail" type="string" placeholder="Enter your Email" />
-        <input id="userPw" type="string" placeholder="Enter your Pw" />
+        <input id="userEmail" type="string" placeholder="Enter your Email">
+        <input id="userPw" type="string" placeholder="Enter your Pw">
         <button id="loginButton">Login</button>
         <button id="logoutButton">Logout</button>
       </div>
       <p id="loginStatus">You are not Login User</p>
     </div>
-      <div class="input-group">
-        <select id="matching-type">
-          <option value="BASIC">BASIC</option>
-          <option value="PRECISE">PRECISE</option>
-        </select>
-        <input type="number" id="game-mode" min="1" max="4" placeholder="게임 모드 (1: 빠른 대전, 2: 솔로 랭크, 3: 자유 랭크, 4: 칼바람 나락)">
 
-        <label for="mike">Mike:</label>
-        <input type="checkbox" id="mike">
-      </div>
-  
-      <div class="input-group">
-        <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
-        <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
-        <input type="number" id="wantP" min="0" max="5" placeholder="원하는 상대 포지션 (0:랜덤, 1:탑, 2:정글, 3:미드, 4:원딜, 5:서폿)">
-      </div>
-  
-  
-      <div class="input-group">
-        <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (int 1~17)">
-        <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (int 1~17)">
-        <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (int 1~17)">
-      </div>
-  
-      <button id="match-btn">Match</button>
-    
-    
+  <!-- 첫 번째 화면 (초기 화면) -->
+  <div id="initial-screen">
+    <h2>Gamegoo Matching</h2>
+
+    <div class="input-group">
+      <select id="matching-type">
+        <option value="BASIC">BASIC</option>
+        <option value="PRECISE">PRECISE</option>
+      </select>
+      <input type="number" id="game-mode" min="1" max="4" placeholder="게임 모드, 1 ~ 4">
+      <label for="mike">Mike:</label>
+      <input type="checkbox" id="mike">
+    </div>
+
+    <div class="input-group">
+      <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0 ~ 5)">
+      <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0 ~ 5)">
+      <input type="number" id="wantP" min="0" max="5" placeholder="원하는 포지션 (0 ~ 5)">
+    </div>
+
+    <div class="input-group">
+      <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (1 ~ 17)">
+      <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (1 ~ 17)">
+      <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (1 ~ 17)">
+    </div>
+
+    <button id="match-btn">Match</button>
   </div>
+
+  <!-- 두 번째 화면 (매칭 화면) -->
+  <div id="matching-screen" style="display: none;">
+    <div class="matching-container">
+      <div class="match-top-bar">
+        <div class="matching-title">
+          <button class="back-button"><</button>
+          <h3>매칭 중</h3>
+        </div>
+        <div class="timer">
+          <p><span id="timer-value" style="color: #6200ea;">0:00</span> / 5:00</p>
+        </div>
+      </div>
+      <div class="match-content">
+        <div class="left-side">
+          <h4 class="user-nickname">유니콘의 비밀</h4> <!-- 닉네임 -->
+          <p class="user-tag">태그: <span>#KR1</span></p>
+          <p class="user-rank">등급: <span>B3</span></p> <!-- 등급 -->
+          <div class="profileImg">
+            <img src="avatar.png" alt="avatar" class="profile-img"> <!-- 아바타 -->
+          </div>
+          <p class="mike-status">마이크 <span>ON</span></p> <!-- 마이크 상태 -->
+          <div class="preferences">
+            <ul id="preferences-list">
+              <!-- 이곳에 동적으로 <li> 요소가 추가됩니다 -->
+            </ul>
+          </div>
+          <div class="positions">
+            <div class="main-position">주 포지션: <span>탑</span></div> <!-- 메인 포지션 -->
+            <div class="sub-position">부 포지션: <span>정글</span></div> <!-- 서브 포지션 -->
+            <div class="wanted-position">내가 찾는 포지션: <span>미드</span></div> <!-- 원하는 상대 포지션 -->
+          </div>
+        </div>
+        <div class="right-side">
+          <div class="waiting">
+                      <div class="heart-icon">
+              <img src="heart.png" alt="heart icon">
+            </div>
+            <p>어떤 사람이 나올까요?</p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   <script>
     const API_SERVER_URL = '${API_SERVER_URL}';
     const NODE_SERVER_URL = '${NODE_SERVER_URL}';
@@ -89,11 +135,10 @@ app.get("/match", (req, res) => {
 </body>
 
 </html>
-    `
-  )
-})
+    `);
+});
 
-// 프로필 이미지 제공
+// 이미지 제공
 app.get("/:id", (req, res) => {
   const id = req.params.id;
   const options = {
@@ -104,6 +149,13 @@ app.get("/:id", (req, res) => {
   if (id >= 1 && id <= 8) {
     const fileName = `profile_${id}.png`;
     res.sendFile(fileName, options, (err) => {
+      if (err) {
+        console.error("Error sending file:", err);
+        res.status(500).send("Error sending file");
+      }
+    });
+  } else if (id == "heart.png") {
+    res.sendFile("heart.png", options, (err) => {
       if (err) {
         console.error("Error sending file:", err);
         res.status(500).send("Error sending file");
