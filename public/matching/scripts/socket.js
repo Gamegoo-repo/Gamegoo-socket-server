@@ -67,6 +67,7 @@ function setUpMatchingSocketListeners() {
     updateRightSide(response.data);
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
+    startRetryCountdown();
   });
 
   // "matching-found-sender" event listener : sender socket
@@ -99,6 +100,7 @@ function setUpMatchingSocketListeners() {
     updateRightSide(response.data);
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
+    startRetryCountdown();
   });
 
   socket.on("matching-success-sender", () => {
@@ -182,4 +184,27 @@ function updateRightSide(data) {
       <div class="wanted-position">내가 찾는 포지션: <span>${positionMap[data.wantPosition]}</span></div> <!-- 원하는 상대 포지션 -->
     </div>
   `;
+}
+
+// 매칭 다시하기 버튼 보여주기 및 10초 카운트 다운
+function startRetryCountdown() {
+  const retryButton = document.querySelector(".retry-button");
+  const retryTimerValue = document.getElementById("retry-timer-value");
+
+  // 버튼을 보여줌
+  retryButton.style.display = "inline-block"; // or 'block', depending on your layout
+
+  let countdown = 10; // 카운트다운 시작 값
+
+  // 카운트다운 함수
+  const countdownInterval = setInterval(() => {
+    countdown--; // 1초에 1씩 감소
+    retryTimerValue.textContent = countdown; // 화면에 표시되는 값 업데이트
+
+    // 카운트가 0이면 카운트다운 멈추고 버튼 숨기기
+    if (countdown <= 0) {
+      clearInterval(countdownInterval); // 카운트다운 정지
+      retryButton.style.display = "none"; // 버튼 숨김
+    }
+  }, 1000); // 1초 간격으로 실행
 }

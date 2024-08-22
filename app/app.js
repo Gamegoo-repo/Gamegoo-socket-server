@@ -116,6 +116,10 @@ app.get("/match", (req, res) => {
           </div>
         </div>
       </div>
+      <!-- match-bottom div 추가 -->
+        <div class="match-bottom">
+          <button class="retry-button" style="display: none;">매칭 다시하기   <span id="retry-timer-value">10</span></button>
+        </div>
     </div>
   </div>
 </div>

@@ -248,8 +248,8 @@ select {
 .profile-img {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
   margin: 10px 0;
+  object-fit: cover; /* 이미지가 100x100 크기에 맞게 조정 */
 }
 
 .gamestyle {
@@ -294,4 +294,30 @@ select {
 .waiting p {
   font-size: 16px;
   color: #333;
+}
+
+/* 매칭 다시하기 버튼*/
+.match-bottom {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽에 배치 */
+  padding: 20px; /* 여백을 추가하여 화면 하단에서 떨어지게 설정 */
+}
+
+.retry-button {
+  padding: 10px 20px;
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.retry-button:hover {
+  background-color: #3700b3;
+}
+
+#retry-timer-value {
+  color: white;
+  font-weight: 600;
 }
