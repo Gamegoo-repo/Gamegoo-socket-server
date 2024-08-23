@@ -120,6 +120,12 @@ function setUpMatchingSocketListeners() {
     // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
     clearTimeout(timers.matchingFailCallback);
     delete timers.matchingFailCallback;
+
+    // 세션 스토리지에 chatroomUuid 저장
+    sessionStorage.setItem("fromMatchPage", response.data.chatroomUuid);
+
+    // 채팅 화면 경로로 리디렉션
+    window.location.href = "/";
   });
 
   socket.on("matching-fail", (response) => {

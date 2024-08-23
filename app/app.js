@@ -93,7 +93,7 @@ app.get("/match", (req, res) => {
           <p class="user-tag"></p>
           <p class="user-rank"></p> <!-- 등급 -->
           <div class="profileImg">
-            <img src="avatar.png" alt="avatar" class="profile-img"> <!-- 아바타 -->
+            <img src="heart.png" alt="profile_img" class="profile-img"> <!-- 아바타 -->
           </div>
           <p class="mike-status">마이크 <span></span></p> <!-- 마이크 상태 -->
           <div class="gamestyle">

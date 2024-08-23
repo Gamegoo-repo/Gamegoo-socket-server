@@ -804,3 +804,16 @@ function renderChatroomDiv(result) {
     sendButton.disabled = false; // 버튼 활성화
   }
 }
+
+// 매칭 성공 후 채팅방 페이지 연결된 경우
+document.addEventListener("DOMContentLoaded", () => {
+  // 세션 스토리지에서 chatroomUuid
+  const chatroomUuid = sessionStorage.getItem("fromMatchPage");
+
+  if (chatroomUuid) {
+    enterChatroom(chatroomUuid);
+
+    // 플래그 삭제 (한 번만 동작하게 함)
+    sessionStorage.removeItem("fromMatchPage");
+  }
+});
