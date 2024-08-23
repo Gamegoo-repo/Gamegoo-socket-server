@@ -1,4 +1,4 @@
-const { fetchMatchingApi, matchingFoundApi } = require("../../apis/matchApi");
+const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi } = require("../../apis/matchApi");
 
 const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { isSocketActiveAndInRoom } = require("./matchingHandler/matchingCommonHandler");
@@ -101,17 +101,36 @@ async function setupMatchSocketListeners(socket, io) {
     const senderSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 23) sender socket에게 matching-success-sender emit
-    emitMatchingSuccessSender(senderSocket);
+    if (senderSocket) {
+      emitMatchingSuccessSender(senderSocket);
+    }
   });
 
   // sender가 보낸 matching-success-final listener
   socket.on("matching-success-final", async () => {
     console.log("================= matching_success_final ======================");
-    // senderSocket 객체 찾기
+
+    // receiverSocket 객체 찾기
     const receiverSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
-    // 28) matching-success emit
-    emitMatchingSuccess(socket, receiverSocket);
+    if (receiverSocket) {
+      // 25) 8080서버에 매칭 성공 API 요청
+      try {
+        const result = await matchingSuccessApi(socket, receiverSocket.memberId);
+
+        // 26) API 정상 응답 받음
+        if (result) {
+          // 27) 두 socket을 chatroom에 join
+          socket.join("CHAT_" + result);
+          receiverSocket.join("CHAT_" + result);
+
+          // 28) matching-success emit
+          emitMatchingSuccess(socket, receiverSocket, result);
+        }
+      } catch (error) {
+        handlerSocketError(socket, error);
+      }
+    }
   });
 
   socket.on("matching-fail", (request) => {
