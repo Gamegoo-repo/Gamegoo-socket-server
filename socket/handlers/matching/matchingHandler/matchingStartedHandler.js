@@ -1,7 +1,6 @@
 const JWTTokenError = require("../../../../common/JWTTokenError");
 const { getSocketIdByMemberId } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
-const { PriorityTree } = require("../../../common/PriorityTree");
 
 /**
  * 내 우선순위 트리 갱신

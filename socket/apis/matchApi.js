@@ -6,7 +6,7 @@ const config = require("../../common/config");
 const API_SERVER_URL = config.apiServerUrl;
 
 /**
- * 매칭 정보를 기록하고 우선순위 값을 가져오는 API
+ * 매칭 요청 저장, 우선순위 값 계산 후, 우선순위 계산 결과 및 내 매칭 요청 정보 리턴하는 API 요청
  * @param {*} socket
  * @returns
  */
@@ -49,7 +49,7 @@ async function fetchMatchingApi(socket, request) {
 }
 
 /**
- * 나+상대방의 매칭 상태를 수정하는 API
+ * 나+상대방의 매칭 상태를 수정하는 API 요청
  * @param {*} socket
  * @param {*} status
  * @param {*} targetMemberId
@@ -79,14 +79,20 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
         console.error("JWT token Error: ", data.message);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PUT matching status API ", data.message);
-      throw new Error(`Failed PUT matching status API: ${data.message}`);
+      console.error("Failed PATCH both matching status: ", data.message);
+      throw new Error(`Failed PATCH both matching status:  ${data.message}`);
     } else {
       throw new Error(`Request failed: ${error.message}`);
     }
   }
 }
 
+/**
+ * 해당 socket 회원의 매칭 기록 status를 변경하는 API 요청
+ * @param {*} socket
+ * @param {*} status
+ * @returns
+ */
 async function updateMatchingStatusApi(socket, status) {
   try {
     const response = await axios.patch(
@@ -111,8 +117,80 @@ async function updateMatchingStatusApi(socket, status) {
         console.error("JWT token Error: ", data.message);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PUT matching status API ", data.message);
-      throw new Error(`Failed PUT matching status API: ${data.message}`);
+      console.error("Failed PATCH matching status: ", data.message);
+      throw new Error(`Failed PATCH matching status: ${data.message}`);
+    } else {
+      throw new Error(`Request failed: ${error.message}`);
+    }
+  }
+}
+
+/**
+ * targetMember와의 매칭 기록 status 변경 및 매칭 요청 정보 리턴하는 API 요청
+ * @param {*} socket
+ * @param {*} targetMemberId
+ * @returns
+ */
+async function matchingFoundApi(socket, targetMemberId) {
+  try {
+    const response = await axios.patch(
+      `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
+        },
+      }
+    );
+
+    if (response.data.isSuccess) {
+      return response.data.result;
+    }
+  } catch (error) {
+    if (error.response && error.response.data) {
+      const data = error.response.data;
+      if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
+        console.error("JWT token Error: ", data.message);
+        throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
+      }
+      console.error("Failed PATCH matching found: ", data.message);
+      throw new Error(`Failed PATCH matching found: ${data.message}`);
+    } else {
+      throw new Error(`Request failed: ${error.message}`);
+    }
+  }
+}
+
+/**
+ * targetMember와의 매칭 기록 status 변경 및 채팅방 시작해 채팅방 uuid 리턴하는 API 요청
+ * @param {*} socket
+ * @param {*} targetMemberId
+ * @returns
+ */
+async function matchingSuccessApi(socket, targetMemberId) {
+  try {
+    const response = await axios.patch(
+      `${API_SERVER_URL}/v1/matching/success/target/${targetMemberId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
+        },
+      }
+    );
+
+    if (response.data.isSuccess) {
+      return response.data.result;
+    }
+  } catch (error) {
+    if (error.response && error.response.data) {
+      const data = error.response.data;
+      if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
+        console.error("JWT token Error: ", data.message);
+        throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
+      }
+      console.error("Failed PATCH matching success: ", data.message);
+      throw new Error(`Failed PATCH matching success: ${data.message}`);
     } else {
       throw new Error(`Request failed: ${error.message}`);
     }
@@ -123,4 +201,6 @@ module.exports = {
   fetchMatchingApi,
   updateMatchingStatusApi,
   updateBothMatchingStatusApi,
+  matchingFoundApi,
+  matchingSuccessApi,
 };
