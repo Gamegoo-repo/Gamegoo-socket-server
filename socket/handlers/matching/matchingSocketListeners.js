@@ -1,8 +1,8 @@
-const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi } = require("../../apis/matchApi");
+const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi, updateMatchingStatusApi } = require("../../apis/matchApi");
 
 const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { isSocketActiveAndInRoom } = require("./matchingHandler/matchingCommonHandler");
-const { deleteSocketFromMatching } = require("./matchingHandler/matchingFoundHandler");
+const { deleteSocketFromMatching, deleteMySocketFromMatching } = require("./matchingHandler/matchingFoundHandler");
 
 const { emitError } = require("../../emitters/errorEmitter");
 const {
@@ -25,6 +25,7 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", async (request) => {
     const gameMode = request.gameMode;
+    socket.gameMode = request.gameMode;
     const roomName = "GAMEMODE_" + gameMode;
 
     // 2) socket.id가 소켓 룸 "GAMEMODE_" + gameMode에 있는지 확인
@@ -138,21 +139,32 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("member ID:", socket.memberId);
   });
 
-  socket.on("matching_found", handleMatchingFound);
-  socket.on("matching_success", handleMatchingSuccess);
-  socket.on("matching_failed", handleMatchingFailed);
-}
+  socket.on("matching-retry", (request) => {
+    console.log("================= matching_retry ======================");
+    console.log("member ID:", socket.memberId);
+    console.log("priority : ", request.priority);
 
-function handleMatchingFound(request) {
-  console.log("matching_found", request);
-}
 
-function handleMatchingSuccess(request) {
-  console.log(request);
-}
+  })
 
-function handleMatchingFailed(request) {
-  console.log(request);
+  // Flow #22
+  socket.on("matching-not-found", async (request) => {
+    console.log("================= matching_not_found ======================");
+    // 14 ~ 16) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
+    const roomName = "GAMEMODE_" + socket.gameMode;
+    deleteMySocketFromMatching(socket, io, roomName);
+
+    // 17) matching_status 변경
+    try{
+      const result = await updateMatchingStatusApi(socket, "FAIL");
+      if(result){
+        console.log("Matching Not Found 처리 완료");
+      }
+    }catch (error) {
+      handlerSocketError(socket, error);
+    }
+  })
+
 }
 
 module.exports = { setupMatchSocketListeners };

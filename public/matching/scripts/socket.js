@@ -34,10 +34,23 @@ function setUpMatchingSocketListeners() {
     const timeoutId = setTimeout(() => {
       // 2분 동안 "matching-found-sender" or "matching-found-receiver" 이벤트가 발생하지 않으면 매칭 재시작 요청
       socket.emit("matching-retry", { priority: 50 });
+
+      // 3분 타이머 시작, matching_not_found 
+      const timeoutIdforNotFound = setTimeout(()=>{        
+        // matching_retry 이후 "matching-found-sender" or "matching-found-receiver" 이벤트가 발생하지 않을 경우 matching-not-found emit 전송
+        socket.emit("matching-not-found");
+
+        alert("매칭을 찾을 수 없습니다.");
+
+        window.location.href = "/";
+
+      },180000); // 180000ms = 3분
     }, 120000); // 120000ms = 2분
 
     timers.matchingRetryCallback = timeoutId;
+    timers.matchingNotFoundCallback = timeoutIdforNotFound;
     console.log(timers);
+
   });
 
   // "matching-found-receiver" event listener : receiver socket
@@ -45,6 +58,10 @@ function setUpMatchingSocketListeners() {
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
+    
+    // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
+    clearTimeout(timers.matchingNotFoundCallback);
+    delete timers.matchingNotFoundCallback;
 
     // 13) matching-found-success emit
     socket.emit("matching-found-success", { senderMemberId: response.data.memberId, gameMode: response.data.gameMode });
@@ -81,6 +98,10 @@ function setUpMatchingSocketListeners() {
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
+
+    // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
+    clearTimeout(timers.matchingNotFoundCallback);
+    delete timers.matchingNotFoundCallback;
 
     // 10초 타이머 시작, matchingSuccessSender call back
     setTimeout(() => {
