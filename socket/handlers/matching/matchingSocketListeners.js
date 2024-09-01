@@ -25,8 +25,8 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", async (request) => {
     const gameMode = request.gameMode;
-    socket.gameMode = request.gameMode;
     const roomName = "GAMEMODE_" + gameMode;
+    socket.roomName = roomName;
 
     // 2) socket.id가 소켓 룸 "GAMEMODE_" + gameMode에 있는지 확인
     const usersInRoom = io.sockets.adapter.rooms.get(roomName) || new Set();
@@ -42,6 +42,7 @@ async function setupMatchSocketListeners(socket, io) {
     try {
       // 4) 8080서버에 우선순위 계산 API 요청
       const result = await fetchMatchingApi(socket, request);
+      socket.myMatchingInfo = result.myMatchingInfo;
 
       // 6) API 정상 응답 받음
       if (result) {
@@ -56,14 +57,14 @@ async function setupMatchSocketListeners(socket, io) {
       }
 
       // 10) priorityTree의 maxNode가 55를 넘는지 확인
-      const receiverSocket = await findMatching(socket, io, 55);
+      const receiverSocket = await findMatching(socket, io, 50);
 
       if (receiverSocket) {
         // 11) receiverSocket이 매칭 room에 존재하는지 여부 확인
         isSocketActiveAndInRoom(receiverSocket, io, roomName);
 
         // 12) "matching-found-receiver" emit
-        emitMatchingFoundReceiver(receiverSocket, result.myMatchingInfo);
+        emitMatchingFoundReceiver(receiverSocket, socket.myMatchingInfo);
       }
     } catch (error) {
       handleSocketError(socket, error);
@@ -139,10 +140,23 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("member ID:", socket.memberId);
   });
 
-  socket.on("matching-retry", (request) => {
+  socket.on("matching-retry", async (request) => {
     console.log("================= matching_retry ======================");
     console.log("member ID:", socket.memberId);
     console.log("priority : ", request.priority);
+    const roomName = socket.roomName;
+
+
+    // 10) priorityTree의 maxNode가 request.priority를 넘는지 확인
+    const receiverSocket = await findMatching(socket, io, request.priority);
+
+    if (receiverSocket) {
+      // 11) receiverSocket이 매칭 room에 존재하는지 여부 확인
+      isSocketActiveAndInRoom(receiverSocket, io, roomName);
+
+      // 12) "matching-found-receiver" emit
+      emitMatchingFoundReceiver(receiverSocket, socket.myMatchingInfo);
+    }
 
 
   })
@@ -151,7 +165,7 @@ async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-not-found", async (request) => {
     console.log("================= matching_not_found ======================");
     // 14 ~ 16) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
-    const roomName = "GAMEMODE_" + socket.gameMode;
+    const roomName = socket.roomName;
     deleteMySocketFromMatching(socket, io, roomName);
 
     // 17) matching_status 변경
