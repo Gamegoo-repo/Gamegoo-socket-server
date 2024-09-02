@@ -229,6 +229,14 @@ function startRetryCountdown() {
   // 버튼을 보여줌
   retryButton.style.display = "inline-block"; // or 'block', depending on your layout
 
+  console.log(retryButton);
+  // 클릭되면 matching-fail emit
+  retryButton.addEventListener("click", ()=> {
+    console.log("MATCHING_FAILED");
+    socket.emit("matching-fail");
+    window.location.href("/");
+  });
+
   let countdown = 10; // 카운트다운 시작 값
 
   // 카운트다운 함수

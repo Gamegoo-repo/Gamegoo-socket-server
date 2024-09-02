@@ -137,7 +137,14 @@ async function setupMatchSocketListeners(socket, io) {
 
   socket.on("matching-fail", (request) => {
     console.log("================= matching_fail ======================");
-    console.log("member ID:", socket.memberId);
+    console.log("socket : ", socket);
+
+    // 26) 매칭 FAIL API 요청
+
+    // 27) 상대 client에게 matching-fail emit
+
+    // 28) socket.target 제거
+    
   });
 
   socket.on("matching-retry", async (request) => {
@@ -169,12 +176,12 @@ async function setupMatchSocketListeners(socket, io) {
     deleteMySocketFromMatching(socket, io, roomName);
 
     // 17) matching_status 변경
-    try{
+    try {
       const result = await updateMatchingStatusApi(socket, "FAIL");
-      if(result){
+      if (result) {
         console.log("Matching Not Found 처리 완료");
       }
-    }catch (error) {
+    } catch (error) {
       handlerSocketError(socket, error);
     }
   })
