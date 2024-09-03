@@ -150,7 +150,9 @@ async function setupMatchSocketListeners(socket, io) {
     socket.matchingTarget=null;
 
     // 29) otherSocket.matchingTarget 제거
-    otherSocket.matchingTarget=null;
+    if(otherSocket){
+      otherSocket.matchingTarget=null;
+    }
   });
 
   socket.on("matching-retry", async (request) => {
