@@ -1,4 +1,4 @@
-const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi, updateMatchingStatusApi } = require("../../apis/matchApi");
+const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi, updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
 
 const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { isSocketActiveAndInRoom } = require("./matchingHandler/matchingCommonHandler");
@@ -11,6 +11,7 @@ const {
   emitMatchingFoundSender,
   emitMatchingSuccessSender,
   emitMatchingSuccess,
+  emitMatchingFail
 } = require("../../emitters/matchingEmitter");
 
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
@@ -135,9 +136,23 @@ async function setupMatchSocketListeners(socket, io) {
     }
   });
 
-  socket.on("matching-fail", (request) => {
+  socket.on("matching-fail", async(request) => {
     console.log("================= matching_fail ======================");
-    console.log("member ID:", socket.memberId);
+    const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
+
+    // 26) 매칭 FAIL API 요청
+    await updateBothMatchingStatusApi(socket,"FAIL",socket.matchingTarget);
+
+    // 27) 상대 client에게 matching-fail emit
+    emitMatchingFail(otherSocket);    
+
+    // 28) socket.target 제거
+    socket.matchingTarget=null;
+
+    // 29) otherSocket.matchingTarget 제거
+    if(otherSocket){
+      otherSocket.matchingTarget=null;
+    }
   });
 
   socket.on("matching-retry", async (request) => {
@@ -169,12 +184,12 @@ async function setupMatchSocketListeners(socket, io) {
     deleteMySocketFromMatching(socket, io, roomName);
 
     // 17) matching_status 변경
-    try{
+    try {
       const result = await updateMatchingStatusApi(socket, "FAIL");
-      if(result){
+      if (result) {
         console.log("Matching Not Found 처리 완료");
       }
-    }catch (error) {
+    } catch (error) {
       handlerSocketError(socket, error);
     }
   })

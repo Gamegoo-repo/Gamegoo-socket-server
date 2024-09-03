@@ -1,7 +1,6 @@
 let elapsedSeconds = 0; // 타이머 경과된 시간 (초)
 let searchingTimerInterval; // 매칭중 타이머
 let timers = {};
-
 let isMatchingSuccessSenderArrived = false; // matching-success-sender가 도착했는지 여부를 추적
 
 // 포지션 값을 텍스트로 변환하는 함수
@@ -153,6 +152,9 @@ function setUpMatchingSocketListeners() {
     // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
     clearTimeout(timers.matchingFailCallback);
     delete timers.matchingFailCallback;
+
+    window.location.href = "/";
+
   });
 }
 
@@ -228,6 +230,15 @@ function startRetryCountdown() {
 
   // 버튼을 보여줌
   retryButton.style.display = "inline-block"; // or 'block', depending on your layout
+
+
+  // 클릭되면 matching-fail emit
+  retryButton.addEventListener("click", () => {
+    console.log("MATCHING_FAILED");
+    socket.emit("matching-fail");
+    window.location.href = "/";
+
+  });
 
   let countdown = 10; // 카운트다운 시작 값
 
