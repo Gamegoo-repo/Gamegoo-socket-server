@@ -1,4 +1,4 @@
-const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi, updateMatchingStatusApi } = require("../../apis/matchApi");
+const { fetchMatchingApi, matchingFoundApi, matchingSuccessApi, updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../apis/matchApi");
 
 const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingHandler/matchingStartedHandler");
 const { isSocketActiveAndInRoom } = require("./matchingHandler/matchingCommonHandler");
@@ -11,6 +11,7 @@ const {
   emitMatchingFoundSender,
   emitMatchingSuccessSender,
   emitMatchingSuccess,
+  emitMatchingFail
 } = require("../../emitters/matchingEmitter");
 
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
@@ -135,16 +136,21 @@ async function setupMatchSocketListeners(socket, io) {
     }
   });
 
-  socket.on("matching-fail", (request) => {
+  socket.on("matching-fail", async(request) => {
     console.log("================= matching_fail ======================");
-    console.log("socket : ", socket);
+    const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 26) 매칭 FAIL API 요청
+    await updateBothMatchingStatusApi(socket,"FAIL",socket.matchingTarget);
 
     // 27) 상대 client에게 matching-fail emit
+    emitMatchingFail(otherSocket);    
 
     // 28) socket.target 제거
-    
+    socket.matchingTarget=null;
+
+    // 29) otherSocket.matchingTarget 제거
+    otherSocket.matchingTarget=null;
   });
 
   socket.on("matching-retry", async (request) => {

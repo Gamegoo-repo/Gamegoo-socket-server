@@ -44,10 +44,16 @@ function emitMatchingSuccess(senderSocket, receiverSocket, chatroomUuid) {
   receiverSocket.emit("matching-success", formatResponse("matching-success", { chatroomUuid: chatroomUuid }));
 }
 
+function emitMatchingFail(socket){
+  socket.emit("matching-fail",formatResponse("matching-fail","매칭이 실패했습니다."));
+}
+
+
 module.exports = {
   emitMatchingStarted,
   emitMatchingFoundReceiver,
   emitMatchingFoundSender,
   emitMatchingSuccessSender,
   emitMatchingSuccess,
+  emitMatchingFail
 };
