@@ -103,7 +103,7 @@ function setUpMatchingSocketListeners() {
     delete timers.matchingNotFoundCallback;
 
     // 10초 타이머 시작, matchingSuccessSender call back
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       // 10초 이내에 matching-success-sender가 내 소켓에 도착했으면, 10초 후에 matching-success-final emit
       // 타이머 종료 시점에서 matching-success-sender가 도착했는지 확인
       if (isMatchingSuccessSenderArrived) {
@@ -121,6 +121,7 @@ function setUpMatchingSocketListeners() {
       timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
 
+    timers.matchingSuccessCallback = timeoutId;
     // 매칭 상대 정보 렌더링
     updateRightSide(response.data);
 
@@ -152,6 +153,10 @@ function setUpMatchingSocketListeners() {
     // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
     clearTimeout(timers.matchingFailCallback);
     delete timers.matchingFailCallback;
+
+    // 매칭이 실패했으므로, matchingNotFound callback 취소
+    clearTimeout(timers.matchingSuccessCallback);
+    delete timers.matchingSuccessCallback;
 
     window.location.href = "/";
 
