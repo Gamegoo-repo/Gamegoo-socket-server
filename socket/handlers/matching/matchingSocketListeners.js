@@ -26,6 +26,7 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", async (request) => {
     const gameMode = request.gameMode;
+    socket.gameMode = gameMode;
     const roomName = "GAMEMODE_" + gameMode;
     socket.roomName = roomName;
 
