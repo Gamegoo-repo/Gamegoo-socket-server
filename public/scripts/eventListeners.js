@@ -94,14 +94,24 @@ fetchFriendsButton.addEventListener("click", () => {
           // (#13-1) 채팅방 시작 API 요청
           startChatByMemberIdApi(friend.memberId).then((result) => {
             // (#13-2) 채팅방 시작 API 정상 응답 받음
-            // (#13-3) messagesFromThisChatroom array 초기화
-            messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
+            if (result.chatMessageList) {
+              // 채팅 메시지 내역이 있을 때에만
+              // (#13-3) messagesFromThisChatroom array 초기화
+              messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
 
-            console.log("============== fetch chat messages result ===============");
-            console.log(result.chatMessageList.chatMessageDtoList);
+              console.log("============== fetch chat messages result ===============");
+              console.log(result.chatMessageList.chatMessageDtoList);
 
-            // (#13-4) hasNextChat 업데이트
-            hasNextChat = result.chatMessageList.has_next;
+              // (#13-4) hasNextChat 업데이트
+              hasNextChat = result.chatMessageList.has_next;
+            } else {
+              // 채팅 메시지 내역이 아예 없을 경우
+              // messagesFromThisChatroom array 초기화
+              messagesFromThisChatroom = [];
+
+              // hasNext null로 초기화
+              hasNextChat = null;
+            }
 
             // (#13-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
             currentViewingChatroomUuid = result.uuid;
