@@ -14,10 +14,7 @@ function initializeFriend(socket, io) {
   // (#1-13),(#2-9) 해당 회원의 친구 목록 조회 api 요청
   // (#1-14),(#2-10) 친구 목록 조회 정상 응답 받음
   fetchFriends(socket)
-    .then(async (friends) => {
-      // 친구 중에서 현재 온라인인 친구의 소켓 id 및 memberId array 생성
-      const friendIdList = friends.map((friend) => friend.memberId);
-
+    .then(async (friendIdList) => {
       // 친구 memberId로 socketId 찾기
       const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
 
