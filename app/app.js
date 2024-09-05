@@ -234,7 +234,7 @@ app.get("/", (req, res) => {
           </div>
         </div>
           <div class="content">
-            <div class="column">
+            <div class="column friends">
               <h2>
                 친구 목록
                 <button id="fetchFriendsButton"> ↻ </button>

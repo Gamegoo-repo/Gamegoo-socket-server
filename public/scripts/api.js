@@ -60,10 +60,14 @@ async function loginNodeApi() {
   }
 }
 
-async function getFriendListApi() {
+async function getFriendListApi(cursor) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/friends`, {
+    let url = `${API_SERVER_URL}/v1/friends`;
+    if (cursor) {
+      url += `?cursor=${cursor}`;
+    }
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },
