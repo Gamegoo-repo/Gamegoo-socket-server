@@ -35,7 +35,7 @@ function setUpMatchingSocketListeners() {
       socket.emit("matching-retry", { priority: 50 });
 
       // 3분 타이머 시작, matching_not_found 
-      const timeoutIdforNotFound = setTimeout(()=>{        
+      const timeoutIdforNotFound = setTimeout(() => {
         // matching_retry 이후 "matching-found-sender" or "matching-found-receiver" 이벤트가 발생하지 않을 경우 matching-not-found emit 전송
         socket.emit("matching-not-found");
 
@@ -43,7 +43,7 @@ function setUpMatchingSocketListeners() {
 
         window.location.href = "/";
 
-      },180000); // 180000ms = 3분
+      }, 180000); // 180000ms = 3분
     }, 120000); // 120000ms = 2분
 
     timers.matchingRetryCallback = timeoutId;
@@ -57,7 +57,7 @@ function setUpMatchingSocketListeners() {
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
-    
+
     // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
     clearTimeout(timers.matchingNotFoundCallback);
     delete timers.matchingNotFoundCallback;
@@ -150,15 +150,13 @@ function setUpMatchingSocketListeners() {
   });
 
   socket.on("matching-fail", (response) => {
-    // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
-    clearTimeout(timers.matchingFailCallback);
-    delete timers.matchingFailCallback;
+    Object.keys(timers).forEach(function (timer) {
+      clearTimeout(timers[timer]);
+      delete timers[timer];
+    });
 
-    // 매칭이 실패했으므로, matchingNotFound callback 취소
-    clearTimeout(timers.matchingSuccessCallback);
-    delete timers.matchingSuccessCallback;
 
-    window.location.href = "/";
+    alert("매칭이 실패했습니다!!");
 
   });
 }
@@ -241,7 +239,13 @@ function startRetryCountdown() {
   retryButton.addEventListener("click", () => {
     console.log("MATCHING_FAILED");
     socket.emit("matching-fail");
-    window.location.href = "/";
+
+    Object.keys(timers).forEach(function (timer) {
+      clearTimeout(timers[timer]);
+      delete timers[timer];
+    });
+
+    alert("매칭이 실패했습니다.");
 
   });
 
