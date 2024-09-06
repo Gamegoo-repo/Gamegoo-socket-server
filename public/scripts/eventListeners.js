@@ -41,14 +41,152 @@ fetchFriendsButton.addEventListener("click", () => {
   }
 
   // (#3-1) 친구 목록 조회 api 요청
-  getFriendListApi().then((result) => {
+  getFriendListApi(null).then((result) => {
     if (result) {
       // (#3-2) 친구 목록 조회 성공 응답 받음
       const friendsElement = document.getElementById("friendsList");
       friendsElement.innerHTML = ""; // 이전 친구목록 element 비우기
 
+      hasNextFriend = result.has_next;
+      nextFriendCursor = result.next_cursor;
+
       // (#3-3) 친구 목록 화면 렌더링
-      result.forEach((friend) => {
+      result.friendInfoDTOList.forEach((friend) => {
+        const li = document.createElement("li");
+
+        // onlineFriendMemberIdList에 존재하는 회원인지 (해당 회원이 현재 온라인인지)에 따라 상태 text 배정
+        const isOnline = onlineFriendMemberIdList.includes(friend.memberId);
+        const statusText = isOnline ? "online" : "offline";
+
+        // 접속 상태 element 생성 및 class 부여
+        const statusElement = document.createElement("span");
+        statusElement.textContent = `(${statusText})`;
+        statusElement.classList.add(isOnline ? "online" : "offline");
+
+        li.setAttribute("data-member-id", friend.memberId);
+
+        // 사용자 정보를 담는 div 생성
+        const userInfoDiv = document.createElement("div");
+        userInfoDiv.className = "user-info"; // CSS 클래스 추가
+        userInfoDiv.innerHTML = `
+                <img src="${friend.memberProfileImg}" alt="${friend.name}'s profile picture" width="30" height="30">
+                <span>${friend.name}</span>
+            `;
+        li.appendChild(userInfoDiv);
+        li.appendChild(statusElement);
+
+        // 즐겨찾기 여부 표시
+        // 별 아이콘 추가
+        const star = document.createElement("span");
+        star.className = "star";
+        star.innerHTML = "☆";
+
+        // liked가 true인 경우 보라색으로 설정
+        if (friend.liked) {
+          star.classList.add("liked");
+        }
+
+        // li 요소에 별 아이콘 추가
+        li.appendChild(star);
+
+        // 해당 친구 부분 클릭 시, 친구와의 채팅방 시작 api 요청
+        userInfoDiv.addEventListener("click", () => {
+          // (#13-1) 채팅방 시작 API 요청
+          startChatByMemberIdApi(friend.memberId).then((result) => {
+            // (#13-2) 채팅방 시작 API 정상 응답 받음
+            if (result.chatMessageList) {
+              // 채팅 메시지 내역이 있을 때에만
+              // (#13-3) messagesFromThisChatroom array 초기화
+              messagesFromThisChatroom = result.chatMessageList.chatMessageDtoList;
+
+              console.log("============== fetch chat messages result ===============");
+              console.log(result.chatMessageList.chatMessageDtoList);
+
+              // (#13-4) hasNextChat 업데이트
+              hasNextChat = result.chatMessageList.has_next;
+            } else {
+              // 채팅 메시지 내역이 아예 없을 경우
+              // messagesFromThisChatroom array 초기화
+              messagesFromThisChatroom = [];
+
+              // hasNext null로 초기화
+              hasNextChat = null;
+            }
+
+            // (#13-5) 현재 보고 있는 채팅방 uuid, 채팅 중인 memberId 업데이트
+            currentViewingChatroomUuid = result.uuid;
+            currentChattingMemberId = result.memberId;
+
+            // (#13-6) systemFlag 초기화, 특정 회원과의 채팅방 시작 시 systemFlag는 항상 null임
+            currentSystemFlag = null;
+
+            renderChatroomDiv(result);
+          });
+        });
+
+        // 별 아이콘 클릭 시, 해당 친구 즐겨찾기 설정/해제 요청 전송
+        star.addEventListener("click", () => {
+          // liked 클래스가 있는지 확인
+          if (star.classList.contains("liked")) {
+            // 즐겨찾기 해제 api 요청
+            unstarFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.remove("liked");
+              console.log("즐겨찾기 해제 성공, memberId: ", friend.memberId);
+            });
+          } else {
+            // 즐겨찾기 설정 api 요청
+            starFriendApi(friend.memberId).then((result) => {
+              // liked 상태 변경
+              star.classList.add("liked");
+              console.log("즐겨찾기 설정 성공, memberId: ", friend.memberId);
+            });
+          }
+        });
+
+        friendsElement.appendChild(li);
+      });
+    }
+  });
+});
+
+// 친구 목록 내부에서 스크롤이 가장 아래에 닿았을 때
+document.addEventListener("DOMContentLoaded", () => {
+  const friendsListElement = document.getElementById("friendsList");
+
+  friendsListElement.addEventListener("scroll", () => {
+    // 스크롤이 가장 아래에 닿았는지 확인
+    const isScrollAtBottom = friendsListElement.scrollTop + friendsListElement.clientHeight >= friendsListElement.scrollHeight;
+
+    if (isScrollAtBottom) {
+      // 더 조회해올 다음 친구 목록이 있다면
+      if (hasNextFriend) {
+        fetchNextFriends(nextFriendCursor);
+      } else {
+        console.log("=== End of Friend List, No fetch ===");
+      }
+    }
+  });
+});
+
+// nextFriendCursor 기반으로 다음 친구 목록 조회 api 요청 및 화면 렌더링
+function fetchNextFriends(cursor) {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("JWT token is missing.");
+    return;
+  }
+
+  getFriendListApi(cursor).then((result) => {
+    if (result) {
+      // (#3-2) 친구 목록 조회 성공 응답 받음
+      const friendsElement = document.getElementById("friendsList");
+
+      hasNextFriend = result.has_next;
+      nextFriendCursor = result.next_cursor;
+
+      // (#3-3) 친구 목록 화면 렌더링
+      result.friendInfoDTOList.forEach((friend) => {
         const li = document.createElement("li");
 
         // onlineFriendMemberIdList에 존재하는 회원인지 (해당 회원이 현재 온라인인지)에 따라 상태 text 배정
@@ -135,7 +273,7 @@ fetchFriendsButton.addEventListener("click", () => {
       });
     }
   });
-});
+}
 
 // 로그아웃 버튼 클릭 시
 logoutButton.addEventListener("click", () => {

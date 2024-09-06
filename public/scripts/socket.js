@@ -5,6 +5,8 @@ let currentChattingMemberId = null; // 현재 이 사용자가 보고 있는 채
 let currentViewingChatroomUuid = null; // 현재 이 사용자가 보고 있는 채팅방의 uuid 저장
 let messagesFromThisChatroom = []; // 현재 보고 있는 채팅방의 메시지 목록
 let hasNextChat = false; // 채팅 내역 조회를 위해, 다음 채팅내역이 존재하는지 여부 저장
+let hasNextFriend = false; // 친구 목록 조회를 위해, 다음 친구 목록이 존재하는지 여부 저장
+let nextFriendCursor = null; // 다음 친구 목록 조회를 위한 커서
 let currentSystemFlag = null; // 현재 채팅방에서 메시지 전송 시 보내야할 systemFlag 저장
 
 const loginStatus = document.getElementById("loginStatus");

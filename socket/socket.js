@@ -70,10 +70,7 @@ function initializeSocket(server) {
         // (#6-2) 친구 목록 조회 api 요청
         // (#6-3) 친구 목록 조회 성공 응답 받음
         fetchFriends(socket)
-          .then(async (friends) => {
-            // 친구 중에서 현재 온라인인 친구의 소켓 id 및 memberId array 생성
-            const friendIdList = friends.map((friend) => friend.memberId);
-
+          .then(async (friendIdList) => {
             // (#6-4) 친구 memberId로 socketId 찾기
             const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
 

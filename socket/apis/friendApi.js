@@ -11,7 +11,7 @@ const API_SERVER_URL = config.apiServerUrl;
  */
 async function fetchFriends(socket) {
   try {
-    const response = await axios.get(`${API_SERVER_URL}/v1/friends`, {
+    const response = await axios.get(`${API_SERVER_URL}/v1/friends/ids`, {
       headers: {
         Authorization: `Bearer ${socket.token}`, // Include JWT token in header
       },
