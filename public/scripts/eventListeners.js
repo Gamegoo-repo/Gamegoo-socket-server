@@ -842,33 +842,34 @@ function renderChatroomDiv(result) {
   messagesElement.innerHTML = "";
 
   // (#9-7),(#13-7),(#16-8)  API 응답의 chatMessageDtoList에 대해 각 messgae 요소 렌더링
-  result.chatMessageList.chatMessageDtoList.forEach((message) => {
-    const li = document.createElement("li");
-    li.classList.add("message-item");
+  if (result.chatMessageList) {
+    result.chatMessageList.chatMessageDtoList.forEach((message) => {
+      const li = document.createElement("li");
+      li.classList.add("message-item");
 
-    if (message.senderId === 0) {
-      // 해당 메시지가 시스템 메시지인 경우
+      if (message.senderId === 0) {
+        // 해당 메시지가 시스템 메시지인 경우
 
-      li.classList.add("system-message");
-      if (message.boardId) {
-        li.setAttribute("data-board-id", message.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
-        li.addEventListener("click", function () {
-          // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
-          alert(`게시판 글 조회 페이지로 이동, board id: ${message.boardId}`);
-        });
-      }
+        li.classList.add("system-message");
+        if (message.boardId) {
+          li.setAttribute("data-board-id", message.boardId); // 특정 글로 이동해야 하는 경우, boardId 저장
+          li.addEventListener("click", function () {
+            // 클릭 시 alert 창 띄우기 (원래는 해당 boardId로 게시글 조회 API로 넘어가야 함)
+            alert(`게시판 글 조회 페이지로 이동, board id: ${message.boardId}`);
+          });
+        }
 
-      li.innerHTML = `
+        li.innerHTML = `
                     <div class="message-content" style = "cursor: pointer;">
                         <p class="message-text">${message.message}</p>
                     </div>
                   `;
-    } else {
-      // 시스템 메시지가 아닌 경우
-      if (message.senderId === memberId) {
-        li.classList.add("mine");
-      }
-      li.innerHTML = `
+      } else {
+        // 시스템 메시지가 아닌 경우
+        if (message.senderId === memberId) {
+          li.classList.add("mine");
+        }
+        li.innerHTML = `
                     <div class="message-content">
                       <img src="${message.senderProfileImg}" alt="Profile Image" width="30" height="30">
                       <div>
@@ -878,9 +879,10 @@ function renderChatroomDiv(result) {
                       </div>
                     </div>
                   `;
-    }
-    messagesElement.appendChild(li);
-  });
+      }
+      messagesElement.appendChild(li);
+    });
+  }
 
   // Scroll to bottom if was already at bottom before fetching new messages or on initial load
   if (shouldScrollToBottom || messagesElement.children.length === 0) {
