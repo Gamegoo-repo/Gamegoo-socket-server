@@ -173,7 +173,6 @@ async function setupMatchSocketListeners(socket, io) {
 
   socket.on("matching-quit", async (request) => {
     console.log("================= matching_quit ======================");
-    const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 2) 매칭 FAIL API 요청 (나의 status만 변경)
     await updateMatchingStatusApi(socket, "QUIT");
