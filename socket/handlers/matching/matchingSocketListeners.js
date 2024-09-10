@@ -137,22 +137,45 @@ async function setupMatchSocketListeners(socket, io) {
     }
   });
 
-  socket.on("matching-fail", async(request) => {
+  socket.on("matching-reject", async (request) => {
+    console.log("================= matching_reject ======================");
+    const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
+
+    // 26) 매칭 REJECT API 요청 (상대, 나 둘 다 status 변경하기)
+    await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
+
+    // 27) 상대 client에게 matching-fail emit
+    if (otherSocket) {
+      emitMatchingFail(otherSocket);
+    }
+    // 28) socket.target 제거
+    socket.matchingTarget = null;
+
+    // 29) otherSocket.matchingTarget 제거
+    if (otherSocket) {
+      otherSocket.matchingTarget = null;
+    }
+  });
+
+  socket.on("matching-fail", async (request) => {
     console.log("================= matching_fail ======================");
     const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 26) 매칭 FAIL API 요청
-    await updateBothMatchingStatusApi(socket,"FAIL",socket.matchingTarget);
+    await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
 
     // 27) 상대 client에게 matching-fail emit
-    emitMatchingFail(otherSocket);    
-
+    if (otherSocket) {
+      emitMatchingFail(otherSocket);
+    }
     // 28) socket.target 제거
-    socket.matchingTarget=null;
+    socket.matchingTarget = null;
 
+    console.log("socket: "+socket);
+    console.log(socket);
     // 29) otherSocket.matchingTarget 제거
-    if(otherSocket){
-      otherSocket.matchingTarget=null;
+    if (otherSocket) {
+      otherSocket.matchingTarget = null;
     }
   });
 
