@@ -4,10 +4,9 @@
  * @param {*} otherSocket
  * @param {*} roomName
  */
-function deleteSocketFromMatching(socket, io, otherSocket, roomName) {
+function deleteSocketFromMatching(socket, io, roomName) {
   // 9) 소켓 룸에서 제거
   socket.leave(roomName);
-  otherSocket.leave(roomName);
 
   // priorityTree에서 삭제
   const room = io.sockets.adapter.rooms.get(roomName);
@@ -19,9 +18,8 @@ function deleteSocketFromMatching(socket, io, otherSocket, roomName) {
       if (roomSocket) {
         // 10) roomSocket의 priorityTree에서 socket, otherSocket의 값을 지우기
         roomSocket.priorityTree.removeByMemberId(socket.memberId);
-        roomSocket.priorityTree.removeByMemberId(otherSocket.memberId);
         console.log("==================================================");
-        console.log(`Room Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(roomSocket.priorityTree.getSortedList(), null, 2));
+        console.log(`Room Socket (${roomSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(roomSocket.priorityTree.getSortedList(), null, 2));
       }
     });
   } else {
@@ -30,11 +28,9 @@ function deleteSocketFromMatching(socket, io, otherSocket, roomName) {
 
   // 11) 각자의 priorityTree 삭제
   socket.priorityTree.clear();
-  otherSocket.priorityTree.clear();
 
   // 각자의 highestPriorityNode 삭제
   socket.highestPriorityNode = null;
-  otherSocket.highestPriorityNode = null;
 }
 
 /**
