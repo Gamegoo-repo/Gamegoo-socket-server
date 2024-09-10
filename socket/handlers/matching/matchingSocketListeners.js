@@ -147,6 +147,8 @@ async function setupMatchSocketListeners(socket, io) {
     // 27) 상대 client에게 matching-fail emit
     if (otherSocket) {
       emitMatchingFail(otherSocket);
+      emitMatchingFail(socket);
+
     }
     // 28) socket.target 제거
     socket.matchingTarget = null;

@@ -155,8 +155,9 @@ function setUpMatchingSocketListeners() {
       delete timers[timer];
     });
 
-
     alert("매칭이 실패했습니다!!");
+
+    console.log(response.data.myMatchingInfo);
 
   });
 }
@@ -238,15 +239,12 @@ function startRetryCountdown() {
   // 클릭되면 matching-fail emit
   retryButton.addEventListener("click", () => {
     console.log("MATCHING_FAILED");
-    socket.emit("matching-fail");
+    socket.emit("matching-reject");
 
     Object.keys(timers).forEach(function (timer) {
       clearTimeout(timers[timer]);
       delete timers[timer];
     });
-
-    alert("매칭이 실패했습니다.");
-
   });
 
   let countdown = 10; // 카운트다운 시작 값
