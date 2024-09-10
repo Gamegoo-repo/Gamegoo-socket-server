@@ -159,7 +159,6 @@ async function setupMatchSocketListeners(socket, io) {
 
   socket.on("matching-fail", async (request) => {
     console.log("================= matching_fail ======================");
-    const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
     // 24) 매칭 FAIL API 요청 (나의 status만 변경)
     await updateMatchingStatusApi(socket, "FAIL");
