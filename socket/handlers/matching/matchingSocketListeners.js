@@ -15,9 +15,6 @@ const {
 } = require("../../emitters/matchingEmitter");
 
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
-
-//const eventEmitter = require("../../events/eventBus");
-
 /**
  * Matching socket event 관련 리스너
  * @param {*} socket
@@ -26,6 +23,7 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", async (request) => {
     const gameMode = request.gameMode;
+    socket.gameMode = gameMode;
     const roomName = "GAMEMODE_" + gameMode;
     socket.roomName = roomName;
 
@@ -83,7 +81,8 @@ async function setupMatchSocketListeners(socket, io) {
 
     // 16 ~ 18) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
     const roomName = "GAMEMODE_" + request.gameMode;
-    deleteSocketFromMatching(socket, io, senderSocket, roomName);
+    deleteSocketFromMatching(socket, io, roomName);
+    deleteSocketFromMatching(senderSocket, io, roomName);
 
     // 19) 8080서버에 매칭 FOUND API 요청
     try {
@@ -136,23 +135,50 @@ async function setupMatchSocketListeners(socket, io) {
     }
   });
 
-  socket.on("matching-fail", async(request) => {
-    console.log("================= matching_fail ======================");
+  socket.on("matching-reject", async (request) => {
+    console.log("================= matching_reject ======================");
     const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
-    // 26) 매칭 FAIL API 요청
-    await updateBothMatchingStatusApi(socket,"FAIL",socket.matchingTarget);
+    // 26) 매칭 REJECT API 요청 (상대, 나 둘 다 status 변경하기)
+    await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
 
     // 27) 상대 client에게 matching-fail emit
-    emitMatchingFail(otherSocket);    
+    if (otherSocket) {
+      emitMatchingFail(otherSocket);
+      emitMatchingFail(socket);
 
+    }
     // 28) socket.target 제거
-    socket.matchingTarget=null;
+    socket.matchingTarget = null;
 
     // 29) otherSocket.matchingTarget 제거
-    if(otherSocket){
-      otherSocket.matchingTarget=null;
+    if (otherSocket) {
+      otherSocket.matchingTarget = null;
     }
+  });
+
+  socket.on("matching-fail", async (request) => {
+    console.log("================= matching_fail ======================");
+
+    // 24) 매칭 FAIL API 요청 (나의 status만 변경)
+    await updateMatchingStatusApi(socket, "FAIL");
+
+    // 26) socket.target 제거
+    socket.matchingTarget = null;
+
+    // 27) matching-fail emit
+    emitMatchingFail(socket);
+  });
+
+  socket.on("matching-quit", async (request) => {
+    console.log("================= matching_quit ======================");
+
+    // 2) 매칭 FAIL API 요청 (나의 status만 변경)
+    await updateMatchingStatusApi(socket, "QUIT");
+
+    // 4~6) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
+    const roomName = "GAMEMODE_" + request.gameMode;
+    deleteSocketFromMatching(socket, io, roomName); 
   });
 
   socket.on("matching-retry", async (request) => {

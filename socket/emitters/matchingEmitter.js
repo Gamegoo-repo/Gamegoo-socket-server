@@ -45,7 +45,8 @@ function emitMatchingSuccess(senderSocket, receiverSocket, chatroomUuid) {
 }
 
 function emitMatchingFail(socket){
-  socket.emit("matching-fail",formatResponse("matching-fail","매칭이 실패했습니다."));
+  const myMatchingInfo=socket.myMatchingInfo;
+  socket.emit("matching-fail",formatResponse("matching-fail",{ myMatchingInfo }));
 }
 
 

@@ -61,6 +61,7 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
       `${API_SERVER_URL}/v1/matching/status/target/${targetMemberId}`,
       {
         status: status,
+        gameMode: socket.gameMode
       },
       {
         headers: {
@@ -99,6 +100,7 @@ async function updateMatchingStatusApi(socket, status) {
       `${API_SERVER_URL}/v1/matching/status`,
       {
         status: status,
+        gameMode: socket.gameMode
       },
       {
         headers: {
@@ -134,7 +136,7 @@ async function updateMatchingStatusApi(socket, status) {
 async function matchingFoundApi(socket, targetMemberId) {
   try {
     const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}`,
+      `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}/${socket.gameMode}`,
       {},
       {
         headers: {
@@ -170,7 +172,7 @@ async function matchingFoundApi(socket, targetMemberId) {
 async function matchingSuccessApi(socket, targetMemberId) {
   try {
     const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/success/target/${targetMemberId}`,
+      `${API_SERVER_URL}/v1/matching/success/target/${targetMemberId}/${socket.gameMode}`,
       {},
       {
         headers: {
