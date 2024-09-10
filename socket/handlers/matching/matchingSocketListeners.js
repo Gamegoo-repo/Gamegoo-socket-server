@@ -163,22 +163,14 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("================= matching_fail ======================");
     const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
-    // 26) 매칭 FAIL API 요청
-    await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
+    // 24) 매칭 FAIL API 요청 (나의 status만 변경)
+    await updateMatchingStatusApi(socket, "FAIL");
 
-    // 27) 상대 client에게 matching-fail emit
-    if (otherSocket) {
-      emitMatchingFail(otherSocket);
-    }
-    // 28) socket.target 제거
+    // 26) socket.target 제거
     socket.matchingTarget = null;
 
-    console.log("socket: "+socket);
-    console.log(socket);
-    // 29) otherSocket.matchingTarget 제거
-    if (otherSocket) {
-      otherSocket.matchingTarget = null;
-    }
+    // 27) matching-fail emit
+    emitMatchingFail(socket);
   });
 
   socket.on("matching-retry", async (request) => {
