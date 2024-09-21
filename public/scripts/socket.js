@@ -300,6 +300,30 @@ function setupSocketListeners() {
       messagesElement.appendChild(li);
     }
   });
+  socket.on("manner-system-message", (response) => {
+    const { chatroomUuid, ...newMessage } = response.data;
+
+    // 현재 보고 있는 채팅방에서 온 시스템 메시지인 경우
+    if (chatroomUuid === currentViewingChatroomUuid) {
+      messagesFromThisChatroom.push(newMessage);
+
+      console.log("============== messagesFromThisChatroom Updated ==============");
+      console.log(messagesFromThisChatroom);
+
+      // 시스템 메시지 요소 동적 생성
+      const messagesElement = document.getElementById("messages");
+      const li = document.createElement("li");
+      li.classList.add("message-item");
+      li.classList.add("system-message");
+
+      li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${newMessage.message}</p>
+                    </div>
+                  `;
+      messagesElement.appendChild(li);
+    }
+  });
 
   socket.on("test-matching-chatting-success", (response) => {
     response.data.chatroomUuid;
