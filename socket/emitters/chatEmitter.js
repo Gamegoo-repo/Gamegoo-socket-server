@@ -47,12 +47,21 @@ function emitTestMatchingChattingSuccess(io, chatroomUuid) {
 }
 
 /**
- * 해당 socket에게 system message emit
+ * 해당 socket에게  manner system message emit
  * @param {*} socket
  * @param {*} messageContent
  */
-function emitSystemMessageToSocket(socket, messageContent) {
-  socket.emit("chat-system-message", formatResponse("chat-system-message", messageContent));
+function emitMannerSystemMessage(socket, chatroomUuid, messageContent) {
+  const systemMessage = {
+    chatroomUuid: chatroomUuid,
+    senderId: 0,
+    senderName: "SYSTEM",
+    senderProfileImg: 0,
+    message: messageContent,
+    createdAt: null,
+    timestamp: null,
+  };
+  socket.emit("manner-system-message", formatResponse("manner-system-message", systemMessage));
 }
 
 module.exports = {
@@ -60,5 +69,5 @@ module.exports = {
   emitJoinedNewChatroom,
   emitChatSystemMessage,
   emitTestMatchingChattingSuccess,
-  emitSystemMessageToSocket,
+  emitMannerSystemMessage,
 };

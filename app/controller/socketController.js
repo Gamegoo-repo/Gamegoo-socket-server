@@ -1,6 +1,6 @@
 const { successResponse, failResponse } = require("../common/responseFormatter");
 
-const { emitJoinedNewChatroom, emitSystemMessageToSocket } = require("../../socket/emitters/chatEmitter.js");
+const { emitJoinedNewChatroom, emitMannerSystemMessage } = require("../../socket/emitters/chatEmitter.js");
 
 /**
  * 특정 회원의 socket을 특정 chatroomUuid room에 join
@@ -53,7 +53,7 @@ function socketRoomJoin(io) {
 function emitSystemMessage(io) {
   return async (req, res) => {
     // request body에서 데이터를 추출
-    const { memberId, content } = req.body;
+    const { memberId, chatroomUuid, content } = req.body;
 
     // 현재 연결된 socket 중 해당 memberId를 가진 socket 객체 list 추출
     let sockets = [];
@@ -67,11 +67,11 @@ function emitSystemMessage(io) {
     } catch (error) {
       res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
-    // memberId를 가진 socket이 존재하면, 해당 socket을 chatroom join, joined-new-chatroom event emit
+    // memberId를 가진 socket이 존재하면, 해당 socket 모두에게 manner-system-message event emit
     if (sockets.length) {
       for (const connSocket of sockets) {
         try {
-          emitSystemMessageToSocket(connSocket, content);
+          emitMannerSystemMessage(connSocket, chatroomUuid, content);
         } catch (error) {
           res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 system message emit에 실패했습니다."));
         }
