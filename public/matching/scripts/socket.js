@@ -20,6 +20,16 @@ function setUpMatchingSocketListeners() {
     document.getElementById("initial-screen").style.display = "none";
     document.getElementById("matching-screen").style.display = "block";
 
+    // quit 제대로 동작하는지 확인하기 위한 버튼
+    const quitButton = document.querySelector(".quit-button");
+  
+    // 클릭되면 matching-fail emit
+    quitButton.addEventListener("click", () => {
+      console.log("MATCHING_QUIT");
+      socket.emit("matching-quit");
+
+    });
+
     // 매칭중 화면 스탑워치 시작
     const timerElement = document.querySelector(".timer");
     timerElement.style.display = "block";
