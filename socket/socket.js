@@ -13,12 +13,14 @@ const initFriend = require("./handlers/friend/friendInit");
 
 const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
+const { updateMatchingStatusApi } = require("./apis/matchApi");
 
 const { emitError, emitJWTError } = require("./emitters/errorEmitter");
 
 const { fetchFriends } = require("./apis/friendApi");
 
 const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
+const { deleteSocketFromMatching } = require("./handlers/matching/matchingHandler/matchingFoundHandler");
 
 function initializeSocket(server) {
   const io = socketIo(server, {
@@ -67,14 +69,21 @@ function initializeSocket(server) {
 
       // 해당 socket이 memberId를 가질 때에만(로그인한 소켓인 경우에만)
       if (socket.memberId) {
-        // (#6-2) 친구 목록 조회 api 요청
-        // (#6-3) 친구 목록 조회 성공 응답 받음
+        // (#6-2) 매칭 status 변경 API 요청
+        await updateMatchingStatusApi(socket, "QUIT");
+
+        // (#6-4) 매칭 room에 join 되어 있는 경우, 해당 room의 모든 소켓의 priorityTree 에서 해당  소켓 노드 제거
+        const roomName = "GAMEMODE_" + socket.gameMode;
+        deleteSocketFromMatching(socket, io, roomName); 
+
+        // (#6-5) 친구 목록 조회 api 요청
+        // (#6-6) 친구 목록 조회 성공 응답 받음
         fetchFriends(socket)
           .then(async (friendIdList) => {
-            // (#6-4) 친구 memberId로 socketId 찾기
+            // (#6-7) 친구 memberId로 socketId 찾기
             const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
 
-            // (#6-5) 친구 소켓에게 "friend-offline" event emit
+            // (#6-8) 친구 소켓에게 "friend-offline" event emit
             emitFriendOffline(io, friendSocketList, socket.memberId);
           })
           .catch((error) => {
