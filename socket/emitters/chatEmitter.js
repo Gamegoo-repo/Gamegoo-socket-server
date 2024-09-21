@@ -46,9 +46,19 @@ function emitTestMatchingChattingSuccess(io, chatroomUuid) {
   io.to("CHAT_" + chatroomUuid).emit("test-matching-chatting-success", formatResponse("test-matching-chatting-success", data));
 }
 
+/**
+ * 해당 socket에게 system message emit
+ * @param {*} socket
+ * @param {*} messageContent
+ */
+function emitSystemMessageToSocket(socket, messageContent) {
+  socket.emit("chat-system-message", formatResponse("chat-system-message", messageContent));
+}
+
 module.exports = {
   emitChatMessage,
   emitJoinedNewChatroom,
   emitChatSystemMessage,
   emitTestMatchingChattingSuccess,
+  emitSystemMessageToSocket,
 };
