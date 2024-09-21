@@ -67,9 +67,8 @@ function emitSystemMessage(io) {
     } catch (error) {
       res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
-
     // memberId를 가진 socket이 존재하면, 해당 socket을 chatroom join, joined-new-chatroom event emit
-    if (sockets) {
+    if (sockets.length) {
       for (const connSocket of sockets) {
         try {
           emitSystemMessageToSocket(connSocket, content);
