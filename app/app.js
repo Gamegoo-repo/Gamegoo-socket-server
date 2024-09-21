@@ -113,6 +113,7 @@ app.get("/match", (req, res) => {
               <img src="heart.png" alt="heart icon">
             </div>
             <p>어떤 사람이 나올까요?</p>
+            <button class="quit-button"> QUIT </button>
           </div>
         </div>
       </div>

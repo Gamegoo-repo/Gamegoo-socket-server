@@ -177,7 +177,7 @@ async function setupMatchSocketListeners(socket, io) {
     await updateMatchingStatusApi(socket, "QUIT");
 
     // 4~6) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
-    const roomName = "GAMEMODE_" + request.gameMode;
+    const roomName = "GAMEMODE_" + socket.gameMode;
     deleteSocketFromMatching(socket, io, roomName); 
   });
 
