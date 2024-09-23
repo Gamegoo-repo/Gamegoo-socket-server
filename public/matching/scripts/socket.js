@@ -42,7 +42,7 @@ function setUpMatchingSocketListeners() {
     // 2분 타이머 시작, matching retry call back
     const timeoutId = setTimeout(() => {
       // 2분 동안 "matching-found-sender" or "matching-found-receiver" 이벤트가 발생하지 않으면 매칭 재시작 요청
-      socket.emit("matching-retry", { priority: 50 });
+      socket.emit("matching-retry", { priority: 45 });
 
       // 3분 타이머 시작, matching_not_found 
       const timeoutIdforNotFound = setTimeout(() => {
