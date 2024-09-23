@@ -22,7 +22,7 @@ function setUpMatchingSocketListeners() {
 
     // quit 제대로 동작하는지 확인하기 위한 버튼
     const quitButton = document.querySelector(".quit-button");
-  
+
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
       console.log("MATCHING_QUIT");
@@ -97,6 +97,16 @@ function setUpMatchingSocketListeners() {
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
 
+    // quit 제대로 동작하는지 확인하기 위한 버튼
+    const quitButton = document.querySelector(".quit-button");
+
+    // 클릭되면 matching-fail emit
+    quitButton.addEventListener("click", () => {
+      console.log("MATCHING_QUIT");
+      socket.emit("matching-quit");
+
+    });
+
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
     updateMatchingTopBar();
   });
@@ -137,6 +147,16 @@ function setUpMatchingSocketListeners() {
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
+
+    // quit 제대로 동작하는지 확인하기 위한 버튼
+    const quitButton = document.querySelector(".quit-button");
+
+    // 클릭되면 matching-fail emit
+    quitButton.addEventListener("click", () => {
+      console.log("MATCHING_QUIT");
+      socket.emit("matching-quit");
+
+    });
 
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
     updateMatchingTopBar();
@@ -234,6 +254,8 @@ function updateRightSide(data) {
       <div class="sub-position">부 포지션: <span>${positionMap[data.subPosition]}</span></div> <!-- 서브 포지션 -->
       <div class="wanted-position">내가 찾는 포지션: <span>${positionMap[data.wantPosition]}</span></div> <!-- 원하는 상대 포지션 -->
     </div>
+
+    <button class="quit-button"> QUIT </button>
   `;
 }
 
