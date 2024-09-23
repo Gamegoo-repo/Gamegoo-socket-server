@@ -139,8 +139,10 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("================= matching_reject ======================");
     const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
-    // 26) 매칭 REJECT API 요청 (상대, 나 둘 다 status 변경하기)
-    await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
+    if(socket.gameMode !=null){
+      // 26) 매칭 REJECT API 요청 (상대, 나 둘 다 status 변경하기)
+      await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
+    }
 
     // 27) 상대 client에게 matching-fail emit
     if (otherSocket) {
@@ -159,10 +161,10 @@ async function setupMatchSocketListeners(socket, io) {
 
   socket.on("matching-fail", async (request) => {
     console.log("================= matching_fail ======================");
-
-    // 24) 매칭 FAIL API 요청 (나의 status만 변경)
-    await updateMatchingStatusApi(socket, "FAIL");
-
+    if(socket.gameMode !=null){
+      // 24) 매칭 FAIL API 요청 (나의 status만 변경)
+      await updateMatchingStatusApi(socket, "FAIL");
+    }
     // 26) socket.target 제거
     socket.matchingTarget = null;
 
@@ -173,9 +175,11 @@ async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-quit", async (request) => {
     console.log("================= matching_quit ======================");
 
-    // 2) 매칭 FAIL API 요청 (나의 status만 변경)
-    await updateMatchingStatusApi(socket, "QUIT");
-
+    if(socket.gameMode !=null){
+      // 2) 매칭 FAIL API 요청 (나의 status만 변경)
+      await updateMatchingStatusApi(socket, "QUIT");
+    }
+    
     // 4~6) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
     const roomName = "GAMEMODE_" + socket.gameMode;
     deleteSocketFromMatching(socket, io, roomName); 
