@@ -80,11 +80,11 @@ function setUpMatchingSocketListeners() {
       // 10초 동안 내가 매칭 다시하기 버튼 누르지 않으면, matching-success-receiver emit
       socket.emit("matching-success-receiver");
 
-      // 10초 후, 5초 타이머 시작, MatchingFail call back
+      // 10초 후, 3초 타이머 시작, MatchingFail call back
       const timeoutId = setTimeout(() => {
-        // 5초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
         socket.emit("matching-fail");
-      }, 5000);
+      }, 3000);
 
       timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
@@ -132,11 +132,11 @@ function setUpMatchingSocketListeners() {
         isMatchingSuccessSenderArrived = false;
       }
 
-      // 10초 후, 3초 타이머 시작, matchingFail call back
+      // 10초 후, 2초 타이머 시작, matchingFail call back
       const timeoutId = setTimeout(() => {
-        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        // 2초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
         socket.emit("matching-fail");
-      }, 3000);
+      }, 2000);
 
       timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
