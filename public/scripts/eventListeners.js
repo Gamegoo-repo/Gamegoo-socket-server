@@ -318,16 +318,19 @@ fetchChatroomsButton.addEventListener("click", () => {
   }
 
   // (#8-1) 채팅방 목록 조회 api 요청
-  getChatroomListApi().then((result) => {
+  getChatroomListApi(null).then((result) => {
     if (result) {
       // (#8-2) 채팅방 목록 조회 성공 응답 받음
       // 채팅방 목록 element 초기화
       const chatroomListElement = document.getElementById("chatroomList");
       chatroomListElement.innerHTML = "";
 
+      hasNextChatroom = result.has_next;
+      nextChatroomCursor = result.next_cursor;
+
       // (#8-3) 채팅방 목록 렌더링
       // api result data를 돌면서 html 요소 생성
-      result.forEach((chatroom) => {
+      result.chatroomViewDTOList.forEach((chatroom) => {
         const li = document.createElement("li");
         li.classList.add("chatroom-item");
         li.setAttribute("data-chatroom-uuid", chatroom.uuid); // data-chatroom-uuid 값 세팅
@@ -360,6 +363,78 @@ fetchChatroomsButton.addEventListener("click", () => {
     }
   });
 });
+
+// 채팅방 목록 내부에서 스크롤이 가장 아래에 닿았을 때
+document.addEventListener("DOMContentLoaded", () => {
+  const chatroomListElement = document.getElementById("chatroomList");
+
+  chatroomListElement.addEventListener("scroll", () => {
+    // 스크롤이 가장 아래에 닿았는지 확인
+    const isScrollAtBottom = chatroomListElement.scrollTop + chatroomListElement.clientHeight >= chatroomListElement.scrollHeight;
+
+    if (isScrollAtBottom) {
+      // 더 조회해올 다음 친구 목록이 있다면
+      if (hasNextChatroom) {
+        fetchNextChatrooms(nextChatroomCursor);
+      } else {
+        console.log("=== End of Chatroom List, No fetch ===");
+      }
+    }
+  });
+});
+
+// nextChatroomCursor 기반으로 다음 채팅방 목록 조회 api 요청 및 화면 렌더링
+function fetchNextChatrooms(cursor) {
+  const jwtToken = localStorage.getItem("jwtToken");
+  if (!jwtToken) {
+    console.error("JWT token is missing.");
+    return;
+  }
+
+  getChatroomListApi(cursor).then((result) => {
+    if (result) {
+      // (#8-2) 채팅방 목록 조회 성공 응답 받음
+      // 채팅방 목록 element 초기화
+      const chatroomListElement = document.getElementById("chatroomList");
+
+      hasNextChatroom = result.has_next;
+      nextChatroomCursor = result.next_cursor;
+
+      // (#8-3) 채팅방 목록 렌더링
+      // api result data를 돌면서 html 요소 생성
+      result.chatroomViewDTOList.forEach((chatroom) => {
+        const li = document.createElement("li");
+        li.classList.add("chatroom-item");
+        li.setAttribute("data-chatroom-uuid", chatroom.uuid); // data-chatroom-uuid 값 세팅
+
+        li.innerHTML = `
+                                                            <div>
+                                                                <img src="${chatroom.targetMemberImg}" alt="Profile Image" width="30" height="30">
+                                                            </div>
+                                                            <div class="chatroom-info">
+                                                                <span>${chatroom.targetMemberName}</span>
+                                                                <p last-msg-text>${chatroom.lastMsg ? chatroom.lastMsg : " "}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p last-msg-time>${new Date(chatroom.lastMsgAt).toLocaleString()}</p>
+                                                                <p data-new-count>${chatroom.notReadMsgCnt}</p>
+                                                                <button class="enter-chatroom-btn" data-chatroom-uuid="${chatroom.uuid}">채팅방 입장</button>
+                                                            </div>
+                                                        `;
+        chatroomListElement.appendChild(li);
+      });
+
+      // 채팅방 입장 버튼에 eventListener 추가
+      const enterChatroomButtons = document.querySelectorAll(".enter-chatroom-btn");
+      enterChatroomButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+          const chatroomUuid = event.target.getAttribute("data-chatroom-uuid");
+          enterChatroom(chatroomUuid);
+        });
+      });
+    }
+  });
+}
 
 // 채팅방 입장 시
 function enterChatroom(chatroomUuid) {

@@ -154,6 +154,12 @@ p[data-new-count] {
 
 #chatroomList {
   padding-left: 5px;
+  flex: 1;
+  overflow-y: auto;
+}
+#chatroomsList li {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
 }
 
 #friendsList {
