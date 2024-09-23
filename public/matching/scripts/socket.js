@@ -22,7 +22,7 @@ function setUpMatchingSocketListeners() {
 
     // quit 제대로 동작하는지 확인하기 위한 버튼
     const quitButton = document.querySelector(".quit-button");
-  
+
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
       console.log("MATCHING_QUIT");
@@ -42,7 +42,7 @@ function setUpMatchingSocketListeners() {
     // 2분 타이머 시작, matching retry call back
     const timeoutId = setTimeout(() => {
       // 2분 동안 "matching-found-sender" or "matching-found-receiver" 이벤트가 발생하지 않으면 매칭 재시작 요청
-      socket.emit("matching-retry", { priority: 50 });
+      socket.emit("matching-retry", { priority: 45 });
 
       // 3분 타이머 시작, matching_not_found 
       const timeoutIdforNotFound = setTimeout(() => {
@@ -80,11 +80,11 @@ function setUpMatchingSocketListeners() {
       // 10초 동안 내가 매칭 다시하기 버튼 누르지 않으면, matching-success-receiver emit
       socket.emit("matching-success-receiver");
 
-      // 10초 후, 5초 타이머 시작, MatchingFail call back
+      // 10초 후, 3초 타이머 시작, MatchingFail call back
       const timeoutId = setTimeout(() => {
-        // 5초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
         socket.emit("matching-fail");
-      }, 5000);
+      }, 3000);
 
       timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
@@ -96,6 +96,16 @@ function setUpMatchingSocketListeners() {
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
+
+    // quit 제대로 동작하는지 확인하기 위한 버튼
+    const quitButton = document.querySelector(".quit-button");
+
+    // 클릭되면 matching-fail emit
+    quitButton.addEventListener("click", () => {
+      console.log("MATCHING_QUIT");
+      socket.emit("matching-quit");
+
+    });
 
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
     updateMatchingTopBar();
@@ -122,11 +132,11 @@ function setUpMatchingSocketListeners() {
         isMatchingSuccessSenderArrived = false;
       }
 
-      // 10초 후, 3초 타이머 시작, matchingFail call back
+      // 10초 후, 2초 타이머 시작, matchingFail call back
       const timeoutId = setTimeout(() => {
-        // 3초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
+        // 2초 동안 "matching-success" or "matching-fail" 이벤트 발생하지 않으면 matching-fail emit
         socket.emit("matching-fail");
-      }, 3000);
+      }, 2000);
 
       timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
@@ -137,6 +147,16 @@ function setUpMatchingSocketListeners() {
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
     startRetryCountdown();
+
+    // quit 제대로 동작하는지 확인하기 위한 버튼
+    const quitButton = document.querySelector(".quit-button");
+
+    // 클릭되면 matching-fail emit
+    quitButton.addEventListener("click", () => {
+      console.log("MATCHING_QUIT");
+      socket.emit("matching-quit");
+
+    });
 
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
     updateMatchingTopBar();
@@ -234,6 +254,8 @@ function updateRightSide(data) {
       <div class="sub-position">부 포지션: <span>${positionMap[data.subPosition]}</span></div> <!-- 서브 포지션 -->
       <div class="wanted-position">내가 찾는 포지션: <span>${positionMap[data.wantPosition]}</span></div> <!-- 원하는 상대 포지션 -->
     </div>
+
+    <button class="quit-button"> QUIT </button>
   `;
 }
 
