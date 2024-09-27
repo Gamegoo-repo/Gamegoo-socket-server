@@ -46,9 +46,28 @@ function emitTestMatchingChattingSuccess(io, chatroomUuid) {
   io.to("CHAT_" + chatroomUuid).emit("test-matching-chatting-success", formatResponse("test-matching-chatting-success", data));
 }
 
+/**
+ * 해당 socket에게  manner system message emit
+ * @param {*} socket
+ * @param {*} messageContent
+ */
+function emitMannerSystemMessage(socket, chatroomUuid, messageContent) {
+  const systemMessage = {
+    chatroomUuid: chatroomUuid,
+    senderId: 0,
+    senderName: "SYSTEM",
+    senderProfileImg: 0,
+    message: messageContent,
+    createdAt: null,
+    timestamp: null,
+  };
+  socket.emit("manner-system-message", formatResponse("manner-system-message", systemMessage));
+}
+
 module.exports = {
   emitChatMessage,
   emitJoinedNewChatroom,
   emitChatSystemMessage,
   emitTestMatchingChattingSuccess,
+  emitMannerSystemMessage,
 };

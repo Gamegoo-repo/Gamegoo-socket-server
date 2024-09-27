@@ -13,7 +13,7 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr"], // localhost:3000 cors 허용
+    origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr", "https://www.gamegoo.co.kr"], // localhost:3000 cors 허용
     methods: ["*"], // 모든 메소드 허용
     credentials: true, // 쿠키 허용
   })
@@ -113,6 +113,7 @@ app.get("/match", (req, res) => {
               <img src="heart.png" alt="heart icon">
             </div>
             <p>어떤 사람이 나올까요?</p>
+            <button class="quit-button"> QUIT </button>
           </div>
         </div>
       </div>

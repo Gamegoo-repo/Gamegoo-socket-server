@@ -83,10 +83,14 @@ async function getFriendListApi(cursor) {
   }
 }
 
-async function getChatroomListApi() {
+async function getChatroomListApi(cursor) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const response = await fetch(`${API_SERVER_URL}/v1/member/chatroom`, {
+    let url = `${API_SERVER_URL}/v1/member/chatroom`;
+    if (cursor) {
+      url += `?cursor=${cursor}`;
+    }
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
       },

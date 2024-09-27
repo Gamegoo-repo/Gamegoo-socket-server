@@ -6,7 +6,9 @@ let currentViewingChatroomUuid = null; // 현재 이 사용자가 보고 있는 
 let messagesFromThisChatroom = []; // 현재 보고 있는 채팅방의 메시지 목록
 let hasNextChat = false; // 채팅 내역 조회를 위해, 다음 채팅내역이 존재하는지 여부 저장
 let hasNextFriend = false; // 친구 목록 조회를 위해, 다음 친구 목록이 존재하는지 여부 저장
+let hasNextChatroom = false; // 채팅방 목록 조회를 위해, 다음 채팅방 목록이 존재하는지 여부 저장
 let nextFriendCursor = null; // 다음 친구 목록 조회를 위한 커서
+let nextChatroomCursor = null; // 다음 채팅방 목록 조회를 위한 커서
 let currentSystemFlag = null; // 현재 채팅방에서 메시지 전송 시 보내야할 systemFlag 저장
 
 const loginStatus = document.getElementById("loginStatus");
@@ -291,6 +293,30 @@ function setupSocketListeners() {
           alert(`게시판 글 조회 페이지로 이동, board id: ${newMessage.boardId}`);
         });
       }
+
+      li.innerHTML = `
+                    <div class="message-content" style = "cursor: pointer;">
+                        <p class="message-text">${newMessage.message}</p>
+                    </div>
+                  `;
+      messagesElement.appendChild(li);
+    }
+  });
+  socket.on("manner-system-message", (response) => {
+    const { chatroomUuid, ...newMessage } = response.data;
+
+    // 현재 보고 있는 채팅방에서 온 시스템 메시지인 경우
+    if (chatroomUuid === currentViewingChatroomUuid) {
+      messagesFromThisChatroom.push(newMessage);
+
+      console.log("============== messagesFromThisChatroom Updated ==============");
+      console.log(messagesFromThisChatroom);
+
+      // 시스템 메시지 요소 동적 생성
+      const messagesElement = document.getElementById("messages");
+      const li = document.createElement("li");
+      li.classList.add("message-item");
+      li.classList.add("system-message");
 
       li.innerHTML = `
                     <div class="message-content" style = "cursor: pointer;">
