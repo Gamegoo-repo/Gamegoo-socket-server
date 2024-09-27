@@ -25,7 +25,7 @@ const { deleteSocketFromMatching } = require("./handlers/matching/matchingHandle
 function initializeSocket(server) {
   const io = socketIo(server, {
     cors: {
-      origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr"], // localhost:3000 cors 허용
+      origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr", "https://www.gamegoo.co.kr"], // localhost:3000 cors 허용
       methods: ["*"], // 모든 메소드 허용
       credentials: true,
     },
@@ -70,13 +70,13 @@ function initializeSocket(server) {
       // 해당 socket이 memberId를 가질 때에만(로그인한 소켓인 경우에만)
       if (socket.memberId) {
         // (#6-2) 매칭 status 변경 API 요청
-        if(socket.gameMode !=null){
+        if (socket.gameMode != null) {
           await updateMatchingStatusApi(socket, "QUIT");
         }
 
         // (#6-4) 매칭 room에 join 되어 있는 경우, 해당 room의 모든 소켓의 priorityTree 에서 해당  소켓 노드 제거
         const roomName = "GAMEMODE_" + socket.gameMode;
-        deleteSocketFromMatching(socket, io, roomName); 
+        deleteSocketFromMatching(socket, io, roomName);
 
         // (#6-5) 친구 목록 조회 api 요청
         // (#6-6) 친구 목록 조회 성공 응답 받음
