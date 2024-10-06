@@ -27,7 +27,8 @@ function initializeFriend(socket, io) {
     .catch((error) => {
       if (error instanceof JWTTokenError) {
         console.error("JWT Token Error:", error.message);
-        emitJWTError(socket, error.code, error.message);
+        socket.disconnect(true); // 소켓 초기화 시점에서 jwt error 발생 시, socket disconnect 시킴
+        //emitJWTError(socket, error.code, error.message);
       } else {
         console.error("Error fetching friend list data:", error);
         emitError(socket, error.message);

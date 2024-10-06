@@ -11,7 +11,7 @@ const {
   emitMatchingFoundSender,
   emitMatchingSuccessSender,
   emitMatchingSuccess,
-  emitMatchingFail
+  emitMatchingFail,
 } = require("../../emitters/matchingEmitter");
 
 const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
@@ -66,7 +66,7 @@ async function setupMatchSocketListeners(socket, io) {
         emitMatchingFoundReceiver(receiverSocket, socket.myMatchingInfo);
       }
     } catch (error) {
-      handleSocketError(socket, error);
+      handleSocketError(socket, error, "matching-request", request);
     }
   });
 
@@ -94,7 +94,7 @@ async function setupMatchSocketListeners(socket, io) {
         emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
       }
     } catch (error) {
-      handleSocketError(socket, error);
+      handleSocketError(socket, error, "matching-found-success", request);
     }
   });
 
@@ -130,7 +130,7 @@ async function setupMatchSocketListeners(socket, io) {
           emitMatchingSuccess(socket, receiverSocket, result);
         }
       } catch (error) {
-        handlerSocketError(socket, error);
+        handleSocketError(socket, error, "matching-success-final", null);
       }
     }
   });
@@ -139,7 +139,7 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("================= matching_reject ======================");
     const otherSocket = await getSocketIdByMemberId(io, socket.matchingTarget);
 
-    if(socket.gameMode !=null){
+    if (socket.gameMode != null) {
       // 26) 매칭 REJECT API 요청 (상대, 나 둘 다 status 변경하기)
       await updateBothMatchingStatusApi(socket, "FAIL", socket.matchingTarget);
     }
@@ -148,7 +148,6 @@ async function setupMatchSocketListeners(socket, io) {
     if (otherSocket) {
       emitMatchingFail(otherSocket);
       emitMatchingFail(socket);
-
     }
     // 28) socket.target 제거
     socket.matchingTarget = null;
@@ -161,7 +160,7 @@ async function setupMatchSocketListeners(socket, io) {
 
   socket.on("matching-fail", async (request) => {
     console.log("================= matching_fail ======================");
-    if(socket.gameMode !=null){
+    if (socket.gameMode != null) {
       // 24) 매칭 FAIL API 요청 (나의 status만 변경)
       await updateMatchingStatusApi(socket, "FAIL");
     }
@@ -175,14 +174,14 @@ async function setupMatchSocketListeners(socket, io) {
   socket.on("matching-quit", async (request) => {
     console.log("================= matching_quit ======================");
 
-    if(socket.gameMode !=null){
+    if (socket.gameMode != null) {
       // 2) 매칭 FAIL API 요청 (나의 status만 변경)
       await updateMatchingStatusApi(socket, "QUIT");
     }
 
     // 4~6) room leave, 다른 socket들의 priorityTree에서 제거, 두 socket의 priorityTree 초기화
     const roomName = "GAMEMODE_" + socket.gameMode;
-    deleteSocketFromMatching(socket, io, roomName); 
+    deleteSocketFromMatching(socket, io, roomName);
   });
 
   socket.on("matching-retry", async (request) => {
@@ -190,7 +189,6 @@ async function setupMatchSocketListeners(socket, io) {
     console.log("member ID:", socket.memberId);
     console.log("priority : ", request.priority);
     const roomName = socket.roomName;
-
 
     // 10) priorityTree의 maxNode가 request.priority를 넘는지 확인
     const receiverSocket = await findMatching(socket, io, request.priority);
@@ -202,9 +200,7 @@ async function setupMatchSocketListeners(socket, io) {
       // 12) "matching-found-receiver" emit
       emitMatchingFoundReceiver(receiverSocket, socket.myMatchingInfo);
     }
-
-
-  })
+  });
 
   // Flow #22
   socket.on("matching-not-found", async (request) => {
@@ -215,17 +211,16 @@ async function setupMatchSocketListeners(socket, io) {
 
     // 17) matching_status 변경
     try {
-      if(socket.gameMode !=null){
+      if (socket.gameMode != null) {
         const result = await updateMatchingStatusApi(socket, "FAIL");
       }
       if (result) {
         console.log("Matching Not Found 처리 완료");
       }
     } catch (error) {
-      handlerSocketError(socket, error);
+      handleSocketError(socket, error, "matching-not-found", null);
     }
-  })
-
+  });
 }
 
 module.exports = { setupMatchSocketListeners };

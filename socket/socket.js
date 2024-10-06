@@ -44,6 +44,7 @@ function initializeSocket(server) {
       jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
           console.log("Invalid token");
+          socket.disconnect(true); // jwt 토큰 잘못된 경우, 해당 소켓 disconnect
         } else {
           socket.memberId = decoded.id; // 해당 소켓 객체에 memberId 추가
           socket.token = token; // 해당 소켓 객체에 token 추가

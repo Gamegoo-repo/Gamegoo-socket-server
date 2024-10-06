@@ -106,14 +106,16 @@ async function findMatching(socket, io, value) {
 }
 
 /**
- * 에러 처리
+ * API 응답 에러 처리
  * @param {*} socket
  * @param {*} error
+ * @param {*} eventName
+ * @param {*} eventData
  */
-function handleSocketError(socket, error) {
+function handleSocketError(socket, error, eventName, eventData) {
   if (error instanceof JWTTokenError) {
     console.error("JWT Token Error:", error.message);
-    emitJWTError(socket, error.code, error.message);
+    emitJWTError(socket, error.code, eventName, eventData);
   } else {
     console.error("Error POST matching started:", error);
     emitError(socket, error.message);

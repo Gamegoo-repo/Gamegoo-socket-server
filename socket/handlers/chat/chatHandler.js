@@ -51,7 +51,7 @@ function setupChatListeners(socket, io) {
       .catch((error) => {
         if (error instanceof JWTTokenError) {
           console.error("JWT Token Error:", error.message);
-          emitJWTError(socket, error.code, error.message);
+          emitJWTError(socket, error.code, "chat-message", request);
         } else {
           console.error("Error POST chat message:", error);
           emitError(socket, error.message);
