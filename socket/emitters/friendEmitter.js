@@ -11,7 +11,7 @@ function emitFriendOnline(io, socketList, memberId) {
   socketList.forEach((socket) => {
     // 소켓에게 friend-online emit
     io.to(socket.socketId).emit("friend-online", formatResponse("friend-online", { memberId }));
-    logger.info("Emitted 'friend-online' event", `to socketId:${socket.socketId}, memberId:${memberId}, `);
+    logger.info("Emitted 'friend-online' event", `to socketId:${socket.socketId}, memberId:${memberId}`);
   });
 }
 
