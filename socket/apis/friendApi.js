@@ -18,7 +18,7 @@ async function fetchFriends(socket) {
       },
     });
     if (response.data.isSuccess) {
-      logger.debug("Successfully fetched friends", `memberId:${socket.memberId}, friendIdList:${friendIdList}`);
+      logger.debug("Successfully fetched friends", `memberId:${socket.memberId}, friendIdList:${response.data.result}`);
       return response.data.result;
     }
   } catch (error) {
