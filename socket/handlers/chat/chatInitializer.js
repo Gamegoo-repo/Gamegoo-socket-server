@@ -1,4 +1,4 @@
-const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
+const { emitError, emitConnectionJWTError } = require("../../emitters/errorEmitter");
 const JWTTokenError = require("../../../common/JWTTokenError");
 
 const { fetchChatroomUuid } = require("../../apis/chatApi");
@@ -27,6 +27,7 @@ function initializeChat(socket, io) {
     .catch((error) => {
       if (error instanceof JWTTokenError) {
         console.error("JWTTokenError:", error.message);
+        emitConnectionJWTError(socket);
         socket.disconnect(true); // 소켓 초기화 시점에서 jwt error 발생 시, socket disconnect 시킴
         //emitJWTError(socket, error.code, error.message);
       } else {

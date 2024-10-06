@@ -6,6 +6,8 @@ const JWT_SECRET = config.jwt.secret;
 
 const JWTTokenError = require("../common/JWTTokenError");
 
+const logger = require("../common/winston");
+
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");
 const initMatching = require("./handlers/matching/matchingInit");
@@ -15,7 +17,7 @@ const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
 const { updateMatchingStatusApi } = require("./apis/matchApi");
 
-const { emitError, emitJWTError } = require("./emitters/errorEmitter");
+const { emitError, emitJWTError, emitConnectionJWTError } = require("./emitters/errorEmitter");
 
 const { fetchFriends } = require("./apis/friendApi");
 
@@ -32,9 +34,9 @@ function initializeSocket(server) {
   });
 
   io.on("connection", (socket) => {
-    if (!socket.memberId) {
-      console.log("a user connected, memberId:", socket.memberId, "socketId:", socket.id);
-    }
+    // if (!socket.memberId) {
+    //   console.log("a user connected, memberId:", socket.memberId, "socketId:", socket.id);
+    // }
 
     // socket auth에서 JWT 토큰 추출
     const token = socket.handshake.auth.token;
@@ -43,8 +45,11 @@ function initializeSocket(server) {
       // (#2-2) jwt 토큰 검증 및 socket 바인딩
       jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
-          console.log("Invalid token");
+          //console.log("Invalid token");
+          logger.error("jwt invalid on socket connection", `memberId:${socket.memberId}, socket.id:${socket.id}, jwt token:${token}`);
+          emitConnectionJWTError(socket);
           socket.disconnect(true); // jwt 토큰 잘못된 경우, 해당 소켓 disconnect
+          logger.debug("socket disconnected");
         } else {
           socket.memberId = decoded.id; // 해당 소켓 객체에 memberId 추가
           socket.token = token; // 해당 소켓 객체에 token 추가
