@@ -1,4 +1,5 @@
 const JWTTokenError = require("../../../../common/JWTTokenError");
+const logger = require("../../../../common/winston");
 const { getSocketIdByMemberId } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
 
@@ -10,26 +11,40 @@ const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
  */
 function updatePriorityTree(socket, priorityList) {
   if (!socket.priorityTree) {
+    logger.error("Priority tree not initialized", `socketId:${socket.id}, memberId:${socket.memberId}`);
     return;
   }
+
+  logger.info("Updating priority tree", `socketId:${socket.id}, memberId:${socket.memberId}`);
 
   // 내 소켓에 다른 사용자 우선순위 값 넣기
   for (const item of priorityList) {
     if (!socket.priorityTree.contains(item.memberId)) {
       socket.priorityTree.insert(item.memberId, item.priorityValue);
+      logger.debug("Inserted new priority into my tree", `memberId:${item.memberId}, priorityValue:${item.priorityValue}`);
     }
   }
 
   // 내 소켓의 우선순위 최댓값 노드 변경
   if (socket.priorityTree.root) {
     socket.highestPriorityNode = socket.priorityTree.getMax(socket.priorityTree.root);
+    logger.debug(
+      "Highest priority node updated",
+      `memberId:${socket.highestPriorityNode?.memberId}, priorityValue:${socket.highestPriorityNode?.priorityValue}`
+    );
   }
 
-  console.log("==================================================");
-  console.log(`Socket (${socket.memberId}) Priority Tree (sorted):`, JSON.stringify(socket.priorityTree.getSortedList(), null, 2));
+  logger.debug(
+    "Socket priority tree (sorted)",
+    `memberId:${socket.memberId}, socketId:${socket.id}, sortedList:${JSON.stringify(socket.priorityTree.getSortedList(), null, 2)}`
+  );
   if (socket.highestPriorityNode) {
-    console.log("Highest Priority Member:", socket.highestPriorityNode.memberId);
-    console.log("Highest Priority Value:", socket.highestPriorityNode.priorityValue);
+    logger.info(
+      "Highest priority member in tree",
+      `memberId:${socket.highestPriorityNode.memberId}, priorityValue:${socket.highestPriorityNode.priorityValue}`
+    );
+  } else {
+    logger.warn("No highest priority node found", `memberId:${socket.memberId}, socketId:${socket.id}`);
   }
 }
 
@@ -41,33 +56,52 @@ function updatePriorityTree(socket, priorityList) {
  * @returns {boolean} 중복 여부
  */
 async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
+  logger.info("Updating other users' priority trees", `socketId:${socket.id}, memberId:${socket.memberId}`);
+
   for (const item of otherPriorityList) {
     const otherSocket = await getSocketIdByMemberId(io, item.memberId);
+    logger.debug("Fetched other user's socket", `memberId:${item.memberId}`);
 
     if (otherSocket) {
       if (!otherSocket.priorityTree) {
+        logger.error("Other socket has no priority tree", `otherSocketId:${otherSocket.id}, memberId:${otherSocket.memberId}`);
         return;
       }
 
       // 다른 사용자 소켓에 내 우선순위 값 넣기
       if (!otherSocket.priorityTree.contains(socket.memberId)) {
         otherSocket.priorityTree.insert(socket.memberId, item.priorityValue);
+        logger.debug("Inserted priority into other user's tree", `memberId:${socket.memberId}, priorityValue:${item.priorityValue}`);
       }
       // 다른 사용자의 우선순위 최댓값 노드 변경
       if (otherSocket.priorityTree.root) {
         otherSocket.highestPriorityNode = otherSocket.priorityTree.getMax(otherSocket.priorityTree.root);
+        logger.debug(
+          "Updated highest priority node for other user",
+          `otherMemberId:${otherSocket.memberId}, highestPriorityMemberId:${otherSocket.highestPriorityNode.memberId}`
+        );
       }
 
-      console.log("==================================================");
-      console.log(`Other Socket (${otherSocket.memberId}) Priority Tree (sorted):`, JSON.stringify(otherSocket.priorityTree.getSortedList(), null, 2));
+      logger.debug(
+        "Other user's priority tree (sorted)",
+        `otherMemberId:${otherSocket.memberId}, otherSocketId:${otherSocket.id}, sortedList:${JSON.stringify(
+          otherSocket.priorityTree.getSortedList(),
+          null,
+          2
+        )}`
+      );
       if (otherSocket.highestPriorityNode) {
-        console.log("Other Socket Highest Priority Member:", otherSocket.highestPriorityNode.memberId);
-        console.log("Other Socket Highest Priority Value:", otherSocket.highestPriorityNode.priorityValue);
+        logger.info(
+          "Other socket's highest priority member",
+          `otherMemberId:${otherSocket.memberId}, highestPriorityMemberId:${otherSocket.highestPriorityNode.memberId}, highestPriorityValue:${otherSocket.highestPriorityNode.priorityValue}`
+        );
+      } else {
+        logger.warn("No highest priority node found", `otherMemberId:${otherSocket.memberId}, otherSocketId:${otherSocket.id}`);
       }
     }
   }
 
-  console.log("Other Priority Trees updated based on response.");
+  logger.info("Other users' priority trees updated", `socketId:${socket.id}, memberId:${socket.memberId}`);
 }
 
 /**
@@ -78,30 +112,42 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
  * @returns
  */
 async function findMatching(socket, io, value) {
+  logger.info("Starting matching process", `socketId:${socket.id}, memberId:${socket.memberId}, valueThreshold:${value}`);
+
   if (socket.highestPriorityNode) {
     // 우선순위 값이 value를 넘는 모든 소켓 확인하기
     while (socket.highestPriorityNode.priorityValue >= value) {
       const otherSocket = await getSocketIdByMemberId(io, socket.highestPriorityNode.memberId);
-      console.log(
-        "해당 소켓에 우선순위 값이 value를 넘는 다른 소켓이 있다. socket.memberId:",
-        socket.memberId,
-        ", otherSocket.memberId:",
-        otherSocket.memberId
-      );
-      if (!otherSocket.highestPriorityNode) {
-        return null;
-      } else if (otherSocket.highestPriorityNode.priorityValue >= value) {
-        console.log("MATCHING FOUND");
-        return otherSocket;
+      if (otherSocket) {
+        logger.debug(
+          "Found other socket with priority exceeding value",
+          `socketMemberId:${socket.memberId}, otherSocketMemberId:${otherSocket.memberId}, priorityValue:${socket.highestPriorityNode.priorityValue}`
+        );
+
+        if (!otherSocket.highestPriorityNode) {
+          logger.warn("Other socket has no highest priority node", `otherSocketMemberId:${otherSocket.memberId}`);
+          return null;
+        } else if (otherSocket.highestPriorityNode.priorityValue >= value) {
+          logger.info("MATCHING FOUND", `matchingSocketId:${otherSocket.id}, matchingMemberId:${otherSocket.memberId}`);
+          return otherSocket;
+        } else {
+          // 최댓값을 가지는 노드의 전 노드 확인
+          logger.debug("Checking the previous highest priority node", `currentHighestPriorityNode:${socket.highestPriorityNode.memberId}`);
+          socket.highestPriorityNode =
+            socket.highestPriorityNode !== socket.priorityTree.getMaxBeforeNode(socket.priorityTree.root, socket.highestPriorityNode)
+              ? socket.highestPriorityNode
+              : null;
+        }
       } else {
-        // 최댓값을 가지는 노드의 전 노드 확인
-        socket.highestPriorityNode =
-          socket.highestPriorityNode !== socket.priorityTree.getMaxBeforeNode(socket.priorityTree.root, socket.highestPriorityNode)
-            ? socket.highestPriorityNode
-            : null;
+        logger.warn("Could not find other socket by memberId", `highestPriorityMemberId:${socket.highestPriorityNode.memberId}`);
+        return null;
       }
     }
+  } else {
+    logger.warn("No highest priority node found for socket", `socketId:${socket.id}, memberId:${socket.memberId}`);
   }
+
+  logger.info("No matching found for the given threshold", `socketId:${socket.id}, memberId:${socket.memberId}`);
   return null;
 }
 
@@ -112,10 +158,10 @@ async function findMatching(socket, io, value) {
  */
 function handleSocketError(socket, error) {
   if (error instanceof JWTTokenError) {
-    console.error("JWT Token Error:", error.message);
+    logger.error("JWT Token Error occurred", `socketId:${socket.id}, memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
     emitJWTError(socket, error.code, error.message);
   } else {
-    console.error("Error POST matching started:", error);
+    logger.error("Error occurred", `socketId:${socket.id}, memberId:${socket.memberId}, errorMessage:${error.message}`);
     emitError(socket, error.message);
   }
 }

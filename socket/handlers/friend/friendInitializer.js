@@ -1,5 +1,6 @@
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
 const JWTTokenError = require("../../../common/JWTTokenError");
+const logger = require("../../../common/winston");
 
 const { fetchFriends } = require("../../apis/friendApi");
 const { emitFriendOnline, emitSetFriendList } = require("../../emitters/friendEmitter");
@@ -12,9 +13,11 @@ const { getSocketIdsByMemberIds } = require("../../common/memberSocketMapper");
  */
 function initializeFriend(socket, io) {
   // (#1-13),(#2-9) 해당 회원의 친구 목록 조회 api 요청
-  // (#1-14),(#2-10) 친구 목록 조회 정상 응답 받음
   fetchFriends(socket)
     .then(async (friendIdList) => {
+      // (#1-14),(#2-10) 친구 목록 조회 정상 응답 받음
+      logger.info("Successfully fetched Friends", `memberId:${socket.memberId}`);
+
       // 친구 memberId로 socketId 찾기
       const friendSocketList = await getSocketIdsByMemberIds(io, friendIdList);
 
@@ -26,10 +29,13 @@ function initializeFriend(socket, io) {
     })
     .catch((error) => {
       if (error instanceof JWTTokenError) {
-        console.error("JWT Token Error:", error.message);
+        logger.error(
+          "JWT Token Error occurred while fetching friend list",
+          `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`
+        );
         emitJWTError(socket, error.code, error.message);
       } else {
-        console.error("Error fetching friend list data:", error);
+        logger.error("Error fetching friend list data", `memberId:${socket.memberId}, errorMessage:${error.message}`);
         emitError(socket, error.message);
       }
     });
