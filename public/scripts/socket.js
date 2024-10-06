@@ -14,9 +14,20 @@ let currentSystemFlag = null; // 현재 채팅방에서 메시지 전송 시 보
 const loginStatus = document.getElementById("loginStatus");
 
 function connectSocket(jwtToken = null) {
-  const options = jwtToken ? { auth: { token: jwtToken } } : {};
+  // jwtToken이 있을 경우에만 auth 옵션을 추가
+  const options = {
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 20000,
+  };
 
-  socket = io(options); // (#1-1), (#2-1) socket connection 생성
+  if (jwtToken) {
+    options.auth = { token: jwtToken };
+  }
+
+  socket = io(options); // 소켓 연결 시 옵션 적용
 
   socket.on("connect", () => {
     console.log("Connected to server. Socket ID:", socket.id);
@@ -24,10 +35,44 @@ function connectSocket(jwtToken = null) {
   });
 
   setupSocketListeners();
-  setUpMatchingSocketListeners();
+  //setUpMatchingSocketListeners();
 }
 
 function setupSocketListeners() {
+  socket.on("connection-jwt-error", async () => {
+    console.log("Server disconnected the socket, attempting to reconnect...");
+    try {
+      const result = await reissueToken(); // 토큰 재발급
+      console.log("reissueToken result:", result);
+      localStorage.setItem("jwtToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
+      console.log("reissue token success");
+      connectSocket(result.accessToken); // 새 토큰으로 다시 연결
+    } catch (error) {
+      console.error("Failed to reissue token: ", error);
+    }
+  });
+
+  // 재연결 시도 중
+  socket.on("reconnect_attempt", (attempt) => {
+    console.log("Reconnect attempt:", attempt);
+  });
+
+  // 재연결 성공
+  socket.on("reconnect", (attempt) => {
+    console.log("Reconnected successfully after", attempt, "attempt(s)");
+  });
+
+  // 재연결 실패
+  socket.on("reconnect_failed", () => {
+    console.log("Reconnection failed after maximum attempts");
+  });
+
+  // 연결 에러 발생
+  socket.on("connect_error", (error) => {
+    console.error("Connection error1234:", error);
+  });
+
   // member-info event listener
   socket.on("member-info", (response) => {
     loginStatus.textContent = "You are Login User, member Id: " + response.data.memberId;
