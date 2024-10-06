@@ -28,10 +28,7 @@ function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
  */
 function emitMatchingFoundSender(socket, targetMatchingInfo) {
   socket.emit("matching-found-sender", formatResponse("matching-found-sender", targetMatchingInfo));
-  logger.info(
-    "Emitted 'matching-found-sender' event",
-    `to senderSocketId:${senderSocket.id}, targetMatchingInfo:${JSON.stringify(targetMatchingInfo, null, 2)}`
-  );
+  logger.info("Emitted 'matching-found-sender' event", `to senderSocketId:${socket.id}, targetMatchingInfo:${JSON.stringify(targetMatchingInfo, null, 2)}`);
 }
 
 /**
