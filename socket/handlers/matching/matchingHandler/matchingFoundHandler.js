@@ -1,3 +1,4 @@
+const logger = require("../../../../common/winston");
 /**
  * 소켓 자신만을 매칭 풀에서 삭제 (room leave, priorityTree 제거 및 초기화)
  * @param {*} socket

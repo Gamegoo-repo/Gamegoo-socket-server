@@ -1,3 +1,5 @@
+const logger = require("../../../../common/winston");
+
 /**
  * 해당 socket이 connect 상태이면서, 해당 room에 join된 상태인지 여부 리턴
  * @param {*} socket
