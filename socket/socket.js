@@ -21,7 +21,7 @@ const { emitError, emitJWTError } = require("./emitters/errorEmitter");
 const { fetchFriends } = require("./apis/friendApi");
 
 const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
-const { deleteSocketFromMatching } = require("./handlers/matching/matchingHandler/matchingFoundHandler");
+const { deleteMySocketFromMatching } = require("./handlers/matching/matchingHandler/matchingFoundHandler");
 
 function initializeSocket(server) {
   const io = socketIo(server, {
@@ -77,7 +77,7 @@ function initializeSocket(server) {
         // (#6-4) 매칭 room에 join 되어 있는 경우, 해당 room의 모든 소켓의 priorityTree 에서 해당 소켓 노드 제거
         const roomName = "GAMEMODE_" + socket.gameMode;
         logger.debug("Removing socket from all priorityTree", `memberId:${socket.memberId}, roomName:${roomName}`);
-        deleteSocketFromMatching(socket, io, roomName);
+        deleteMySocketFromMatching(socket, io, roomName);
 
         // (#6-5) 친구 목록 조회 api 요청
         // (#6-6) 친구 목록 조회 성공 응답 받음
