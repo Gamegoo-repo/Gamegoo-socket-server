@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 const JWTTokenError = require("../../common/JWTTokenError");
+const logger = require("../../common/winston");
 
 const config = require("../../common/config");
 const API_SERVER_URL = config.apiServerUrl;
@@ -17,19 +18,24 @@ async function fetchChatroomUuid(socket) {
         Authorization: `Bearer ${socket.token}`, // Include JWT token in header
       },
     });
+
     if (response.data.isSuccess) {
+      logger.info("Successfully fetched chatroom UUID", `memberId:${socket.memberId}`);
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
+
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error("JWT Token Error during fetchChatroomUuid", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed GET chatroom uuid: ", data.message);
-      throw new Error(`Failed GET chatroom uuid: ${data.message}`);
+
+      logger.error("fetchChatroomUuid API failed", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
+      throw new Error(`Failed GET chatroom UUID: ${data.message}`);
     } else {
+      logger.error("fetchChatroomUuid request failed", `URL:${API_SERVER_URL}/v1/member/chatroom/uuid, error:${error.message}`);
       throw new Error(`Request failed: ${error.message}`);
     }
   }
