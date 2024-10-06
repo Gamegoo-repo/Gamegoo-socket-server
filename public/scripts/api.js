@@ -323,3 +323,28 @@ async function blockMemberApi(memberId) {
     console.error("Error:", error);
   }
 }
+
+async function reissueToken() {
+  try {
+    console.log("reissueToken api called");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const response = await fetch(`${API_SERVER_URL}/v1/member/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // JSON 형식으로 전송 명시
+      },
+      body: JSON.stringify({ refreshToken: refreshToken }), // 객체를 JSON 문자열로 변환
+    });
+    console.log("response:", response);
+
+    const data = await response.json();
+    console.log("data:", data);
+    if (data.isSuccess && data.result) {
+      return data.result;
+    } else {
+      throw new Error("refreshTokenApi failed");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
