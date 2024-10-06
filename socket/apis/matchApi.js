@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 const JWTTokenError = require("../../common/JWTTokenError");
+const logger = require("../../common/winston");
 
 const config = require("../../common/config");
 const API_SERVER_URL = config.apiServerUrl;
@@ -11,6 +12,7 @@ const API_SERVER_URL = config.apiServerUrl;
  * @returns
  */
 async function fetchMatchingApi(socket, request) {
+  logger.http("Sending matching API request", `memberId:${socket.memberId}, gameMode:${request.gameMode}`);
   try {
     const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3];
     const response = await axios.post(
@@ -31,18 +33,20 @@ async function fetchMatchingApi(socket, request) {
       }
     );
     if (response.data.isSuccess) {
+      logger.info("Successfully fetched matching data from API", `memberId:${socket.memberId}`);
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error("JWT Token Error during fetchMatchingApi", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed POST matching API ", data.message);
+      logger.error("fetchMatchingApi API failed", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
       throw new Error(`Failed POST matching API: ${data.message}`);
     } else {
+      logger.error("fetchMatchingApi request failed", `URL:${API_SERVER_URL}/v1/matching/priority, error:${error.message}`);
       throw new Error(`Request failed: ${error.message}`);
     }
   }
@@ -57,11 +61,16 @@ async function fetchMatchingApi(socket, request) {
  */
 async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
   try {
+    logger.http(
+      "Sending 'update both matching status' API request",
+      `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, status:${status}, gameMode:${socket.gameMode}`
+    );
+
     const response = await axios.patch(
       `${API_SERVER_URL}/v1/matching/status/target/${targetMemberId}`,
       {
         status: status,
-        gameMode: socket.gameMode
+        gameMode: socket.gameMode,
       },
       {
         headers: {
@@ -71,18 +80,33 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
     );
 
     if (response.data.isSuccess) {
+      logger.info(
+        "Successfully updated both matching statuses",
+        `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, status:${status}, gameMode:${socket.gameMode}`
+      );
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error(
+          "JWT Token Error during 'update both matching status' API request",
+          `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, code:${data.code}, message:${data.message}`
+        );
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PATCH both matching status: ", data.message);
+
+      logger.error(
+        "Failed 'update both matching status' API request",
+        `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, message:${data.message}`
+      );
       throw new Error(`Failed PATCH both matching status:  ${data.message}`);
     } else {
+      logger.error(
+        "Request failed during 'update both matching status' API",
+        `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, errorMessage:${error.message}`
+      );
       throw new Error(`Request failed: ${error.message}`);
     }
   }
@@ -96,11 +120,13 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
  */
 async function updateMatchingStatusApi(socket, status) {
   try {
+    logger.http("Sending 'update matching status' API request", `memberId:${socket.memberId}, status:${status}, gameMode:${socket.gameMode}`);
+
     const response = await axios.patch(
       `${API_SERVER_URL}/v1/matching/status`,
       {
         status: status,
-        gameMode: socket.gameMode
+        gameMode: socket.gameMode,
       },
       {
         headers: {
@@ -110,18 +136,21 @@ async function updateMatchingStatusApi(socket, status) {
     );
 
     if (response.data.isSuccess) {
+      logger.info("Successfully updated matching status", `memberId:${socket.memberId}, status:${status}, gameMode:${socket.gameMode}`);
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error("JWT Token Error during 'update matching status' API request", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PATCH matching status: ", data.message);
+
+      logger.error("Failed 'update matching status' API request", `memberId:${socket.memberId}, message:${data.message}`);
       throw new Error(`Failed PATCH matching status: ${data.message}`);
     } else {
+      logger.error("Request failed during 'update matching status' API", `memberId:${socket.memberId}, errorMessage:${error.message}`);
       throw new Error(`Request failed: ${error.message}`);
     }
   }
@@ -135,6 +164,8 @@ async function updateMatchingStatusApi(socket, status) {
  */
 async function matchingFoundApi(socket, targetMemberId) {
   try {
+    logger.http("Sending 'matching found' API request", `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
+
     const response = await axios.patch(
       `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}/${socket.gameMode}`,
       {},
@@ -146,18 +177,27 @@ async function matchingFoundApi(socket, targetMemberId) {
     );
 
     if (response.data.isSuccess) {
+      logger.info("Successfully updated 'matching found' status", `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error(
+          "JWT Token Error during 'matching found' API request",
+          `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, code:${data.code}, message:${data.message}`
+        );
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PATCH matching found: ", data.message);
+
+      logger.error("Failed 'matching found' API request", `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, message:${data.message}`);
       throw new Error(`Failed PATCH matching found: ${data.message}`);
     } else {
+      logger.error(
+        "Request failed during 'matching found' API",
+        `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, errorMessage:${error.message}`
+      );
       throw new Error(`Request failed: ${error.message}`);
     }
   }
@@ -171,6 +211,8 @@ async function matchingFoundApi(socket, targetMemberId) {
  */
 async function matchingSuccessApi(socket, targetMemberId) {
   try {
+    logger.http("Sending 'matching success' API request", `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
+
     const response = await axios.patch(
       `${API_SERVER_URL}/v1/matching/success/target/${targetMemberId}/${socket.gameMode}`,
       {},
@@ -182,18 +224,30 @@ async function matchingSuccessApi(socket, targetMemberId) {
     );
 
     if (response.data.isSuccess) {
+      logger.info(
+        "Successfully received response from 'matching success' API",
+        `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`
+      );
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error(
+          "JWT Token Error during 'matching success' API request",
+          `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, code:${data.code}, message:${data.message}`
+        );
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed PATCH matching success: ", data.message);
+
+      logger.error("Failed 'matching success' API request", `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, message:${data.message}`);
       throw new Error(`Failed PATCH matching success: ${data.message}`);
     } else {
+      logger.error(
+        "Request failed during 'matching success' API",
+        `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, errorMessage:${error.message}`
+      );
       throw new Error(`Request failed: ${error.message}`);
     }
   }
