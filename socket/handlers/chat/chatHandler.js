@@ -1,4 +1,5 @@
 const JWTTokenError = require("../../../common/JWTTokenError");
+const logger = require("../../../common/winston");
 
 const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
 const { postChatMessage, startTestChattingByMatching } = require("../../apis/chatApi");
@@ -12,12 +13,14 @@ const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
 function setupChatListeners(socket, io) {
   // chat-message event 발생 시, 8080서버에 채팅 등록 api 요청 및 해당 room에 event emit
   socket.on("chat-message", (request) => {
+    logger.info("=== Received 'chat-message' event", `socketId:${socket.id}, chatroomUuid:${request.uuid} ===`);
     const chatroomUuid = request.uuid;
     const msg = request.message;
     // uuid가 없는 경우 error event emit
     if (!chatroomUuid) {
-      console.error("Fail listening chat-message event: chatroomUuid is missing");
+      logger.error("Fail listening 'chat-message' event: chatroomUuid is missing", `socketId:${socket.id}`);
       emitError(socket, "Fail listening chat-message event: chatroomUuid is missing");
+      return;
     }
 
     let requestData = { message: msg };
@@ -42,33 +45,44 @@ function setupChatListeners(socket, io) {
     }
 
     // (#10-4) 8080서버에 채팅 저장 api 요청
+    logger.http("Sending POST request to save chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}`);
     postChatMessage(socket, chatroomUuid, requestData)
       .then((response) => {
         // (#10-10) 채팅 저장 정상 응답 받음
+        logger.info("Successfully saved chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}`);
+
         // (#10-11),(#10-12) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
         emitChatMessage(socket, chatroomUuid, response);
       })
       .catch((error) => {
         if (error instanceof JWTTokenError) {
-          console.error("JWT Token Error:", error.message);
+          logger.error("JWT Token Error during POST chat message", `socketId:${socket.id}, errorMessage:${error.message}`);
           emitJWTError(socket, error.code, error.message);
         } else {
-          console.error("Error POST chat message:", error);
+          logger.error("Error occurred during POST chat message", `socketId:${socket.id}, errorMessage:${error.message}`);
           emitError(socket, error.message);
         }
       });
+    logger.info("=== Completed 'chat-message' event processing", `socketId:${socket.id} ===`);
   });
 
   // exit-chatroom event 발생 시, 해당 socket을 chatroom에서 leave 처리
   socket.on("exit-chatroom", (request) => {
+    logger.info("=== Received 'exit-chatroom' event", `socketId:${socket.id}, chatroomUuid:${request.uuid} ===`);
     const chatroomUuid = request.uuid;
+
+    if (!chatroomUuid) {
+      logger.error("Exit chatroom request failed: chatroomUuid is missing", `socketId:${socket.id}`);
+      emitError(socket, "Exit chatroom request failed: chatroomUuid is missing");
+      return;
+    }
     // (#14-4), (#15-4) 해당 socket을 해당 chatroom에서 leave 처리
     socket.leave("CHAT_" + chatroomUuid);
-    console.log("memberId:", socket.memberId, ", SOCKET LEFT ROOM: " + "CHAT_" + chatroomUuid);
-    console.log("======================= chatroom uuid List START =======================");
+    logger.info("Socket left chatroom", `memberId:${socket.memberId}, chatroomUuid:${chatroomUuid}, socketId:${socket.id}`);
+
     const rooms = Array.from(socket.rooms);
-    console.log("현재 소켓이 join되어 있는 room 목록:", rooms);
-    console.log("======================= chatroom uuid List END =======================");
+    logger.debug("Socket current rooms", `socketId:${socket.id}, rooms:${rooms}`);
+    logger.info("=== Completed 'exit-chatroom' event processing", `socketId:${socket.id} ===`);
   });
 
   socket.on("test-matching-request", (request) => {

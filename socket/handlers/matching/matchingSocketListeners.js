@@ -36,6 +36,7 @@ async function setupMatchSocketListeners(socket, io) {
     if (usersInRoom.has(socket.id)) {
       logger.error("Socket already in matching room", `socketId:${socket.id}, roomName:${roomName}`);
       emitError(socket, "You are already in the matching room for this game mode.");
+      logger.info("=== Completed 'matching-request' event processing", `socketId:${socket.id} ===`);
       return;
     }
 

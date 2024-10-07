@@ -13,6 +13,8 @@ const API_SERVER_URL = config.apiServerUrl;
  */
 async function fetchChatroomUuid(socket) {
   try {
+    logger.http("Sending 'fetch chatroom UUID' API request", `memberId:${socket.memberId}, socketId:${socket.id}`);
+
     const response = await axios.get(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
       headers: {
         Authorization: `Bearer ${socket.token}`, // Include JWT token in header
@@ -28,14 +30,14 @@ async function fetchChatroomUuid(socket) {
       const data = error.response.data;
 
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        logger.error("JWT Token Error during fetchChatroomUuid", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
+        logger.error("JWT Token Error during 'fetch chatroom UUID' API request", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
 
-      logger.error("fetchChatroomUuid API failed", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
+      logger.error("Failed 'fetch chatroom UUID' API request", `memberId:${socket.memberId}, message:${data.message}`);
       throw new Error(`Failed GET chatroom UUID: ${data.message}`);
     } else {
-      logger.error("fetchChatroomUuid request failed", `URL:${API_SERVER_URL}/v1/member/chatroom/uuid, error:${error.message}`);
+      logger.error("Request failed during 'fetch chatroom UUID' API request", `memberId:${socket.memberId}, errorMessage:${error.message}`);
       throw new Error(`Request failed: ${error.message}`);
     }
   }
@@ -50,24 +52,31 @@ async function fetchChatroomUuid(socket) {
  */
 async function postChatMessage(socket, chatroomUuid, requestData) {
   try {
+    logger.http("Sending POST request to save chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, requestData:${JSON.stringify(requestData)}`);
+
     const response = await axios.post(`${API_SERVER_URL}/v1/chat/${chatroomUuid}`, requestData, {
       headers: {
         Authorization: `Bearer ${socket.token}`,
       },
     });
     if (response.data.isSuccess) {
+      logger.info("Successfully saved chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, messageId:${response.data.result.messageId}`);
       return response.data.result;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
       if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
+        logger.error(
+          "JWT token Error during POST chat message",
+          `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, errorCode:${data.code}, errorMessage:${data.message}`
+        );
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      console.error("Failed POST chat message: ", data.message);
+      logger.error("Failed POST chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, errorMessage:${data.message}`);
       throw new Error(`Failed POST chat message: ${data.message}`);
     } else {
+      logger.error("postChatMessage request failed", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, errorMessage:${error.message}`);
       throw new Error(`Request failed: ${error.message}`);
     }
   }

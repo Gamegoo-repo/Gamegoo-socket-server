@@ -29,10 +29,7 @@ function initializeFriend(socket, io) {
     })
     .catch((error) => {
       if (error instanceof JWTTokenError) {
-        logger.error(
-          "JWT Token Error occurred while fetching friend list",
-          `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`
-        );
+        logger.error("JWT Token Error during initializeFriend", `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
         emitJWTError(socket, error.code, error.message);
       } else {
         logger.error("Error fetching friend list data", `memberId:${socket.memberId}, errorMessage:${error.message}`);
