@@ -26,7 +26,7 @@ function login(io) {
     if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
       jwtToken = authorizationHeader.substring(7); // 'Bearer ' 이후의 부분이 토큰임
     }
-    logger.info("Login attempt", `IP:${req.ip}, socketId:${req.headers["socket-id"]}`);
+    logger.info("=== Login attempt", `IP:${req.ip}, socketId:${req.headers["socket-id"]} ===`);
 
     // (#1-6) jwt 검증 및 socket 바인딩
     // jwt token 존재 여부 검증
