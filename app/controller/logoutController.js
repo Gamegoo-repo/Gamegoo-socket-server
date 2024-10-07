@@ -1,4 +1,5 @@
 const { successResponse, failResponse } = require("../common/responseFormatter");
+const logger = require("../../common/winston.js");
 
 function logout(io) {
   return (req, res) => {
