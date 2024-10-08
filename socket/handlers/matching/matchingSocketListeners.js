@@ -36,6 +36,7 @@ async function setupMatchSocketListeners(socket, io) {
     if (usersInRoom.has(socket.id)) {
       logger.error("Socket already in matching room", `socketId:${socket.id}, roomName:${roomName}`);
       emitError(socket, "You are already in the matching room for this game mode.");
+      logger.info("=== Completed 'matching-request' event processing", `socketId:${socket.id} ===`);
       return;
     }
 
@@ -120,7 +121,9 @@ async function setupMatchSocketListeners(socket, io) {
       if (result) {
         logger.info("Received matching FOUND API response", `receiverMemberId:${socket.memberId}, senderMemberId:${senderSocket.memberId}`);
         // 21) "matching-found-sender" emit
-        emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+        setTimeout(() => {
+          emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+        }, 2000);
       }
     } catch (error) {
       logger.error("Error during matching FOUND API request", `socketId:${socket.id}, error:${error.message}`);
