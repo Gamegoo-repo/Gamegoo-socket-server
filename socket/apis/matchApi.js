@@ -12,9 +12,10 @@ const API_SERVER_URL = config.apiServerUrl;
  * @returns
  */
 async function fetchMatchingApi(socket, request) {
-  logger.http("Sending matching API request", `memberId:${socket.memberId}, gameMode:${request.gameMode}`);
   try {
-    const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3];
+    const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter(item => item);
+    logger.http("Sending matching API request", `memberId:${socket.memberId}, gameMode:${request.gameMode}, gameStyleIdList:${gameStyleIdList}`);
+
     const response = await axios.post(
       `${API_SERVER_URL}/v1/matching/priority`,
       {
