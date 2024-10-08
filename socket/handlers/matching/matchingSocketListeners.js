@@ -120,7 +120,9 @@ async function setupMatchSocketListeners(socket, io) {
       if (result) {
         logger.info("Received matching FOUND API response", `receiverMemberId:${socket.memberId}, senderMemberId:${senderSocket.memberId}`);
         // 21) "matching-found-sender" emit
-        emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+        setTimeout(() => {
+          emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
+        }, 2000);
       }
     } catch (error) {
       logger.error("Error during matching FOUND API request", `socketId:${socket.id}, error:${error.message}`);
