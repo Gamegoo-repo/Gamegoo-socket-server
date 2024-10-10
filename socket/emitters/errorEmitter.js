@@ -11,12 +11,13 @@ function emitJWTError(socket, code, message) {
   logger.info("Emitted 'jwt-error' event", `to socketId:${socket.id}, code:${code}, message:${message} `);
 }
 
-function emitConnectionJWTError(socket) {
+function emitConnectionJwtError(socket) {
   socket.emit("connection-jwt-error");
+  logger.info("Emitted 'connection-jwt-error' event", `to socketId:${socket.id}`);
 }
 
 module.exports = {
   emitError,
   emitJWTError,
-  emitConnectionJWTError,
+  emitConnectionJwtError,
 };

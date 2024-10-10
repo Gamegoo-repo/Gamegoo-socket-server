@@ -18,7 +18,7 @@ const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
 const { updateMatchingStatusApi } = require("./apis/matchApi");
 
-const { emitError, emitJWTError, emitConnectionJWTError } = require("./emitters/errorEmitter");
+const { emitError, emitJWTError, emitConnectionJwtError } = require("./emitters/errorEmitter");
 
 const { fetchFriends } = require("./apis/friendApi");
 
@@ -44,9 +44,7 @@ function initializeSocket(server) {
       jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
           logger.info("Token verification failed", `socketId:${socket.id}, token:${token}, error:${err.message}`);
-          emitConnectionJWTError(socket);
-          socket.disconnect(true); // jwt 토큰 잘못된 경우, 해당 소켓 disconnect
-          logger.debug("socket disconnected");
+          emitConnectionJwtError(socket);
         } else {
           socket.memberId = decoded.id; // 해당 소켓 객체에 memberId 추가
           socket.token = token; // 해당 소켓 객체에 token 추가
