@@ -55,7 +55,7 @@ function emitTestMatchingChattingSuccess(io, chatroomUuid) {
  * @param {*} socket
  * @param {*} messageContent
  */
-function emitMannerSystemMessage(socket, chatroomUuid, messageContent) {
+function emitMannerSystemMessage(socket, chatroomUuid, messageContent, timestamp) {
   const systemMessage = {
     chatroomUuid: chatroomUuid,
     senderId: 0,
@@ -63,7 +63,7 @@ function emitMannerSystemMessage(socket, chatroomUuid, messageContent) {
     senderProfileImg: 0,
     message: messageContent,
     createdAt: null,
-    timestamp: null,
+    timestamp: timestamp,
   };
   socket.emit("manner-system-message", formatResponse("manner-system-message", systemMessage));
 }
