@@ -7,8 +7,6 @@ const JWT_SECRET = config.jwt.secret;
 const JWTTokenError = require("../common/JWTTokenError");
 const logger = require("../common/winston");
 
-const logger = require("../common/winston");
-
 const initChat = require("./handlers/chat/chatInit");
 const initAlarm = require("./handlers/alarm/alarmInit");
 const initMatching = require("./handlers/matching/matchingInit");
@@ -18,7 +16,7 @@ const { emitMemberInfo } = require("./emitters/memberEmitter");
 const { emitFriendOffline } = require("./emitters/friendEmitter");
 const { updateMatchingStatusApi } = require("./apis/matchApi");
 
-const { emitError, emitJWTError, emitConnectionJwtError } = require("./emitters/errorEmitter");
+const { emitError, emitJWTError, emitConnectionJwtError, emitJwtExpiredError } = require("./emitters/errorEmitter");
 
 const { fetchFriends } = require("./apis/friendApi");
 
@@ -43,7 +41,7 @@ function initializeSocket(server) {
       // (#2-2) jwt 토큰 검증 및 socket 바인딩
       jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
-          logger.info("Token verification failed", `socketId:${socket.id}, token:${token}, error:${err.message}`);
+          logger.warn("Token verification failed", `socketId:${socket.id}, token:${token}, error:${err.message}`);
           emitConnectionJwtError(socket);
         } else {
           socket.memberId = decoded.id; // 해당 소켓 객체에 memberId 추가
@@ -64,11 +62,72 @@ function initializeSocket(server) {
       logger.info("No token provided, non-logged-in socket connection", `socketId:${socket.id}`);
     }
 
+    // 소켓 connection 시 update-token listener
+    socket.on("connection-update-token", (request) => {
+      const token = request.token;
+      logger.info("=== Received 'connection-update-token' event", `socketId:${socket.id}, token:${token} ===`);
+      if (token) {
+        // (#2-2) jwt 토큰 검증 및 socket 바인딩
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+          if (err) {
+            logger.warn("Token verification failed", `socketId:${socket.id}, token:${token}, error:${err.message}`);
+            emitConnectionJwtError(socket);
+          } else {
+            socket.memberId = decoded.id; // 해당 소켓 객체에 memberId 추가
+            socket.token = token; // 해당 소켓 객체에 token 추가
+            logger.info("Token verification success", `memberId:${socket.memberId}, socketId:${socket.id}`);
+            // (#2-3) "member-info" event emit
+            emitMemberInfo(socket);
+
+            // (#2-5) 초기화 함수들 호출
+            initChat(socket, io);
+            initAlarm(socket, io);
+            initMatching(socket, io);
+            initFriend(socket, io);
+          }
+        });
+      } else {
+        logger.warn("No token provided", `socketId:${socket.id}`);
+        emitConnectionJwtError(socket);
+      }
+      logger.info("=== Completed 'connection-update-token' event processing", `socketId:${socket.id} ===`);
+    });
+
     // 토큰 업데이트 event listener
     socket.on("update-token", (request) => {
       logger.info("=== Received 'update-token' event", `socketId:${socket.id}, token:${request.token} ===`);
       socket.token = request.token;
-      logger.info("=== Completed 'update-token' event processing", `socketId:${socket.id}, socket.token:${socket.token} ===`);
+      logger.info("=== Completed 'update-token' event processing", `socketId:${socket.id} ===`);
+    });
+
+    // JWT 검증 미들웨어
+    socket.use(([event, ...args], next) => {
+      const token = socket.token;
+      const data = args[0];
+      logger.debug(`--- jwt middleware started, event: ${event}, socketId: ${socket.id} ---`);
+
+      // connection, disconnect, update-token, connection-update-token 이벤트는 검증 제외
+      if (event === "connection" || event === "disconnect" || event === "update-token" || event === "connection-update-token") {
+        return next();
+      }
+
+      // socket.token 값이 없는 경우
+      if (!token) {
+        logger.warn(`Token not provided for event: ${event}, socketId: ${socket.id}`);
+        return emitJwtExpiredError(socket, event, data);
+      }
+
+      // JWT 검증
+      jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+          logger.warn(`Token verification failed for event: ${event}, socketId:${socket.id}, error:${err.message}`);
+          emitJwtExpiredError(socket, event, data);
+          return;
+        }
+
+        logger.debug(`Token verification success for event: ${event}, socketId:${socket.id}`);
+        next(); // 검증 성공 시 이벤트 리스너로 넘김
+      });
     });
 
     // disconnect 시에 친구 소켓에게 friend-offline event emit
