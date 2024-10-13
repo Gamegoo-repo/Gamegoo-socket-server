@@ -64,6 +64,13 @@ function initializeSocket(server) {
       logger.info("No token provided, non-logged-in socket connection", `socketId:${socket.id}`);
     }
 
+    // 토큰 업데이트 event listener
+    socket.on("update-token", (request) => {
+      logger.info("=== Received 'update-token' event", `socketId:${socket.id}, token:${request.token} ===`);
+      socket.token = request.token;
+      logger.info("=== Completed 'update-token' event processing", `socketId:${socket.id}, socket.token:${socket.token} ===`);
+    });
+
     // disconnect 시에 친구 소켓에게 friend-offline event emit
     socket.on("disconnect", async () => {
       //console.log("DISCONNECTED, memberId: ", socket.memberId);
