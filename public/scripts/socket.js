@@ -39,6 +39,7 @@ function connectSocket(jwtToken = null) {
 }
 
 function setupSocketListeners() {
+  // connection-jwt-error event listener
   socket.on("connection-jwt-error", async () => {
     console.log("connection-jwt-error occured");
     try {
@@ -47,10 +48,15 @@ function setupSocketListeners() {
       localStorage.setItem("jwtToken", result.accessToken);
       localStorage.setItem("refreshToken", result.refreshToken);
       console.log("reissue token success");
-      socket.emit("update-token", { token: result.accessToken });
+      socket.emit("connection-update-token", { token: result.accessToken });
     } catch (error) {
       console.error("Failed to reissue token: ", error);
     }
+  });
+
+  socket.on("jwt-expired-error", async (response) => {
+    console.log("jwt-expired-error occured");
+    console.log(`eventName:${response.data.eventName}, eventData:${response.data.eventData}`);
   });
 
   // // 재연결 시도 중
