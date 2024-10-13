@@ -53,7 +53,7 @@ function socketRoomJoin(io) {
 function emitSystemMessage(io) {
   return async (req, res) => {
     // request body에서 데이터를 추출
-    const { memberId, chatroomUuid, content } = req.body;
+    const { memberId, chatroomUuid, content, timestamp } = req.body;
 
     // 현재 연결된 socket 중 해당 memberId를 가진 socket 객체 list 추출
     let sockets = [];
@@ -71,7 +71,7 @@ function emitSystemMessage(io) {
     if (sockets.length) {
       for (const connSocket of sockets) {
         try {
-          emitMannerSystemMessage(connSocket, chatroomUuid, content);
+          emitMannerSystemMessage(connSocket, chatroomUuid, content, timestamp);
         } catch (error) {
           res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 system message emit에 실패했습니다."));
         }
