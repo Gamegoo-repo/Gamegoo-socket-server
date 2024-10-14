@@ -80,7 +80,6 @@ async function setupMatchSocketListeners(socket, io) {
 
       logger.info("=== Completed 'matching-request' event processing", `socketId:${socket.id} ===`);
     } catch (error) {
-      handleSocketError(socket, error, "matching-request", request);
       logger.error("Error occurred during matching process, 'matching-request' listener", `socketId:${socket.id}, error:${error.message}`);
       handleSocketError(socket, error);
     }

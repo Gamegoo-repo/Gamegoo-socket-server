@@ -155,10 +155,8 @@ async function findMatching(socket, io, value) {
  * API 응답 에러 처리
  * @param {*} socket
  * @param {*} error
- * @param {*} eventName
- * @param {*} eventData
  */
-function handleSocketError(socket, error, eventName, eventData) {
+function handleSocketError(socket, error) {
   if (error instanceof JWTTokenError) {
     logger.error("JWT Token Error occurred", `socketId:${socket.id}, memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
     emitJWTError(socket, error.code, error.message);

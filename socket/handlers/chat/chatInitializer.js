@@ -28,8 +28,6 @@ function initializeChat(socket, io) {
       if (error instanceof JWTTokenError) {
         logger.error("JWT Token Error during initializeChat", `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
         emitConnectionJWTError(socket);
-        socket.disconnect(true); // 소켓 초기화 시점에서 jwt error 발생 시, socket disconnect 시킴
-        //emitJWTError(socket, error.code, error.message);
       } else {
         logger.error("Error fetching chatroom UUID data", `memberId:${socket.memberId}, errorMessage:${error.message}`);
         emitError(socket, error.message);
