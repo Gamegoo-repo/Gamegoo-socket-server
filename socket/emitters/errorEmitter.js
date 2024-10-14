@@ -18,6 +18,7 @@ function emitConnectionJwtError(socket) {
 
 function emitJwtExpiredError(socket, eventName, eventData) {
   socket.emit("jwt-expired-error", formatResponse("jwt-expired-error", { eventName: eventName, eventData: eventData }));
+  logger.info("Emitted 'jwt-expired-error' event", `to socketId:${socket.id}`);
 }
 module.exports = {
   emitError,
