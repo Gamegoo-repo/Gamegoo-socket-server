@@ -35,7 +35,7 @@ function connectSocket(jwtToken = null) {
   });
 
   setupSocketListeners();
-  //setUpMatchingSocketListeners();
+  setUpMatchingSocketListeners();
 }
 
 function setupSocketListeners() {
@@ -55,8 +55,20 @@ function setupSocketListeners() {
   });
 
   socket.on("jwt-expired-error", async (response) => {
+    const eventName = response.data.eventName;
+    const eventData = response.data.eventData;
     console.log("jwt-expired-error occured");
-    console.log(`eventName:${response.data.eventName}, eventData:${response.data.eventData}`);
+    console.log(`eventName:${eventName}, eventData:${eventData}`);
+    try {
+      const result = await reissueToken(); // 토큰 재발급
+      console.log("reissueToken result:", result);
+      localStorage.setItem("jwtToken", result.accessToken);
+      localStorage.setItem("refreshToken", result.refreshToken);
+      console.log("reissue token success");
+      socket.emit(eventName, { ...eventData, token: result.accessToken }); // eventData에다가 token만 추가해서 다시 emit
+    } catch (error) {
+      console.error("Failed to reissue token: ", error);
+    }
   });
 
   // // 재연결 시도 중
