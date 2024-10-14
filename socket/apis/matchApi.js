@@ -13,26 +13,18 @@ const API_SERVER_URL = config.apiServerUrl;
  */
 async function fetchMatchingApi(socket, request) {
   try {
-    const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter(item => item);
+    const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter((item) => item);
     logger.http("Sending matching API request", `memberId:${socket.memberId}, gameMode:${request.gameMode}, gameStyleIdList:${gameStyleIdList}`);
 
-    const response = await axios.post(
-      `${API_SERVER_URL}/v1/matching/priority`,
-      {
-        gameMode: request.gameMode,
-        mike: request.mike,
-        matchingType: request.matchingType,
-        mainP: request.mainP,
-        subP: request.subP,
-        wantP: request.wantP,
-        gameStyleIdList: gameStyleIdList,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-        },
-      }
-    );
+    const response = await axios.post(`${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/priority`, {
+      gameMode: request.gameMode,
+      mike: request.mike,
+      matchingType: request.matchingType,
+      mainP: request.mainP,
+      subP: request.subP,
+      wantP: request.wantP,
+      gameStyleIdList: gameStyleIdList,
+    });
     if (response.data.isSuccess) {
       logger.info("Successfully fetched matching data from API", `memberId:${socket.memberId}`);
       return response.data.result;
@@ -67,18 +59,10 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
       `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, status:${status}, gameMode:${socket.gameMode}`
     );
 
-    const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/status/target/${targetMemberId}`,
-      {
-        status: status,
-        gameMode: socket.gameMode,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-        },
-      }
-    );
+    const response = await axios.patch(`${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/status/target/${targetMemberId}`, {
+      status: status,
+      gameMode: socket.gameMode,
+    });
 
     if (response.data.isSuccess) {
       logger.info(
@@ -124,7 +108,7 @@ async function updateMatchingStatusApi(socket, status) {
     logger.http("Sending 'update matching status' API request", `memberId:${socket.memberId}, status:${status}, gameMode:${socket.gameMode}`);
 
     const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/status`,
+      `${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/status`,
       {
         status: status,
         gameMode: socket.gameMode,
@@ -167,15 +151,7 @@ async function matchingFoundApi(socket, targetMemberId) {
   try {
     logger.http("Sending 'matching found' API request", `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
 
-    const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/found/target/${targetMemberId}/${socket.gameMode}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-        },
-      }
-    );
+    const response = await axios.patch(`${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/found/target/${targetMemberId}/${socket.gameMode}`, {});
 
     if (response.data.isSuccess) {
       logger.info("Successfully updated 'matching found' status", `memberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
@@ -214,15 +190,7 @@ async function matchingSuccessApi(socket, targetMemberId) {
   try {
     logger.http("Sending 'matching success' API request", `senderMemberId:${socket.memberId}, targetMemberId:${targetMemberId}, gameMode:${socket.gameMode}`);
 
-    const response = await axios.patch(
-      `${API_SERVER_URL}/v1/matching/success/target/${targetMemberId}/${socket.gameMode}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-        },
-      }
-    );
+    const response = await axios.patch(`${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/success/target/${targetMemberId}/${socket.gameMode}`, {});
 
     if (response.data.isSuccess) {
       logger.info(
