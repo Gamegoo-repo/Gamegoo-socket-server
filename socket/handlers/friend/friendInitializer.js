@@ -1,4 +1,4 @@
-const { emitError, emitJWTError } = require("../../emitters/errorEmitter");
+const { emitError, emitConnectionJwtError } = require("../../emitters/errorEmitter");
 const JWTTokenError = require("../../../common/JWTTokenError");
 const logger = require("../../../common/winston");
 
@@ -30,7 +30,7 @@ function initializeFriend(socket, io) {
     .catch((error) => {
       if (error instanceof JWTTokenError) {
         logger.error("JWT Token Error during initializeFriend", `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
-        emitJWTError(socket, error.code, error.message);
+        emitConnectionJwtError(socket);
       } else {
         logger.error("Error fetching friend list data", `memberId:${socket.memberId}, errorMessage:${error.message}`);
         emitError(socket, error.message);

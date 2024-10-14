@@ -152,7 +152,7 @@ async function findMatching(socket, io, value) {
 }
 
 /**
- * 에러 처리
+ * API 응답 에러 처리
  * @param {*} socket
  * @param {*} error
  */

@@ -21,7 +21,9 @@ loginButton.addEventListener("click", () => {
     if (result) {
       // (#1-4) jwt 토큰 localStorage에 저장
       const jwtToken = result.accessToken;
+      const refreshToken = result.refreshToken;
       localStorage.setItem("jwtToken", jwtToken);
+      localStorage.setItem("refreshToken", refreshToken);
 
       alert("Login successful! Token received.");
       console.log("Using existing socket. Socket ID:", socket.id);
@@ -1030,5 +1032,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 플래그 삭제 (한 번만 동작하게 함)
     sessionStorage.removeItem("fromMatchPage");
+  }
+});
+
+// 첫 접속 시 sessionStorage에 플래그 설정
+window.addEventListener("load", () => {
+  // 새로고침 또는 처음 접속 시 sessionStorage에 플래그 설정
+  sessionStorage.setItem("sessionActive", "true");
+});
+
+// 창을 닫을 때 jwt token 스토리지에서 제거
+window.addEventListener("beforeunload", (event) => {
+  // sessionStorage에 값이 없으면 창이 닫히는 것으로 판단
+  if (!sessionStorage.getItem("sessionActive")) {
+    // 창을 닫을 때만 localStorage에서 jwtToken 삭제
+    localStorage.removeItem("jwtToken");
   }
 });
