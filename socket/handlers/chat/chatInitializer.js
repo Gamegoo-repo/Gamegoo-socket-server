@@ -1,4 +1,4 @@
-const { emitError, emitConnectionJWTError } = require("../../emitters/errorEmitter");
+const { emitError, emitConnectionJwtError } = require("../../emitters/errorEmitter");
 const JWTTokenError = require("../../../common/JWTTokenError");
 const logger = require("../../../common/winston");
 
@@ -27,7 +27,7 @@ function initializeChat(socket, io) {
     .catch((error) => {
       if (error instanceof JWTTokenError) {
         logger.error("JWT Token Error during initializeChat", `memberId:${socket.memberId}, errorCode:${error.code}, errorMessage:${error.message}`);
-        emitConnectionJWTError(socket);
+        emitConnectionJwtError(socket);
       } else {
         logger.error("Error fetching chatroom UUID data", `memberId:${socket.memberId}, errorMessage:${error.message}`);
         emitError(socket, error.message);
