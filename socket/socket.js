@@ -100,11 +100,29 @@ function initializeSocket(server) {
       logger.info("=== Completed 'update-token' event processing", `socketId:${socket.id} ===`);
     });
 
+    // request data에 token 값 필터링 미들웨어
+    socket.use(([event, ...args], next) => {
+      const data = args[0];
+      // connection, disconnect, update-token, connection-update-token 이벤트는 필터링 제외
+      if (event === "connection" || event === "disconnect" || event === "update-token" || event === "connection-update-token") {
+        return next();
+      }
+
+      // request data에 token 값 없는 경우, next로 넘어가기
+      if (!data || !data.token) {
+        return next();
+      }
+
+      logger.debug(`--- req token middleware called, event: ${event}, socketId: ${socket.id} ---`);
+      socket.token = data.token; // socket.token 값 업데이트
+
+      next();
+    });
+
     // JWT 검증 미들웨어
     socket.use(([event, ...args], next) => {
       const token = socket.token;
       const data = args[0];
-      logger.debug(`--- jwt middleware started, event: ${event}, socketId: ${socket.id} ---`);
 
       // connection, disconnect, update-token, connection-update-token 이벤트는 검증 제외
       if (event === "connection" || event === "disconnect" || event === "update-token" || event === "connection-update-token") {
@@ -113,19 +131,20 @@ function initializeSocket(server) {
 
       // socket.token 값이 없는 경우
       if (!token) {
-        logger.warn(`Token not provided for event: ${event}, socketId: ${socket.id}`);
+        logger.warn(`--- jwt verify middleware FAILED, event: ${event}, socketId: ${socket.id}, No token provided ---`);
         return emitJwtExpiredError(socket, event, data);
       }
 
       // JWT 검증
       jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
-          logger.warn(`Token verification failed for event: ${event}, socketId:${socket.id}, error:${err.message}`);
+          logger.warn(`--- jwt verify middleware FAILED, event: ${event}, socketId: ${socket.id}, error:${err.message} ---`);
           emitJwtExpiredError(socket, event, data);
           return;
         }
 
-        logger.debug(`Token verification success for event: ${event}, socketId:${socket.id}`);
+        logger.debug(`--- jwt verify middleware SUCCESS, event: ${event}, socketId: ${socket.id} ---`);
+
         next(); // 검증 성공 시 이벤트 리스너로 넘김
       });
     });
