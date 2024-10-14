@@ -13,11 +13,7 @@ const API_SERVER_URL = config.apiServerUrl;
 async function fetchFriends(socket) {
   try {
     logger.http("Sending 'fetch friends' API request", `memberId:${socket.memberId}`);
-    const response = await axios.get(`${API_SERVER_URL}/v1/friends/ids`, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-      },
-    });
+    const response = await axios.get(`${API_SERVER_URL}/v1/internal/${socket.memberId}/friends/ids`);
     if (response.data.isSuccess) {
       logger.info("Successfully fetched friends", `memberId:${socket.memberId}, friendIdList:${response.data.result}`);
       return response.data.result;

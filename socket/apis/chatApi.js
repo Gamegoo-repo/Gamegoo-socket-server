@@ -15,11 +15,7 @@ async function fetchChatroomUuid(socket) {
   try {
     logger.http("Sending 'fetch chatroom UUID' API request", `memberId:${socket.memberId}, socketId:${socket.id}`);
 
-    const response = await axios.get(`${API_SERVER_URL}/v1/member/chatroom/uuid`, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-      },
-    });
+    const response = await axios.get(`${API_SERVER_URL}/v1/internal/${socket.memberId}/chatroom/uuid`);
 
     if (response.data.isSuccess) {
       logger.info("Successfully fetched chatroom UUID", `memberId:${socket.memberId}`);
@@ -54,11 +50,7 @@ async function postChatMessage(socket, chatroomUuid, requestData) {
   try {
     logger.http("Sending POST request to save chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, requestData:${JSON.stringify(requestData)}`);
 
-    const response = await axios.post(`${API_SERVER_URL}/v1/chat/${chatroomUuid}`, requestData, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`,
-      },
-    });
+    const response = await axios.post(`${API_SERVER_URL}/v1/internal/${socket.memberId}/chat/${chatroomUuid}`, requestData);
     if (response.data.isSuccess) {
       logger.info("Successfully saved chat message", `socketId:${socket.id}, chatroomUuid:${chatroomUuid}, messageId:${response.data.result.messageId}`);
       return response.data.result;
@@ -89,11 +81,7 @@ async function postChatMessage(socket, chatroomUuid, requestData) {
  */
 async function startTestChattingByMatching(socket, targetMemberId) {
   try {
-    const response = await axios.get(`${API_SERVER_URL}/v1/chat/start/matching/${socket.memberId}/${targetMemberId}`, {
-      headers: {
-        Authorization: `Bearer ${socket.token}`, // Include JWT token in header
-      },
-    });
+    const response = await axios.get(`${API_SERVER_URL}/v1/chat/start/matching/${socket.memberId}/${targetMemberId}`);
     if (response.data.isSuccess) {
       return response.data.result;
     }
