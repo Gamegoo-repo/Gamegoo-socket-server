@@ -5,9 +5,6 @@ on:
     types: [closed]
     branches:
       - develop
-  push:
-    branches:
-      - cicd/111
   workflow_dispatch: # 수동 실행 가능하도록
 
 jobs:
@@ -89,3 +86,15 @@ jobs:
               -e API_SERVER_URL=${{ env.API_SERVER_URL }} \
               -e NODE_SERVER_URL=${{ env.NODE_SERVER_URL }} \
               ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket:${{ github.sha }}
+
+      # 실패 시 디스코드에 알림 보내기
+      - name: 배포 실패 시 디스코드 알림 전송
+        if: failure() # 이전 스텝이 실패한 경우에만 실행
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"content\": \"🚨 **Gamegoo Socket 서버 배포 실패** 🚨\nPR 번호: '${PR_NUMBER}'\nPR 제목: '${PR_TITLE}'\nPR 작성자: '${PR_AUTHOR}'\n[PR 보기](${PR_URL})\"}" \
+          $DISCORD_WEBHOOK_URL
