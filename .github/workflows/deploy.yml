@@ -5,9 +5,6 @@ on:
     types: [closed]
     branches:
       - develop
-  push:
-    branches:
-      - cicd/113
   workflow_dispatch: # 수동 실행 가능하도록
 
 jobs:
