@@ -3,7 +3,7 @@ const JWTTokenError = require("../../common/JWTTokenError");
 const logger = require("../../common/winston");
 
 const config = require("../../common/config");
-const API_SERVER_URL = config.apiServerUrl;
+const API_SERVER_URL = config.API_SERVER_URL;
 
 /**
  * 회원의 친구 목록을 요청하는 메소드

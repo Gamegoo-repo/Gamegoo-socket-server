@@ -2,11 +2,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 module.exports = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT,
   jwt: {
-    secret: process.env.JWT_SECRET || "jwttttttttttttttsecrettttttttttttttt",
+    secret: process.env.JWT_SECRET,
   },
-  socketioUrl: process.env.SOCKETIO_URL || "/socket.io/socket.io.js",
-  apiServerUrl: process.env.API_SERVER_URL || "http://localhost:8080",
-  nodeServerUrl: process.env.NODE_SERVER_URL || "http://localhost:3000",
+  SOCKETIO_URL: process.env.SOCKETIO_URL,
+  API_SERVER_URL: process.env.API_SERVER_URL,
+  NODE_SERVER_URL: process.env.NODE_SERVER_URL,
 };

@@ -96,5 +96,5 @@ jobs:
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
           PR_URL="${{ github.event.pull_request.html_url }}"
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"content\": \"🚨 **Gamegoo Socket 서버 배포 실패** 🚨\nPR 번호: '${PR_NUMBER}'\nPR 제목: '${PR_TITLE}'\nPR 작성자: '${PR_AUTHOR}'\n[PR 보기](${PR_URL})\"}" \
+          -d "{\"content\": \"🚨 **Gamegoo Socket 서버 배포 실패** 🚨\nPR 번호: ${PR_NUMBER}\nPR 제목: ${PR_TITLE}\nPR 작성자: ${PR_AUTHOR}\n[PR 보기](${PR_URL})\"}" \
           $DISCORD_WEBHOOK_URL
