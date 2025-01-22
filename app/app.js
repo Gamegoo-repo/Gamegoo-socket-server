@@ -4,9 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const config = require("../common/config");
 
-const SOCKETIO_URL = config.socketioUrl;
-const API_SERVER_URL = config.apiServerUrl;
-const NODE_SERVER_URL = config.nodeServerUrl;
+const SOCKETIO_URL = config.SOCKETIO_URL;
+const API_SERVER_URL = config.API_SERVER_URL;
+const NODE_SERVER_URL = config.NODE_SERVER_URL;
 
 const app = express();
 const server = http.createServer(app);

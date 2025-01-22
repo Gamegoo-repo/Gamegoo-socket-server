@@ -15,5 +15,7 @@ COPY ./ ./
 # 5) 패키지 설치
 RUN npm install
 
+ENV NODE_ENV dev
+
 # 6) 실행 명령
 CMD ["node", "index.js"]
