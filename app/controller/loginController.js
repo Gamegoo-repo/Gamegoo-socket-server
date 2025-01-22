@@ -42,7 +42,7 @@ function login(io) {
         return res.status(401).json(failResponse("AUTH", "JWT 토큰 인증에 실패했습니다"));
       }
 
-      const memberId = decoded.id; // JWT 토큰에서 id 추출
+      const memberId = decoded.memberId; // JWT 토큰에서 memberId 추출
       logger.info("JWT Token verified", `memberId:${memberId}, IP:${req.ip}`);
 
       // "Socket-Id" 헤더에서 클라이언트 소켓 ID 추출
