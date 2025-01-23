@@ -24,7 +24,7 @@ const myFormat = printf(({ level, message, label, timestamp, ...rest }) => {
   const levelAligned = levelSegment.padEnd(16, " "); // 고정 길이 16칸으로 설정
   const leftAligned = leftSegment.padEnd(46, " "); // 고정 길이 46칸으로 설정
 
-  return `${timestamp}    ${levelAligned} ${leftAligned}|${message}`;
+  return `${timestamp}    ${levelAligned} ${leftAligned}|  ${message}`;
 });
 
 // 콘솔 출력용 포맷
@@ -33,7 +33,6 @@ const consoleFormat = combine(
   timestamp({
     format: "YYYY-MM-DD HH:mm:ss:SSS",
   }),
-  padLevels(),
   myFormat
 );
 
@@ -42,7 +41,6 @@ const fileFormat = combine(
   timestamp({
     format: "YYYY-MM-DD HH:mm:ss:SSS",
   }),
-  padLevels(),
   myFormat
 );
 
