@@ -21,7 +21,7 @@ const myFormat = printf(({ level, message, label, timestamp, ...rest }) => {
   const levelSegment = `${level}`;
   const leftSegment = `[${socketId}] [Member: ${memberId}]`;
 
-  const levelAligned = levelSegment.padEnd(16, " ");
+  const levelAligned = levelSegment.padEnd(16, " "); // 고정 길이 16칸으로 설정
   const leftAligned = leftSegment.padEnd(46, " "); // 고정 길이 46칸으로 설정
 
   return `${timestamp}    ${levelAligned} ${leftAligned}|${message}`;
@@ -58,12 +58,24 @@ const consoleT = new transports.Console({
 
 if (ENV === "dev") {
   // dev: 파일 + 콘솔
+  const fileDebugT = new winstonDaily({
+    dirname: EC2_LOG_PATH,
+    filename: "socket.debug.%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    level: "debug",
+    maxSize: "10m",
+    maxFiles: "7d",
+    format: fileFormat,
+  });
+  mainTransports.push(fileDebugT);
+
   const fileT = new winstonDaily({
     dirname: EC2_LOG_PATH,
-    filename: "socket.%DATE%.log",
+    filename: "socket.info.%DATE%.log",
     datePattern: "YYYY-MM-DD",
+    level: "info",
     maxSize: "10m",
-    maxFiles: 100,
+    maxFiles: "7d",
     format: fileFormat,
   });
   mainTransports.push(fileT, consoleT);
@@ -74,7 +86,7 @@ if (ENV === "dev") {
     datePattern: "YYYY-MM-DD",
     level: "error",
     maxSize: "10m",
-    maxFiles: 100,
+    maxFiles: "7d",
     format: fileFormat,
   });
   exceptionTransports.push(fileErrorT, consoleT);
@@ -86,18 +98,10 @@ if (ENV === "dev") {
 
 // 최종 logger 생성
 const logger = createLogger({
-  level: "info",
+  level: "debug",
   defaultMeta: { service: "user-service" },
   transports: mainTransports,
   exceptionHandlers: exceptionTransports,
 });
 
-// morgan stream
-const stream = {
-  write: (message) => {
-    logger.info(message.substring(0, message.lastIndexOf("\n")));
-  },
-};
-
 module.exports = { logger: logger };
-module.exports.stream = stream;
