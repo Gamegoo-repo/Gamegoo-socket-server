@@ -31,6 +31,16 @@ class CustomLogger {
     }
   }
 
+  httpError(method, uri, socket, code, message) {
+    if (typeof message === "undefined") {
+      const logMsg = `[${method}] ${uri}  |  Request failed  |  ${code}`;
+      this.logger.error(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    } else {
+      const logMsg = `[${method}] ${uri}  |  Request failed  |  ${code}  |  ${message}`;
+      this.logger.error(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    }
+  }
+
   emit(eventName, socket, message) {
     if (typeof message === "undefined") {
       const logMsg = `[EMIT] ${eventName}`;
