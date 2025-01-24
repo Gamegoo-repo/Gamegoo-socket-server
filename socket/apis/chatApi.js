@@ -13,8 +13,9 @@ const JWT_ERR_CODE = config.JWT_ERR_CODE;
  * @returns
  */
 async function fetchChatroomUuid(socket) {
+  const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/chatroom/uuid`;
+
   try {
-    const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/chatroom/uuid`;
     log.http("GET", url, socket, "get chatroom uuid Request");
 
     const response = await axios.get(url);
@@ -46,8 +47,8 @@ async function fetchChatroomUuid(socket) {
  * @returns
  */
 async function postChatMessage(socket, chatroomUuid, requestData) {
+  const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/chat/${chatroomUuid}`;
   try {
-    const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/chat/${chatroomUuid}`;
     log.http("POST", url, socket, `post chat message Request: ${JSON.stringify(requestData)}`);
 
     const response = await axios.post(url, requestData);
@@ -76,8 +77,9 @@ async function postChatMessage(socket, chatroomUuid, requestData) {
  * @param {*} targetMemberId
  */
 async function startTestChattingByMatching(socket, targetMemberId) {
+  const url = `${API_SERVER_URL}/api/v2/chat/start/matching/${socket.memberId}/${targetMemberId}`;
+
   try {
-    const url = `${API_SERVER_URL}/api/v2/chat/start/matching/${socket.memberId}/${targetMemberId}`;
     log.http("GET", url, socket, "start chat by matching Request");
 
     const response = await axios.get(url);
@@ -90,7 +92,6 @@ async function startTestChattingByMatching(socket, targetMemberId) {
       log.httpError("GET", url, socket, data.code, data.message);
 
       if (JWT_ERR_CODE.includes(data.code)) {
-        console.error("JWT token Error: ", data.message);
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
       throw new Error(`Failed GET start matching chat test: ${data.message}`);
