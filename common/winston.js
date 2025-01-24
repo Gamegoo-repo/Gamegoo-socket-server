@@ -3,7 +3,7 @@ const { combine, colorize, timestamp, printf, padLevels } = format;
 var winstonDaily = require("winston-daily-rotate-file"); // 로그 일별 처리 모듈
 
 const config = require("./config");
-const EC2_LOG_PATH = config.EC2_LOG_PATH;
+const LOG_PATH = config.LOG_PATH;
 const ENV = process.env.NODE_ENV;
 
 const myFormat = printf(({ level, message, label, timestamp, ...rest }) => {
@@ -56,19 +56,8 @@ const consoleT = new transports.Console({
 
 if (ENV === "dev") {
   // dev: 파일 + 콘솔
-  const fileDebugT = new winstonDaily({
-    dirname: EC2_LOG_PATH,
-    filename: "socket.debug.%DATE%.log",
-    datePattern: "YYYY-MM-DD",
-    level: "debug",
-    maxSize: "10m",
-    maxFiles: "7d",
-    format: fileFormat,
-  });
-  mainTransports.push(fileDebugT);
-
   const fileT = new winstonDaily({
-    dirname: EC2_LOG_PATH,
+    dirname: LOG_PATH,
     filename: "socket.info.%DATE%.log",
     datePattern: "YYYY-MM-DD",
     level: "info",
@@ -79,7 +68,7 @@ if (ENV === "dev") {
   mainTransports.push(fileT, consoleT);
 
   const fileErrorT = new winstonDaily({
-    dirname: EC2_LOG_PATH,
+    dirname: LOG_PATH,
     filename: "socket.error.%DATE%.log",
     datePattern: "YYYY-MM-DD",
     level: "error",

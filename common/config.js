@@ -24,6 +24,6 @@ module.exports = {
   SOCKETIO_URL: process.env.SOCKETIO_URL,
   API_SERVER_URL: process.env.API_SERVER_URL,
   NODE_SERVER_URL: process.env.NODE_SERVER_URL,
-  EC2_LOG_PATH: process.env.EC2_LOG_PATH || "./logs",
+  LOG_PATH: "/app/logs/socket" || "./logs",
   JWT_ERR_CODE,
 };
