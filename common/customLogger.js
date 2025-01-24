@@ -60,6 +60,16 @@ class CustomLogger {
       this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
     }
   }
+
+  broadcast(eventName, roomName, message) {
+    if (typeof message === "undefined") {
+      const logMsg = `[BROADCAST] ${eventName}  |  Room: ${roomName}`;
+      this.logger.info(logMsg);
+    } else {
+      const logMsg = `[BROADCAST] ${eventName}  |  Room: ${roomName}  |  ${message}`;
+      this.logger.info(logMsg);
+    }
+  }
 }
 
 // 인스턴스 생성

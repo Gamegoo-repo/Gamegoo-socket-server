@@ -1,5 +1,5 @@
-const formatResponse = require("../common/responseFormatter");
-const logger = require("../../common/winston");
+const formatResponse = require("../common/responseFormatter.js");
+const log = require("../../common/customLogger");
 
 /**
  * chat message를 socket에 전달
@@ -11,12 +11,13 @@ function emitChatMessage(socket, chatroomUuid, data) {
   data.chatroomUuid = chatroomUuid;
 
   // uuid에 해당하는 room에 있는 socket 중 나를 제외한 socket에 broadcast
-  socket.broadcast.to("CHAT_" + chatroomUuid).emit("chat-message", formatResponse("chat-message", data));
-  logger.info("Emitted 'chat-message' event, broadcast", `to room CHAT_${chatroomUuid}, data:${JSON.stringify(data, null, 2)}`);
+  const roomName = "CHAT_" + chatroomUuid;
+  socket.broadcast.to(roomName).emit("chat-message", formatResponse("chat-message", data));
+  log.broadcast("chat-message", roomName, JSON.stringify(data));
 
   // 내 socket에 message broadcast가 성공했음을 emit
   socket.emit("my-message-broadcast-success", formatResponse("my-message-broadcast-success", data));
-  logger.info("Emitted 'my-message-broadcast-success' event", `to socketId:${socket.id}, data:${JSON.stringify(data, null, 2)}`);
+  log.emit("my-message-broadcast-success", socket, JSON.stringify(data));
 }
 
 /**
@@ -27,8 +28,9 @@ function emitChatMessage(socket, chatroomUuid, data) {
  */
 function emitChatSystemMessage(socket, chatroomUuid, targetSystemMessage) {
   // uuid에 해당하는 room에 있는 socket 중 나를 제외한 socket에 broadcast
-  socket.broadcast.to("CHAT_" + chatroomUuid).emit("chat-system-message", formatResponse("chat-system-message", targetSystemMessage));
-  logger.info("Emitted 'chat-system-message' event, broadcast", `to room CHAT_${chatroomUuid}, data:${JSON.stringify(targetSystemMessage, null, 2)}`);
+  const roomName = "CHAT_" + chatroomUuid;
+  socket.broadcast.to(roomName).emit("chat-system-message", formatResponse("chat-system-message", targetSystemMessage));
+  log.broadcast("chat-system-message", roomName, JSON.stringify(targetSystemMessage));
 }
 
 /**
@@ -38,6 +40,7 @@ function emitChatSystemMessage(socket, chatroomUuid, targetSystemMessage) {
 function emitJoinedNewChatroom(socket) {
   const data = "새로운 채팅방 room에 socket join 되었습니다. 채팅방 목록을 업데이트 해주세요.";
   socket.emit("joined-new-chatroom", formatResponse("joined-new-chatroom", data));
+  log.emit("joined-new-chatroom", socket);
 }
 
 /**
@@ -47,7 +50,9 @@ function emitJoinedNewChatroom(socket) {
  */
 function emitTestMatchingChattingSuccess(io, chatroomUuid) {
   const data = { chatroomUuid: chatroomUuid };
-  io.to("CHAT_" + chatroomUuid).emit("test-matching-chatting-success", formatResponse("test-matching-chatting-success", data));
+  const roomName = "CHAT_" + chatroomUuid;
+  io.to(roomName).emit("test-matching-chatting-success", formatResponse("test-matching-chatting-success", data));
+  log.broadcast("test-matching-chatting-success", roomName, `chatroomUuid: ${chatroomUuid}`);
 }
 
 /**
@@ -66,6 +71,7 @@ function emitMannerSystemMessage(socket, chatroomUuid, messageContent, timestamp
     timestamp: timestamp,
   };
   socket.emit("manner-system-message", formatResponse("manner-system-message", systemMessage));
+  log.emit("manner-system-message", socket, JSON.stringify(systemMessage));
 }
 
 module.exports = {
