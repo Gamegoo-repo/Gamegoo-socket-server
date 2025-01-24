@@ -15,7 +15,7 @@ const JWT_ERR_CODE = config.JWT_ERR_CODE;
 async function fetchFriends(socket) {
   try {
     const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/friend/ids`;
-    log.http("GET", url, socket, "fetch friend list Request");
+    log.http("GET", url, socket, "get friend list Request");
 
     const response = await axios.get(url);
     if (response.data.status == 200) {

@@ -15,7 +15,7 @@ const JWT_ERR_CODE = config.JWT_ERR_CODE;
 async function fetchChatroomUuid(socket) {
   try {
     const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/chatroom/uuid`;
-    log.http("GET", url, socket, "fetch chatroom uuid Request");
+    log.http("GET", url, socket, "get chatroom uuid Request");
 
     const response = await axios.get(url);
 
