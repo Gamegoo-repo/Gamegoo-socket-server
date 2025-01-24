@@ -20,6 +20,36 @@ class CustomLogger {
   error(message, socket) {
     this.logger.error(message, { socketId: socket.id, memberId: socket.memberId });
   }
+
+  http(method, uri, socket, message) {
+    if (typeof message === "undefined") {
+      const logMsg = `[${method}] ${uri}`;
+      this.logger.http(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    } else {
+      const logMsg = `[${method}] ${uri}  |  ${message}`;
+      this.logger.http(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    }
+  }
+
+  emit(eventName, socket, message) {
+    if (typeof message === "undefined") {
+      const logMsg = `[EMIT] ${eventName}`;
+      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    } else {
+      const logMsg = `[EMIT] ${eventName}  |  ${message}`;
+      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    }
+  }
+
+  listen(eventName, socket, message) {
+    if (typeof message === "undefined") {
+      const logMsg = `[LISTEN] ${eventName}`;
+      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    } else {
+      const logMsg = `[LISTEN] ${eventName}  |  ${message}`;
+      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
+    }
+  }
 }
 
 // 인스턴스 생성
