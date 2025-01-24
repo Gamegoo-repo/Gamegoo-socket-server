@@ -1,4 +1,4 @@
-async function loginApi(userEmail, userPw) {
+export async function loginApi(userEmail, userPw) {
   try {
     const response = await fetch(`${API_SERVER_URL}/api/v2/auth/login`, {
       method: "POST",
@@ -18,7 +18,7 @@ async function loginApi(userEmail, userPw) {
   }
 }
 
-async function getMemberInfoApi() {
+export async function getMemberInfoApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/member/profile`, {
@@ -37,7 +37,7 @@ async function getMemberInfoApi() {
   }
 }
 
-async function loginNodeApi() {
+export async function loginNodeApi(socketId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${NODE_SERVER_URL}/login`, {
@@ -45,7 +45,7 @@ async function loginNodeApi() {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwtToken}`,
-        "Socket-Id": socket.id,
+        "Socket-Id": socketId,
       },
     });
     const data = await response.json();
@@ -59,7 +59,7 @@ async function loginNodeApi() {
   }
 }
 
-async function getFriendListApi() {
+export async function getFriendListApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     let url = `${API_SERVER_URL}/api/v2/friend`;
@@ -79,7 +79,7 @@ async function getFriendListApi() {
   }
 }
 
-async function getChatroomListApi() {
+export async function getChatroomListApi() {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     let url = `${API_SERVER_URL}/api/v2/chatroom`;
@@ -99,7 +99,7 @@ async function getChatroomListApi() {
   }
 }
 
-async function enterChatroomApi(chatroomUuid) {
+export async function enterChatroomApi(chatroomUuid) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/${chatroomUuid}/enter`, {
@@ -118,7 +118,7 @@ async function enterChatroomApi(chatroomUuid) {
   }
 }
 
-async function readChatApi(chatroomUuid, timestamp) {
+export async function readChatApi(chatroomUuid, timestamp) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/${chatroomUuid}/read?timestamp=${timestamp}`, {
@@ -138,7 +138,7 @@ async function readChatApi(chatroomUuid, timestamp) {
   }
 }
 
-async function getMessageApi(chatroomUuid, cursor) {
+export async function getMessageApi(chatroomUuid, cursor) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/${chatroomUuid}/messages?cursor=${cursor}`, {
@@ -157,7 +157,7 @@ async function getMessageApi(chatroomUuid, cursor) {
   }
 }
 
-async function startChatByMemberIdApi(memberId) {
+export async function startChatByMemberIdApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/start/member/${memberId}`, {
@@ -177,7 +177,7 @@ async function startChatByMemberIdApi(memberId) {
   }
 }
 
-async function startChatByBoardIdApi(boardId) {
+export async function startChatByBoardIdApi(boardId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/start/board/${boardId}`, {
@@ -197,7 +197,7 @@ async function startChatByBoardIdApi(boardId) {
   }
 }
 
-async function exitChatroomApi(chatroomUuid) {
+export async function exitChatroomApi(chatroomUuid) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/chat/${chatroomUuid}/exit`, {
@@ -217,7 +217,7 @@ async function exitChatroomApi(chatroomUuid) {
   }
 }
 
-async function starFriendApi(memberId) {
+export async function starFriendApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/friend/${memberId}/star`, {
@@ -237,7 +237,7 @@ async function starFriendApi(memberId) {
   }
 }
 
-async function deleteFriendApi(memberId) {
+export async function deleteFriendApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/friend/${memberId}`, {
@@ -257,7 +257,7 @@ async function deleteFriendApi(memberId) {
   }
 }
 
-async function sendFriendRequestApi(memberId) {
+export async function sendFriendRequestApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/friend/request/${memberId}`, {
@@ -277,7 +277,7 @@ async function sendFriendRequestApi(memberId) {
   }
 }
 
-async function blockMemberApi(memberId) {
+export async function blockMemberApi(memberId) {
   try {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/block/${memberId}`, {
@@ -297,7 +297,7 @@ async function blockMemberApi(memberId) {
   }
 }
 
-async function reissueToken() {
+export async function reissueToken() {
   try {
     console.log("reissueToken api called");
     const refreshToken = localStorage.getItem("refreshToken");
