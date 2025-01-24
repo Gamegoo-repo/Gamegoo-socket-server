@@ -49,7 +49,9 @@ async function handleChatMessage(socket, request) {
 
     // (#10-10) 채팅 저장 정상 응답 받음
     // (#10-11),(#10-12) 해당 채팅방의 상대 회원에게 chat-message emit, 내 socket에게 my-message-broadcast-success emit
-    emitChatMessage(socket, chatroomUuid, response);
+    if (response) {
+      emitChatMessage(socket, chatroomUuid, response);
+    }
   } catch (error) {
     log.error(`Error occured during chatHandler.handleChatMessage: ${error.message}`, socket);
     if (error instanceof JWTTokenError) {
