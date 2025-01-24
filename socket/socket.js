@@ -79,7 +79,7 @@ function initializeSocket(server) {
         return next();
       }
 
-      log.info(`Token update middleware called - event: ${event}`, socket);
+      log.debug(`Token update middleware called - event: ${event}`, socket);
       socket.token = data.token; // socket.token 값 업데이트
 
       next();
@@ -95,7 +95,7 @@ function initializeSocket(server) {
         return next();
       }
 
-      log.info(`Token verify middleware called - event: ${event}`, socket);
+      log.debug(`Token verify middleware called - event: ${event}`, socket);
 
       // socket.token 값이 없는 경우
       if (!token) {
@@ -112,7 +112,7 @@ function initializeSocket(server) {
           return;
         }
 
-        log.info(`Token verify middleware success - event: ${event}`, socket);
+        log.debug(`Token verify middleware success - event: ${event}`, socket);
         next(); // 검증 성공 시 이벤트 리스너로 넘김
       });
     });
