@@ -4,7 +4,7 @@ const JWTTokenError = require("../../common/JWTTokenError");
 const logger = require("../../common/winston");
 
 const config = require("../../common/config");
-const API_SERVER_URL = config.apiServerUrl;
+const API_SERVER_URL = config.API_SERVER_URL;
 
 /**
  * 매칭 요청 저장, 우선순위 값 계산 후, 우선순위 계산 결과 및 내 매칭 요청 정보 리턴하는 API 요청

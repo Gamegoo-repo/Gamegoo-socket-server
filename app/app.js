@@ -4,9 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const config = require("../common/config");
 
-const SOCKETIO_URL = config.socketioUrl;
-const API_SERVER_URL = config.apiServerUrl;
-const NODE_SERVER_URL = config.nodeServerUrl;
+const SOCKETIO_URL = config.SOCKETIO_URL;
+const API_SERVER_URL = config.API_SERVER_URL;
+const NODE_SERVER_URL = config.NODE_SERVER_URL;
 
 const app = express();
 const server = http.createServer(app);
@@ -274,16 +274,8 @@ app.get("/", (req, res) => {
           const NODE_SERVER_URL = '${NODE_SERVER_URL}';
         </script>
         <script src="${SOCKETIO_URL}"></script>
-        <script src="scripts/socket.js"></script>
-        <script src="scripts/api.js"></script>
-        <script src="scripts/eventListeners.js"></script>
-        <script>
-          // 초기 알림 예시 (실제 데이터로 대체 필요)
-          addNotification('received', '알림 내용', '1시간 전', true);
-          addNotification('received', '알림 내용', '1시간 전', false);
-          addNotification('friendRequest', '12345 님이 친구요청을 보냈습니다.', '1시간 전', true);
-          addNotification('friendRequest', '67890 님이 친구요청을 보냈습니다.', '1시간 전', false);
-        </script>
+        <script type="module" src="scripts/socket.js"></script>
+        <script type="module" src="scripts/eventListeners.js"></script>
       </body>
     </html>
   `);

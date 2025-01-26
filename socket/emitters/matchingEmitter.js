@@ -1,5 +1,5 @@
 const formatResponse = require("../common/responseFormatter");
-const logger = require("../../common/winston");
+const log = require("../../common/customLogger");
 
 /**
  * 해당 socket의 매칭 요청이 정상 접수되었음을 전달
@@ -8,7 +8,7 @@ const logger = require("../../common/winston");
  */
 function emitMatchingStarted(socket, myMatchingInfo) {
   socket.emit("matching-started", formatResponse("matching-started", myMatchingInfo));
-  logger.info("Emitted 'matching-started' event", `to socketId:${socket.id}, myMatchingInfo:${JSON.stringify(myMatchingInfo, null, 2)} `);
+  log.emit("matching-started", socket, `my matching info: ${JSON.stringify(myMatchingInfo)}`);
 }
 
 /**
@@ -18,7 +18,7 @@ function emitMatchingStarted(socket, myMatchingInfo) {
  */
 function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
   socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo));
-  logger.info("Emitted 'matching-found-receiver' event", `to receiverSocketId:${socket.id}, targetMatchingInfo:${JSON.stringify(targetMatchingInfo, null, 2)}`);
+  log.emit("matching-found-receiver", socket, `target matching info: ${JSON.stringify(targetMatchingInfo)}`);
 }
 
 /**
@@ -28,7 +28,7 @@ function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
  */
 function emitMatchingFoundSender(socket, targetMatchingInfo) {
   socket.emit("matching-found-sender", formatResponse("matching-found-sender", targetMatchingInfo));
-  logger.info("Emitted 'matching-found-sender' event", `to senderSocketId:${socket.id}, targetMatchingInfo:${JSON.stringify(targetMatchingInfo, null, 2)}`);
+  log.emit("matching-found-sender", socket, `target matching info: ${JSON.stringify(targetMatchingInfo)}`);
 }
 
 /**
@@ -37,7 +37,7 @@ function emitMatchingFoundSender(socket, targetMatchingInfo) {
  */
 function emitMatchingSuccessSender(socket) {
   socket.emit("matching-success-sender", formatResponse("matching-success-sender", "상대가 매칭을 수락했습니다."));
-  logger.info("Emitted 'matching-success-sender' event", `to senderSocketId:${socket.id}`);
+  log.emit("matching-success-sender", socket);
 }
 
 /**
@@ -47,14 +47,14 @@ function emitMatchingSuccessSender(socket) {
 function emitMatchingSuccess(senderSocket, receiverSocket, chatroomUuid) {
   senderSocket.emit("matching-success", formatResponse("matching-success", { chatroomUuid: chatroomUuid }));
   receiverSocket.emit("matching-success", formatResponse("matching-success", { chatroomUuid: chatroomUuid }));
-  logger.info("Emitted 'matching-success' event", `to senderSocketId:${senderSocket.id}, chatroomUuid:${chatroomUuid}`);
-  logger.info("Emitted 'matching-success' event", `to receiverSocketId:${receiverSocket.id}, chatroomUuid:${chatroomUuid}`);
+  log.emit("matching-success", senderSocket, `chatroomUuid: ${chatroomUuid}`);
+  log.emit("matching-success", receiverSocket, `chatroomUuid: ${chatroomUuid}`);
 }
 
 function emitMatchingFail(socket) {
   const myMatchingInfo = socket.myMatchingInfo;
   socket.emit("matching-fail", formatResponse("matching-fail", { myMatchingInfo }));
-  logger.info("Emitted 'matching-fail' event", `to socketId:${socket.id}, mymatchingInfo:${JSON.stringify(myMatchingInfo, null, 2)}`);
+  log.emit("matching-fail", socket, `my matching info: ${JSON.stringify(myMatchingInfo)}`);
 }
 
 module.exports = {

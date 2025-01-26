@@ -1,9 +1,11 @@
 const axios = require("axios");
-const JWTTokenError = require("../../common/JWTTokenError");
-const logger = require("../../common/winston");
 
+const JWTTokenError = require("../../common/JWTTokenError");
+const log = require("../../common/customLogger");
 const config = require("../../common/config");
-const API_SERVER_URL = config.apiServerUrl;
+
+const API_SERVER_URL = config.API_SERVER_URL;
+const JWT_ERR_CODE = config.JWT_ERR_CODE;
 
 /**
  * 회원의 친구 목록을 요청하는 메소드
@@ -11,25 +13,26 @@ const API_SERVER_URL = config.apiServerUrl;
  * @returns
  */
 async function fetchFriends(socket) {
+  const url = `${API_SERVER_URL}/api/v2/internal/${socket.memberId}/friend/ids`;
+
   try {
-    logger.http("Sending 'fetch friends' API request", `memberId:${socket.memberId}`);
-    const response = await axios.get(`${API_SERVER_URL}/v1/internal/${socket.memberId}/friends/ids`);
-    if (response.data.isSuccess) {
-      logger.info("Successfully fetched friends", `memberId:${socket.memberId}, friendIdList:${response.data.result}`);
-      return response.data.result;
+    log.http("GET", url, socket, "get friend list Request");
+
+    const response = await axios.get(url);
+    if (response.data.status == 200) {
+      return response.data.data;
     }
   } catch (error) {
     if (error.response && error.response.data) {
       const data = error.response.data;
-      if (["JWT400", "JWT401", "JWT404"].includes(data.code)) {
-        logger.error("JWT Token Error during 'fetch friends' API request", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
+      log.httpError("GET", url, socket, data.code, data.message);
+
+      if (JWT_ERR_CODE.includes(data.code)) {
         throw new JWTTokenError(`JWT token Error: ${data.message}`, data.code);
       }
-      //console.error("Failed GET friend list: ", data.message);
-      logger.error("Failed 'fetch friends' API request", `memberId:${socket.memberId}, code:${data.code}, message:${data.message}`);
       throw new Error(`Failed GET friend list: ${data.message}`);
     } else {
-      logger.error("Request failed during 'fetch friends' API request", `memberId:${socket.memberId}, errorMessage:${error.message}`);
+      log.error(`'fetchFriends' Request failed: ${error.message}`, socket);
       throw new Error(`Request failed: ${error.message}`);
     }
   }

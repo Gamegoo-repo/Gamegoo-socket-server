@@ -1,70 +1,94 @@
-const util = require("util");
 const { format, createLogger, transports } = require("winston"); // 로그 처리 모듈
 const { combine, colorize, timestamp, printf, padLevels } = format;
 var winstonDaily = require("winston-daily-rotate-file"); // 로그 일별 처리 모듈
 
+const config = require("./config");
+const LOG_PATH = config.LOG_PATH;
+const ENV = process.env.NODE_ENV;
+
 const myFormat = printf(({ level, message, label, timestamp, ...rest }) => {
-  const splat = rest[Symbol.for("splat")];
-  const strArgs = splat ? splat.map((s) => util.formatWithOptions({ colors: true, depth: 10 }, s)).join(" ") : "";
-  return `${timestamp}  ${level}  ${util.formatWithOptions({ colors: true, depth: 10 }, message)} ${strArgs}`;
+  const splat = rest[Symbol.for("splat")]; // 추가 전달 인자 추출
+
+  let socketId = "undefined";
+  let memberId = "undefined";
+
+  if (splat && splat.length > 0) {
+    const extraObj = splat[0];
+    if (extraObj.socketId) socketId = extraObj.socketId;
+    if (extraObj.memberId) memberId = extraObj.memberId;
+  }
+
+  const levelSegment = `${level}`;
+  const leftSegment = `[${socketId}] [Member: ${memberId}]`;
+
+  const levelAligned = levelSegment.padEnd(16, " "); // 고정 길이 16칸으로 설정
+  const leftAligned = leftSegment.padEnd(46, " "); // 고정 길이 46칸으로 설정
+
+  return `${timestamp}    ${levelAligned} ${leftAligned}|  ${message}`;
 });
 
+// 콘솔 출력용 포맷
+const consoleFormat = combine(
+  colorize(),
+  timestamp({
+    format: "YYYY-MM-DD HH:mm:ss:SSS",
+  }),
+  myFormat
+);
+
+// 파일 저장용 포맷
+const fileFormat = combine(
+  timestamp({
+    format: "YYYY-MM-DD HH:mm:ss:SSS",
+  }),
+  myFormat
+);
+
+// 각 환경별 transport 배열 구성
+let mainTransports = [];
+let exceptionTransports = [];
+
+// 콘솔 transport
+const consoleT = new transports.Console({
+  level: "debug",
+  format: consoleFormat,
+});
+
+if (ENV === "dev") {
+  // dev: 파일 + 콘솔
+  const fileT = new winstonDaily({
+    dirname: LOG_PATH,
+    filename: "socket.info.%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    level: "info",
+    maxSize: "10m",
+    maxFiles: "7d",
+    format: fileFormat,
+  });
+  mainTransports.push(fileT, consoleT);
+
+  const fileErrorT = new winstonDaily({
+    dirname: LOG_PATH,
+    filename: "socket.error.%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    level: "error",
+    maxSize: "10m",
+    maxFiles: "7d",
+    format: fileFormat,
+  });
+  exceptionTransports.push(fileErrorT, consoleT);
+} else if (ENV === "local") {
+  // local: 콘솔만
+  mainTransports.push(consoleT);
+  exceptionTransports.push(consoleT);
+}
+
+// 최종 logger 생성
 const logger = createLogger({
-  level: "info",
-  format: combine(
-    colorize(),
-    timestamp({
-      format: "YYYY-MM-DD HH:mm:ss:SSS",
-    }),
-    padLevels(),
-    myFormat
-  ),
+  level: "debug",
   defaultMeta: { service: "user-service" },
-
-  transports: [
-    new winstonDaily({
-      // 로그 파일 설정
-      name: "info-file",
-      filename: `./logs/3000_%DATE%.log`, // 파일 이름 (아래 설정한 날짜 형식이 %DATE% 위치에 들어간다)
-      datePattern: "YYYY-MM-DD", // 날짜 형식 (대문자여야 적용된다.)
-      colorize: false,
-      maxsize: 50000000, // 로그 파일 하나의 용량 제한
-      maxFiles: 1000, // 로그 파일 개수 제한
-      zippedArchive: true,
-    }),
-    new transports.Console({ level: "debug" }),
-  ],
-  exceptionHandlers: [
-    new winstonDaily({
-      // 로그 파일 설정
-      name: "error-file",
-      filename: `./logs/3000_exception_%DATE%.log`, // 파일 이름 (아래 설정한 날짜 형식이 %DATE% 위치에 들어간다)
-      datePattern: "YYYY-MM-DD", // 날짜 형식 (대문자여야 적용된다.)
-      colorize: false,
-      maxsize: 50000000, // 로그 파일 하나의 용량 제한
-      maxFiles: 1000, // 로그 파일 개수 제한
-      level: "error", // info이상 파일 출력                      // 로그 레벨 지정
-      zippedArchive: true,
-      showLevel: true,
-    }),
-    ,
-    new transports.Console(),
-  ],
+  transports: mainTransports,
+  exceptionHandlers: exceptionTransports,
 });
 
-// if (process.env.NODE_ENV !== 'production') {
-
-//         logger.add(new transports.Console({
-//             format: format.printf( info => `${new Date().toFormat('YYYY-MM-DD HH24:MI:SS')} [${info.level.toUpperCase()}] - ${info.message}`),
-//         }));
-
-// }
-
-const stream = {
-  write: (message) => {
-    logger.info(message.substring(0, message.lastIndexOf("\n")));
-  },
-};
-
-module.exports = logger;
-module.exports.stream = stream;
+module.exports = { logger: logger };
