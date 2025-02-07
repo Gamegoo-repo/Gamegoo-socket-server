@@ -1,5 +1,5 @@
 ---
-name: "✨ [Feat] "
+name: "✨ Feat"
 about: 기능 추가 시에 적는 템플릿 입니다.
 title: "✨ [Feat] "
 labels: ":sparkles: feature"

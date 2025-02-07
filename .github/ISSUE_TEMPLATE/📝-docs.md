@@ -1,5 +1,5 @@
 ---
-name: "\U0001F4DD [Docs]"
+name: "\U0001F4DD Docs"
 about: API 명세 등 문서 관련 이슈 템플릿 입니다.
 title: "\U0001F4DD [Docs]"
 labels: ":memo: documentation"

@@ -1,5 +1,5 @@
 ---
-name: "\U0001F477 [CI/CD] "
+name: "\U0001F477 CI/CD"
 about: "\bCI/CD 관련 설정, 개선, 문제 해결을 위한 이슈 템플릿입니다."
 title: "\U0001F477 [CI/CD] "
 labels: ":construction_worker: ci"
