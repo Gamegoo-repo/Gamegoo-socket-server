@@ -22,6 +22,10 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "../public")));
 
+app.get("/healthcheck", (req, res) => {
+  res.status(200).json({ status: "ok" }); // 200 응답 반환
+});
+
 app.get("/match", (req, res) => {
   res.send(`
     <!DOCTYPE html>
