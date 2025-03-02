@@ -1,6 +1,8 @@
 import { socket, state } from "../socket.js";
 
 matchButton.addEventListener("click", () => {
+  console.log("matching-request");
+  
   const matchingType = document.getElementById("matching-type").value;
   const gameMode = document.getElementById("game-mode").value;
   const mike = document.getElementById("mike").value;
@@ -11,10 +13,12 @@ matchButton.addEventListener("click", () => {
   const gameStyle2 = Number(document.getElementById("gameStyle2").value);
   const gameStyle3 = Number(document.getElementById("gameStyle3").value);
   const memberId = state.memberId;
+  const threshold = 50;
 
   // 요청 객체 생성
   const request = {
     memberId,
+    threshold,
     matchingType,
     gameMode,
     mike,
@@ -25,8 +29,6 @@ matchButton.addEventListener("click", () => {
     gameStyle2,
     gameStyle3,
   };
-
-  console.log("Sending matching-request:", request);
 
   // (#20-1) "matching-request" emit
   socket.emit("matching-request", request);

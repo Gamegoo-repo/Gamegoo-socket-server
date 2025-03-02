@@ -1,6 +1,6 @@
 class TreeNode {
-  constructor(memberId, priorityValue) {
-    this.memberId = memberId;
+  constructor(matchingUuid, priorityValue) {
+    this.matchingUuid = matchingUuid;
     this.priorityValue = priorityValue;
     this.left = null;
     this.right = null;
@@ -14,9 +14,9 @@ class PriorityTree {
   }
 
   // 새로운 노드를 트리에 삽입
-  insert(memberId, priorityValue) {
+  insert(matchingUuid, priorityValue) {
 
-    const newNode = new TreeNode(memberId, priorityValue);
+    const newNode = new TreeNode(matchingUuid, priorityValue);
     if (this.root === null) {
       this.root = newNode;
     } else {
@@ -39,14 +39,14 @@ class PriorityTree {
         this.insertNode(node.right, newNode);
       }
     } else {
-      // priorityValue가 같은 경우 MemberId로 비교
-      if (newNode.memberId < node.memberId) {
+      // priorityValue가 같은 경우 matchingUuid로 비교
+      if (newNode.matchingUuid < node.matchingUuid) {
         if (node.left === null) {
           node.left = newNode;
         } else {
           this.insertNode(node.left, newNode);
         }
-      } else if (newNode.memberId > node.memberId) {
+      } else if (newNode.matchingUuid > node.matchingUuid) {
         if (node.right === null) {
           node.right = newNode;
         } else {
@@ -85,7 +85,7 @@ class PriorityTree {
   inOrderTraverse(node, result = []) {
     if (node !== null) {
       this.inOrderTraverse(node.left, result);
-      result.push({ memberId: node.memberId, priorityValue: node.priorityValue });
+      result.push({ matchingUuid: node.matchingUuid, priorityValue: node.priorityValue });
       this.inOrderTraverse(node.right, result);
     }
     return result;
@@ -96,29 +96,29 @@ class PriorityTree {
     return this.inOrderTraverse(this.root);
   }
 
-  // 특정 memberId가 트리에 존재하는지 확인
-  contains(memberId) {
-    return this.inOrderContains(this.root, memberId);
+  // 특정 matchingUuid가 트리에 존재하는지 확인
+  contains(matchingUuid) {
+    return this.inOrderContains(this.root, matchingUuid);
   }
 
-  // 중위 순회로 특정 memberId가 있는지 확인하는 메서드
-  inOrderContains(node, memberId) {
+  // 중위 순회로 특정 matchingUuid가 있는지 확인하는 메서드
+  inOrderContains(node, matchingUuid) {
     if (node === null) {
       return false; // 노드가 없으면 false 반환
     }
 
     // 왼쪽 자식 노드 탐색
-    if (this.inOrderContains(node.left, memberId)) {
+    if (this.inOrderContains(node.left, matchingUuid)) {
       return true;
     }
 
-    // 현재 노드가 찾는 memberId인지 확인
-    if (node.memberId === memberId) {
+    // 현재 노드가 찾는 matchingUuid인지 확인
+    if (node.matchingUuid === matchingUuid) {
       return true;
     }
 
     // 오른쪽 자식 노드 탐색
-    return this.inOrderContains(node.right, memberId);
+    return this.inOrderContains(node.right, matchingUuid);
   }
 
   // 트리를 완전히 비우는 메서드
@@ -126,9 +126,9 @@ class PriorityTree {
     this.root = null;
   }
 
-  // 특정 memberId를 갖는 노드를 삭제
-  removeByMemberId(memberId) {
-    const { node, parent } = this.findNodeAndParent(this.root, null, memberId);
+  // 특정 matchingUuid를 갖는 노드를 삭제
+  removeBymatchingUuid(matchingUuid) {
+    const { node, parent } = this.findNodeAndParent(this.root, null, matchingUuid);
     if (!node) {
       return null; // 노드를 찾지 못하면 null 반환
     }
@@ -136,19 +136,19 @@ class PriorityTree {
   }
 
   // 노드와 부모 노드를 찾는 메서드
-  findNodeAndParent(node, parent, memberId) {
+  findNodeAndParent(node, parent, matchingUuid) {
     if (node === null) {
       return { node: null, parent: null };
     }
-    if (node.memberId === memberId) {
+    if (node.matchingUuid === matchingUuid) {
       return { node, parent };
     }
     if (node.left) {
-      const leftResult = this.findNodeAndParent(node.left, node, memberId);
+      const leftResult = this.findNodeAndParent(node.left, node, matchingUuid);
       if (leftResult.node) return leftResult;
     }
     if (node.right) {
-      const rightResult = this.findNodeAndParent(node.right, node, memberId);
+      const rightResult = this.findNodeAndParent(node.right, node, matchingUuid);
       if (rightResult.node) return rightResult;
     }
     return { node: null, parent: null };
@@ -175,10 +175,10 @@ class PriorityTree {
       }
     } else { // 자식이 둘인 경우
       const successor = this.findMinNode(node.right);
-      const successorMemberId = successor.memberId;
+      const successormatchingUuid = successor.matchingUuid;
       const successorPriorityValue = successor.priorityValue;
-      this.removeByMemberId(successor.memberId); // 후속 노드 삭제
-      node.memberId = successorMemberId;
+      this.removeBymatchingUuid(successor.matchingUuid); // 후속 노드 삭제
+      node.matchingUuid = successormatchingUuid;
       node.priorityValue = successorPriorityValue;
     }
   }

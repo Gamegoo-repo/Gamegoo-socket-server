@@ -13,6 +13,10 @@ import {
   handleTestMatchingChattingSuccess,
 } from "./socketEventHandlers.js";
 
+import {
+  handleMatchingStarted
+} from "./matching/matchingSocketEventHandlers.js"
+
 /**
  * socket event listener 등록
  * @param {*} socket
@@ -42,4 +46,7 @@ export function setupSocketListeners(socket, state) {
   socket.on("manner-system-message", (data) => handleMannerSystemMessage(state, data));
 
   socket.on("test-matching-chatting-success", (data) => handleTestMatchingChattingSuccess(state, data));
+
+  // 매칭
+  socket.on("matching-started",(data)=>handleMatchingStarted(socket,state,data));
 }

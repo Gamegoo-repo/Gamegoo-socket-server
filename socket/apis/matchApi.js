@@ -44,11 +44,10 @@ async function fetchMatchingApi(socket, request) {
   };
 
   try {
-    log.http("POST", url, socket, `Matching API Request: ${JSON.stringify(requestData)}`);
+    log.http("POST", url, socket, `matching-request`);
     const response = await axios.post(url, requestData);
-
-    if (response.data.isSuccess) {
-      return response.data.result;
+    if (response.status==200) {
+      return response.data.data;
     } 
   } catch (error) {
     handleApiError(error, url, socket, "POST");
@@ -58,18 +57,17 @@ async function fetchMatchingApi(socket, request) {
 
 /**
  * 두 회원의 매칭 상태를 업데이트하는 API 요청
+ * /api/v2/internal/matching/status/target/{matchingUuid}/{status}
  */
-async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
-  const url = `${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/status/target/${targetMemberId}`;
-  const requestData = { status, gameMode: socket.gameMode };
+async function updateBothMatchingStatusApi(socket, status) {
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/target/${socket.data.matchingUuid}/${status}`;
 
   try {
-    log.http("PATCH", url, socket, `Update both matching status Request: ${JSON.stringify(requestData)}`);
-    const response = await axios.patch(url, requestData);
-
-    if (response.data.isSuccess) {
-      return response.data.result;
-    }
+    log.http("PATCH", url, socket, `update both matching status`);
+    const response = await axios.patch(url);
+    if (response.status==200) {
+      return response.data.data;
+    } 
   } catch (error) {
     handleApiError(error, url, socket, "PATCH");
   }
@@ -77,56 +75,53 @@ async function updateBothMatchingStatusApi(socket, status, targetMemberId) {
 
 /**
  * 회원의 매칭 상태를 업데이트하는 API 요청
+ * /api/v2/internal/matching/status/{matchingUuid}/{status}
  */
 async function updateMatchingStatusApi(socket, status) {
-  const url = `${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/status`;
-  const requestData = { status, gameMode: socket.gameMode };
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/${socket.data.matchingUuid}/${status}`;
 
   try {
-    log.http("PATCH", url, socket, `Update matching status Request: ${JSON.stringify(requestData)}`);
-    const response = await axios.patch(url, requestData, {
-      headers: { Authorization: `Bearer ${socket.token}` }, // JWT 토큰 포함
-    });
-
-    if (response.data.isSuccess) {
-      return response.data.result;
-    }
+    log.http("PATCH", url, socket, `update matching status`);
+    const response = await axios.patch(url);
+    if (response.status==200) {
+      return response.data.data;
+    } 
   } catch (error) {
     handleApiError(error, url, socket, "PATCH");
   }
 }
 
 /**
- * 특정 회원과의 매칭 상태를 "FOUND"로 변경하는 API 요청
+ * status Found로 변경 & target Member 지정
+ * /api/v2/internal/matching/found/{matchingUuid}/{targetMatchingUuid}
  */
-async function matchingFoundApi(socket, targetMemberId) {
-  const url = `${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/found/target/${targetMemberId}/${socket.gameMode}`;
+async function matchingFoundApi(socket) {
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/found/${socket.matchingUuid}/${socket.targetMatchingUuid}`;
 
   try {
     log.http("PATCH", url, socket, "Matching Found API Request");
     const response = await axios.patch(url);
-
-    if (response.data.isSuccess) {
-      return response.data.result;
-    }
+    if (response.status==200) {
+      return response.data.data;
+    } 
   } catch (error) {
     handleApiError(error, url, socket, "PATCH");
   }
 }
 
 /**
- * 특정 회원과의 매칭 상태를 "SUCCESS"로 변경하고 채팅방 UUID를 반환하는 API 요청
+ * status Success로 변경 & target Member 지정
+ * /api/v2/internal/matching/success/{matchingUuid}/{targetMatchingUuid}
  */
-async function matchingSuccessApi(socket, targetMemberId) {
-  const url = `${API_SERVER_URL}/v1/internal/${socket.memberId}/matching/success/target/${targetMemberId}/${socket.gameMode}`;
+async function matchingSuccessApi(socket) {
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/success/${socket.matchingUuid}/${socket.targetMatchingUuid}`;
 
   try {
     log.http("PATCH", url, socket, "Matching Success API Request");
     const response = await axios.patch(url);
-
-    if (response.data.isSuccess) {
-      return response.data.result;
-    }
+    if (response.status==200) {
+      return response.data.data;
+    } 
   } catch (error) {
     handleApiError(error, url, socket, "PATCH");
   }
