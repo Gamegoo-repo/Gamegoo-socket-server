@@ -29,121 +29,114 @@ app.get("/healthcheck", (req, res) => {
 app.get("/match", (req, res) => {
   res.send(`
     <!DOCTYPE html>
-<html lang="en">
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>겜구 매칭 테스트</title>
+        <link rel="stylesheet" href="/matching/styles.css" /> 
+      </head>
+      <body>
+        
+          <div class="content">
+            <!-- 첫 번째 화면 (초기 화면) -->
+              <div id="initial-screen">
+                <h2>Gamegoo Matching</h2>
+                <p id="loginStatus">You are not Login User</p>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>겜구 매칭 테스트</title>
-  <link rel="stylesheet" href="/matching/styles.css" /> 
-</head>
+                <div class="input-group">
+                  <select id="matching-type">
+                    <option value="BASIC">BASIC</option>
+                    <option value="PRECISE">PRECISE</option>
+                  </select>
+                  <select id="game-mode">
+                    <option value="FAST">FAST</option>
+                    <option value="SOLO">SOLO</option>
+                    <option value="FREE">FREE</option>
+                    <option value="ARAM">ARAM</option>
+                  </select>
+                  <select id="mike">
+                    <option value="UNAVAILABLE">UNAVAILABLE</option>
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="ONLY_LISTEN">ONLY_LISTEN</option>
+                  </select>
+                </div>
 
-<body>
-  <div class="container">
-  <div class="top-bar">
-      <div>
-        <input id="userEmail" type="string" placeholder="Enter your Email">
-        <input id="userPw" type="string" placeholder="Enter your Pw">
-        <button id="loginButton">Login</button>
-        <button id="logoutButton">Logout</button>
-      </div>
-      <p id="loginStatus">You are not Login User</p>
-    </div>
+                <div class="input-group">
+                  <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0 ~ 5)">
+                  <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0 ~ 5)">
+                  <input type="number" id="wantP" min="0" max="5" placeholder="원하는 포지션 (0 ~ 5)">
+                </div>
 
-  <!-- 첫 번째 화면 (초기 화면) -->
-  <div id="initial-screen">
-    <h2>Gamegoo Matching</h2>
+                <div class="input-group">
+                  <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (1 ~ 17)">
+                  <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (1 ~ 17)">
+                  <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (1 ~ 17)">
+                </div>
 
-    <div class="input-group">
-      <select id="matching-type">
-        <option value="BASIC">BASIC</option>
-        <option value="PRECISE">PRECISE</option>
-      </select>
-      <input type="number" id="game-mode" min="1" max="4" placeholder="게임 모드, 1 ~ 4">
-      <label for="mike">Mike:</label>
-      <input type="checkbox" id="mike">
-    </div>
+                <button id="matchButton">Match</button>
+              </div>
 
-    <div class="input-group">
-      <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0 ~ 5)">
-      <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0 ~ 5)">
-      <input type="number" id="wantP" min="0" max="5" placeholder="원하는 포지션 (0 ~ 5)">
-    </div>
-
-    <div class="input-group">
-      <input type="number" id="gameStyle1" min="1" max="17" placeholder="게임스타일 1 (1 ~ 17)">
-      <input type="number" id="gameStyle2" min="1" max="17" placeholder="게임스타일 2 (1 ~ 17)">
-      <input type="number" id="gameStyle3" min="1" max="17" placeholder="게임스타일 3 (1 ~ 17)">
-    </div>
-
-    <button id="match-btn">Match</button>
-  </div>
-
-  <!-- 두 번째 화면 (매칭 화면) -->
-  <div id="matching-screen" style="display: none;">
-    <div class="matching-container">
-      <div class="match-top-bar">
-        <div class="matching-title">
-          <button class="back-button"><</button>
-          <h3>매칭 중</h3>
-        </div>
-        <div class="timer">
-          <p><span id="timer-value" style="color: #6200ea;">0:00</span> / 5:00</p>
-        </div>
-      </div>
-      <div class="match-content">
-        <div class="left-side">
-          <h4 class="user-nickname"></h4> <!-- 닉네임 -->
-          <p class="user-tag"></p>
-          <p class="user-rank"></p> <!-- 등급 -->
-          <div class="profileImg">
-            <img src="heart.png" alt="profile_img" class="profile-img"> <!-- 아바타 -->
+              <!-- 두 번째 화면 (매칭 화면) -->
+              <div id="matching-screen" style="display: none;">
+                <div class="matching-container">
+                  <div class="match-top-bar">
+                    <div class="matching-title">
+                      <button class="back-button"><</button>
+                      <h3>매칭 중</h3>
+                    </div>
+                    <div class="timer">
+                      <p><span id="timer-value" style="color: #6200ea;">0:00</span> / 5:00</p>
+                    </div>
+                  </div>
+                  <div class="match-content">
+                    <div class="left-side">
+                      <h4 class="user-nickname"></h4> <!-- 닉네임 -->
+                      <p class="user-tag"></p>
+                      <p class="user-rank"></p> <!-- 등급 -->
+                      <div class="profileImg">
+                        <img src="heart.png" alt="profile_img" class="profile-img"> <!-- 아바타 -->
+                      </div>
+                      <p class="mike-status">마이크 <span></span></p> <!-- 마이크 상태 -->
+                      <div class="gamestyle">
+                        <ul id="gamestyle-list">
+                          <!-- 이곳에 동적으로 <li> 요소가 추가됩니다 -->
+                        </ul>
+                      </div>
+                      <div class="positions">
+                        <div class="main-position">주 포지션: <span>탑</span></div> <!-- 메인 포지션 -->
+                        <div class="sub-position">부 포지션: <span>정글</span></div> <!-- 서브 포지션 -->
+                        <div class="wanted-position">내가 찾는 포지션: <span>미드</span></div> <!-- 원하는 상대 포지션 -->
+                      </div>
+                    </div>
+                    <div class="right-side">
+                      <div class="waiting">
+                                  <div class="heart-icon">
+                          <img src="heart.png" alt="heart icon">
+                        </div>
+                        <p>어떤 사람이 나올까요?</p>
+                        <button class="quitButton"> QUIT </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- match-bottom div 추가 -->
+                    <div class="match-bottom">
+                      <button class="retryButton" style="display: none;">매칭 다시하기   <span id="retryTimerValue">10</span></button>
+                    </div>
+                </div>
+              </div>
           </div>
-          <p class="mike-status">마이크 <span></span></p> <!-- 마이크 상태 -->
-          <div class="gamestyle">
-            <ul id="gamestyle-list">
-              <!-- 이곳에 동적으로 <li> 요소가 추가됩니다 -->
-            </ul>
-          </div>
-          <div class="positions">
-            <div class="main-position">주 포지션: <span>탑</span></div> <!-- 메인 포지션 -->
-            <div class="sub-position">부 포지션: <span>정글</span></div> <!-- 서브 포지션 -->
-            <div class="wanted-position">내가 찾는 포지션: <span>미드</span></div> <!-- 원하는 상대 포지션 -->
-          </div>
         </div>
-        <div class="right-side">
-          <div class="waiting">
-                      <div class="heart-icon">
-              <img src="heart.png" alt="heart icon">
-            </div>
-            <p>어떤 사람이 나올까요?</p>
-            <button class="quit-button"> QUIT </button>
-          </div>
-        </div>
-      </div>
-      <!-- match-bottom div 추가 -->
-        <div class="match-bottom">
-          <button class="retry-button" style="display: none;">매칭 다시하기   <span id="retry-timer-value">10</span></button>
-        </div>
-    </div>
-  </div>
-</div>
-  <script>
-    const API_SERVER_URL = '${API_SERVER_URL}';
-    const NODE_SERVER_URL = '${NODE_SERVER_URL}';
-  </script>
-  <script src="${SOCKETIO_URL}"></script>
-  <script src="matching/scripts/socket.js"></script>
-  <script src="scripts/socket.js"></script>
-  <script src="scripts/api.js"></script>
-  <script src="scripts/eventListeners.js"></script>
-  <script src="matching/scripts/api.js"></script>
-  <script src="matching/scripts/eventListeners.js"></script>
-
-</body>
-
-</html>
-    `);
+        <script>
+          const API_SERVER_URL = '${API_SERVER_URL}';
+          const NODE_SERVER_URL = '${NODE_SERVER_URL}';
+        </script>
+        <script src="${SOCKETIO_URL}"></script>
+        <script type="module" src="scripts/socket.js"></script>
+        <script type="module" src="scripts/matching/matchingEventListeners.js"></script>
+      </body>
+    </html>
+  `);
 });
 
 // 이미지 제공

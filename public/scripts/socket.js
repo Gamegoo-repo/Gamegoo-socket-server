@@ -1,7 +1,7 @@
 import { setupSocketEmitters } from "./socketEmitters.js";
 import { setupSocketListeners } from "./socketListeners.js";
 
-let socket;
+export let socket;
 // 전역 상태 객체
 export const state = {
   socketId: null,
