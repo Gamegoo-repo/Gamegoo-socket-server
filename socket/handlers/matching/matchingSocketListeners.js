@@ -14,18 +14,16 @@ const {
   emitMatchingFail,
 } = require("../../emitters/matchingEmitter");
 
-const { getSocketIdByMemberId } = require("../../common/memberSocketMapper");
-
 /**
  * "matching-request" - 매칭 요청 핸들러
  */
 async function handleMatchingRequest(socket,io,request) {
   const threshold = request.threshold;
   const gameMode = request.gameMode;
-  socket.data.gameMode = gameMode;
+  socket.data.matching.gameMode = gameMode;
   const roomName = "GAMEMODE_" + gameMode;
-  socket.data.roomName = roomName;
-  socket.data.memberId=request.memberId;
+  socket.data.matching.roomName = roomName;
+  socket.data.matching.memberId=request.memberId;
 
   log.info("matching-request", socket);
 
@@ -41,8 +39,8 @@ async function handleMatchingRequest(socket,io,request) {
   try {
     // 4) 8080서버에 우선순위 계산 API 요청
     const result = await fetchMatchingApi(socket, request);
-    socket.data.myMatchingInfo = result.myMatchingInfo;
-    socket.data.matchingUuid = result.myMatchingInfo.matchingUuid;
+    socket.data.matching.myMatchingInfo = result.myMatchingInfo;
+    socket.data.matching.matchingUuid = result.myMatchingInfo.matchingUuid;
 
     // 6) API 정상 응답 받음
     if (result) {
@@ -85,8 +83,8 @@ async function handleMatchingFoundSuccess(socket, io, request) {
     return;
   }
 
-  socket.data.matchingTargetUuid = senderSocket.data.matchingUuid;
-  senderSocket.data.matchingTargetUuid = socket.matchingUuid;
+  socket.data.matching.matchingTargetUuid = sendersocket.data.matching.matchingUuid;
+  sendersocket.data.matching.matchingTargetUuid = socket.matchingUuid;
 
   const roomName = "GAMEMODE_" + request.gameMode;
   deleteMySocketFromMatching(socket, io, roomName);
@@ -109,9 +107,9 @@ async function handleMatchingFoundSuccess(socket, io, request) {
 async function handleMatchingSuccessFinal(socket, io) {
   log.info(`Received 'matching-success-final' from socketId:${socket.id}`,socket);
 
-  const receiverSocket = await getSocketIdByMemberId(io, socket.data.matchingTargetUuid);
+  const receiverSocket = await getSocketIdByMemberId(io, socket.data.matching.matchingTargetUuid);
   if (!receiverSocket) {
-    log.warn(`Receiver socket not found for matchingTargetUuid:${socket.data.matchingTargetUuid}`,socket);
+    log.warn(`Receiver socket not found for matchingTargetUuid:${socket.data.matching.matchingTargetUuid}`,socket);
     return;
   }
 
@@ -134,10 +132,10 @@ async function handleMatchingSuccessFinal(socket, io) {
 async function handleMatchingReject(socket, io) {
   log.info(`Received 'matching-reject' from socketId:${socket.id}`);
 
-  const otherSocket = await getSocketIdByMemberId(io, socket.data.matchingTargetUuid);
-  if (socket.data.gameMode) {
+  const otherSocket = await getSocketIdByMemberId(io, socket.data.matching.matchingTargetUuid);
+  if (socket.data.matching.gameMode) {
     try {
-      await updateBothMatchingStatusApi(socket, "FAIL", socket.data.matchingTargetUuid);
+      await updateBothMatchingStatusApi(socket, "FAIL", socket.data.matching.matchingTargetUuid);
     } catch (error) {
       log.error(`matching-reject : ${error.message}`,socket);
       handleSocketError(socket, error);
@@ -146,11 +144,11 @@ async function handleMatchingReject(socket, io) {
 
   if (otherSocket) {
     emitMatchingFail(otherSocket);
-    otherSocket.data.matchingTargetUuid = null;
+    othersocket.data.matching.matchingTargetUuid = null;
   }
 
   emitMatchingFail(socket);
-  socket.data.matchingTargetUuid = null;
+  socket.data.matching.matchingTargetUuid = null;
 }
 
 /**
@@ -159,7 +157,7 @@ async function handleMatchingReject(socket, io) {
 async function handleMatchingFail(socket) {
   log.info(`matching fail`,socket);
 
-  if (socket.data.gameMode) {
+  if (socket.data.matching.gameMode) {
     try {
       await updateMatchingStatusApi(socket, "FAIL");
     } catch (error) {
@@ -169,7 +167,7 @@ async function handleMatchingFail(socket) {
     }
   }
 
-  socket.data.matchingTargetUuid = null;
+  socket.data.matching.matchingTargetUuid = null;
   emitMatchingFail(socket);
 }
 
@@ -179,7 +177,7 @@ async function handleMatchingFail(socket) {
 async function handleMatchingQuit(socket, io) {
   log.info(`matching-quit`,socket);
 
-  if (socket.data.gameMode) {
+  if (socket.data.matching.gameMode) {
     try {
       await updateMatchingStatusApi(socket, "QUIT");
     } catch (error) {
@@ -189,7 +187,7 @@ async function handleMatchingQuit(socket, io) {
     }
   }
 
-  deleteMySocketFromMatching(socket, io, socket.data.roomName);
+  deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
 }
 
 /**
@@ -197,8 +195,10 @@ async function handleMatchingQuit(socket, io) {
  */
 function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", (request) => handleMatchingRequest(socket, io, request));
+  socket.on("matching-retry",(request)=>handleMatchingRetry(socket,io,request));
   socket.on("matching-found-success", (request) => handleMatchingFoundSuccess(socket, io, request));
   socket.on("matching-success-final", () => handleMatchingSuccessFinal(socket, io));
+  socket.on("matching-not-found",()=>handleMatchingNotFound(socket,io));
   socket.on("matching-reject", () => handleMatchingReject(socket, io));
   socket.on("matching-fail", () => handleMatchingFail(socket));
   socket.on("matching-quit", () => handleMatchingQuit(socket, io));
