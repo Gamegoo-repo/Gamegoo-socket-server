@@ -13,7 +13,7 @@ matchButton.addEventListener("click", () => {
   const gameStyle2 = Number(document.getElementById("gameStyle2").value);
   const gameStyle3 = Number(document.getElementById("gameStyle3").value);
   const memberId = state.memberId;
-  const threshold = 50;
+  const threshold = 20;
 
   // 요청 객체 생성
   const request = {

@@ -100,6 +100,30 @@ class PriorityTree {
   contains(matchingUuid) {
     return this.inOrderContains(this.root, matchingUuid);
   }
+  
+  getNode(matchingUuid) {
+    return this.findNode(this.root, matchingUuid);
+  }
+
+  // 내부적으로 DFS로 순회하며 matchingUuid가 일치하는 노드를 탐색
+  findNode(node, matchingUuid) {
+    if (node === null) {
+      return null;
+    }
+
+    if (node.matchingUuid === matchingUuid) {
+      return node;
+    }
+
+    // 왼쪽 서브트리에서 먼저 찾기
+    const leftSearch = this.findNode(node.left, matchingUuid);
+    if (leftSearch) {
+      return leftSearch;
+    }
+
+    // 왼쪽 서브트리에서 못 찾았으면 오른쪽 서브트리에서 찾기
+    return this.findNode(node.right, matchingUuid);
+  }
 
   // 중위 순회로 특정 matchingUuid가 있는지 확인하는 메서드
   inOrderContains(node, matchingUuid) {
@@ -191,7 +215,6 @@ class PriorityTree {
       return this.findMinNode(node.left);
     }
   }
-
 
 }
 

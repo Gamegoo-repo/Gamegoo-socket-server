@@ -19,7 +19,7 @@ function deleteMySocketFromMatching(socket, io, roomName) {
       const roomSocket = io.sockets.sockets.get(socketId);
       if (roomSocket) {
         // roomSocket의 priorityTree에서 socket의 값을 지우기
-        roomSocket.priorityTree.removeByMemberId(socket.data.memberId);
+        roomSocket.data.matching.priorityTree.removeByMemberId(socket.data.memberId);
       }
     });
   } else {

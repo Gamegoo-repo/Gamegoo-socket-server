@@ -36,6 +36,7 @@ async function handleMatchingRequest(socket,io,request) {
 
   // 3) 게임 모드에 따라 room에 join
   joinGameModeRoom(socket, io, roomName);
+
   try {
     // 4) 8080서버에 우선순위 계산 API 요청
     const result = await fetchMatchingApi(socket, request);
@@ -47,6 +48,7 @@ async function handleMatchingRequest(socket,io,request) {
       // 7) "matching-started" emit
       emitMatchingStarted(socket, result.myMatchingInfo);
 
+      console.log(result.myPriorityList);
       // 8) 내 우선순위 트리 갱신
       updatePriorityTree(socket, result.myPriorityList);
 

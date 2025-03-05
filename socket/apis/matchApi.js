@@ -29,7 +29,7 @@ function handleApiError(error, url, socket, method) {
  * /api/v2/internal/matching/priority/{memberId}
  */
 async function fetchMatchingApi(socket, request) {
-  const memberId = socket.data.memberId;
+  const memberId = socket.data.matching.memberId;
   const url = `${API_SERVER_URL}/api/v2/internal/matching/priority/${memberId}`;
   const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter(Boolean);
 
@@ -60,7 +60,7 @@ async function fetchMatchingApi(socket, request) {
  * /api/v2/internal/matching/status/target/{matchingUuid}/{status}
  */
 async function updateBothMatchingStatusApi(socket, status) {
-  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/target/${socket.data.matchingUuid}/${status}`;
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/target/${socket.data.matching.matchingUuid}/${status}`;
 
   try {
     log.http("PATCH", url, socket, `update both matching status`);
@@ -78,7 +78,7 @@ async function updateBothMatchingStatusApi(socket, status) {
  * /api/v2/internal/matching/status/{matchingUuid}/{status}
  */
 async function updateMatchingStatusApi(socket, status) {
-  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/${socket.data.matchingUuid}/${status}`;
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/status/${socket.data.matching.matchingUuid}/${status}`;
 
   try {
     log.http("PATCH", url, socket, `update matching status`);
