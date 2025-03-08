@@ -56,7 +56,7 @@ async function getSocketIdByMatchingUuid(io, matchingUuid) {
     const connectedSockets = await io.fetchSockets();
 
     for (const connSocket of connectedSockets) {
-      if (matchingUuid == connSocket.data.matching,matchingUuid) {
+      if (matchingUuid == connSocket.data.matching.matchingUuid) {
         return connSocket;
       }
     }

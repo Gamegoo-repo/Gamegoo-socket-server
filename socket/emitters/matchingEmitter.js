@@ -16,8 +16,8 @@ function emitMatchingStarted(socket, myMatchingInfo) {
  * @param {*} socket
  * @param {*} targetMatchingInfo
  */
-function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
-  socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo));
+function emitMatchingFoundReceiver(socket, targetMatchingInfo, myMatchingUuid) {
+  socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo, myMatchingUuid));
   log.emit("matching-found-receiver", socket, `target matching info: ${JSON.stringify(targetMatchingInfo)}`);
 }
 

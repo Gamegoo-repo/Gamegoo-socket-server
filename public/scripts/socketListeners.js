@@ -14,7 +14,12 @@ import {
 } from "./socketEventHandlers.js";
 
 import {
-  handleMatchingStarted
+  handleMatchingStarted,
+  handleMatchingFoundReceiver,
+  handleMatchingFoundSender,
+  handleMatchingSuccessSender,
+  handleMatchingSuccess,
+  handleMatchingFail
 } from "./matching/matchingSocketEventHandlers.js"
 
 /**
@@ -49,4 +54,14 @@ export function setupSocketListeners(socket, state) {
 
   // 매칭
   socket.on("matching-started",(data)=>handleMatchingStarted(socket,state,data));
+
+  socket.on("matching-found-receiver",(data)=>handleMatchingFoundReceiver(socket,state,data));
+
+  socket.on("matching-found-sender",(data)=>handleMatchingFoundSender(socket,state,data));
+
+  socket.on("matching-success-sender",(data)=>handleMatchingSuccessSender());
+
+  socket.on("matching-success",(data)=>handleMatchingSuccess(socket,data));
+
+  socket.on("matching-fail",(data)=>handleMatchingFail(socket,data));
 }

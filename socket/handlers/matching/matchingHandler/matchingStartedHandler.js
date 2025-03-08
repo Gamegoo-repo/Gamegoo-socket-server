@@ -1,6 +1,6 @@
 const JWTTokenError = require("../../../../common/JWTTokenError");
 const log = require("../../../../common/customLogger");
-const { getSocketIdByMemberId, getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
+const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
 
 /**
@@ -99,7 +99,7 @@ async function findMatching(socket, io, threshold) {
     const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.highestPriorityNode.matchingUuid);
 
     if (otherSocket) {
-      log.debug("Found other socket with priority exceeding value", socket);
+      log.debug(`Found other socket with priority exceeding value ${otherSocket.memberId} `, socket);
 
       const node = otherSocket.data.matching.priorityTree.getNode(matchingUuid);
 

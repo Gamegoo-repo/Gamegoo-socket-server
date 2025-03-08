@@ -5,6 +5,7 @@ matchButton.addEventListener("click", () => {
   
   const matchingType = document.getElementById("matching-type").value;
   const gameMode = document.getElementById("game-mode").value;
+  console.log(gameMode);
   const mike = document.getElementById("mike").value;
   const mainP = document.getElementById("mainP").value;
   const subP = document.getElementById("subP").value;

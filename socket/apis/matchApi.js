@@ -95,8 +95,8 @@ async function updateMatchingStatusApi(socket, status) {
  * status Found로 변경 & target Member 지정
  * /api/v2/internal/matching/found/{matchingUuid}/{targetMatchingUuid}
  */
-async function matchingFoundApi(socket) {
-  const url = `${API_SERVER_URL}/api/v2/internal/matching/found/${socket.matchingUuid}/${socket.targetMatchingUuid}`;
+async function matchingFoundApi(socket,matchingUuid,targetMatchingUuid) {
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/found/${matchingUuid}/${targetMatchingUuid}`;
 
   try {
     log.http("PATCH", url, socket, "Matching Found API Request");
