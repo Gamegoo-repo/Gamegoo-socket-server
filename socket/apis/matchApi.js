@@ -29,7 +29,7 @@ function handleApiError(error, url, socket, method) {
  * /api/v2/internal/matching/priority/{memberId}
  */
 async function fetchMatchingApi(socket, request) {
-  const memberId = socket.data.matching.memberId;
+  const memberId = socket.memberId;
   const url = `${API_SERVER_URL}/api/v2/internal/matching/priority/${memberId}`;
   const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter(Boolean);
 

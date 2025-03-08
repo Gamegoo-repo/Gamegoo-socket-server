@@ -1,6 +1,6 @@
 const JWTTokenError = require("../../../../common/JWTTokenError");
 const log = require("../../../../common/customLogger");
-const { getSocketIdByMemberId } = require("../../../common/memberSocketMapper");
+const { getSocketIdByMemberId, getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
 
 /**
@@ -51,7 +51,7 @@ function updatePriorityTree(socket, priorityList) {
 async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
   log.debug(`#9 update other PriorityTrees in room`, socket);
   for (const item of otherPriorityList) {
-    const otherSocket = await getSocketIdByMemberId(io, item.memberId);
+    const otherSocket = await getSocketIdByMatchingUuid(io, item.matchingUuid);
 
     if (otherSocket) {
       if (!otherSocket.data.matching.priorityTree) {
@@ -70,9 +70,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
       if (otherSocket.data.matching.priorityTree.root) {
         otherSocket.data.matching.highestPriorityNode = otherSocket.data.matching.priorityTree.getMax(otherSocket.data.matching.priorityTree.root);
       }
-
-      log.debug("Other user's priority tree (sorted)", otherSocket, JSON.stringify(otherSocket.data.matching.priorityTree.getSortedList(), null, 2));
-
+      
       if (otherSocket.data.matching.highestPriorityNode) {
         log.info("Other socket's highest priority member", otherSocket);
       } else {
@@ -98,7 +96,7 @@ async function findMatching(socket, io, threshold) {
   }
 
   while (socket.data.matching.highestPriorityNode.priorityValue >= threshold) {
-    const otherSocket = await getSocketIdByMemberId(io, socket.data.matching.highestPriorityNode.memberId);
+    const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.highestPriorityNode.matchingUuid);
 
     if (otherSocket) {
       log.debug("Found other socket with priority exceeding value", socket);

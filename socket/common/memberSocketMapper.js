@@ -1,5 +1,4 @@
 const log = require("../../common/customLogger");
-const { connectSocket } = require("../../public/scripts/socket");
 
 /**
  * memberId list에 해당하는 현재 연결된 socket의 id list를 리턴
@@ -34,18 +33,42 @@ async function getSocketIdByMemberId(io, memberId) {
     const connectedSockets = await io.fetchSockets();
 
     for (const connSocket of connectedSockets) {
-      if (memberId == connSocket.data.matching.memberId) {
+      console.log(connSocket.memberId);
+      if (memberId == connSocket.memberId) {
         return connSocket;
       }
     }
-    log.debug(`getSocketIdByMemberId - No matching socket found for memberId:${memberId}`,socket);
+    console.log(`getSocketIdByMemberId - No matching socket found for memberId:${memberId}`);
     return null;
   } catch (error) {
-    log.error(`Error occured getSocketIdByMemberId: ${error.message}`,connectSocket);
+    console.log(error);
+  }
+}
+
+/**
+ * matchingUuiid에 해당하는 socket의 socketId 리턴
+ * @param {*} io
+ * @param {*} matchingUuid
+ * @returns
+ */
+async function getSocketIdByMatchingUuid(io, matchingUuid) {
+  try {
+    const connectedSockets = await io.fetchSockets();
+
+    for (const connSocket of connectedSockets) {
+      if (matchingUuid == connSocket.data.matching,matchingUuid) {
+        return connSocket;
+      }
+    }
+    console.log(`getSocketIdByMemberId - No matching socket found for matchingUuid:${matchingUuid}`);
+    return null;
+  } catch (error) {
+    console.log(error);
   }
 }
 
 module.exports = {
   getSocketIdsByMemberIds,
   getSocketIdByMemberId,
+  getSocketIdByMatchingUuid
 };

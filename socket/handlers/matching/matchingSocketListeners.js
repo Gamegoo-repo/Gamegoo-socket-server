@@ -23,7 +23,6 @@ async function handleMatchingRequest(socket,io,request) {
   socket.data.matching.gameMode = gameMode;
   const roomName = "GAMEMODE_" + gameMode;
   socket.data.matching.roomName = roomName;
-  socket.data.matching.memberId=request.memberId;
 
   log.info("matching-request", socket);
 
@@ -45,10 +44,11 @@ async function handleMatchingRequest(socket,io,request) {
 
     // 6) API 정상 응답 받음
     if (result) {
-      // 7) "matching-started" emit
+      // 7) "matching-started"emit
       emitMatchingStarted(socket, result.myMatchingInfo);
 
       console.log(result.myPriorityList);
+
       // 8) 내 우선순위 트리 갱신
       updatePriorityTree(socket, result.myPriorityList);
 
@@ -61,10 +61,11 @@ async function handleMatchingRequest(socket,io,request) {
 
     if (receiverSocket) {
       // 11) receiverSocket이 매칭 room에 존재하는지 여부 확인
+      log.debug(`#11 check receiverSocket is in matching room, receiverSocket's memberId : ${receiverSocket.memberId}`,socket);
       isSocketActiveAndInRoom(receiverSocket, io, roomName);
 
       // 12) "matching-found-receiver" emit
-      emitMatchingFoundReceiver(receiverSocket, socket.myMatchingInfo);
+      emitMatchingFoundReceiver(receiverSocket, socket.data.matching.myMatchingInfo);
     }
 
   } catch (error) {

@@ -68,6 +68,8 @@ class PriorityTree {
     return node;
   }
 
+  
+
   // 트리 내에서 ExceptNode의 우선순위 값보다 작지만 가장 priority가 큰 노드 찾기
   getMaxBeforeNode(node, ExceptNode) {
     if (node === null) {
