@@ -114,7 +114,7 @@ async function matchingFoundApi(socket,matchingUuid,targetMatchingUuid) {
  * /api/v2/internal/matching/success/{matchingUuid}/{targetMatchingUuid}
  */
 async function matchingSuccessApi(socket) {
-  const url = `${API_SERVER_URL}/api/v2/internal/matching/success/${socket.matchingUuid}/${socket.targetMatchingUuid}`;
+  const url = `${API_SERVER_URL}/api/v2/internal/matching/success/${socket.data.matching.matchingUuid}/${socket.data.matching.matchingTargetUuid}`;
 
   try {
     log.http("PATCH", url, socket, "Matching Success API Request");

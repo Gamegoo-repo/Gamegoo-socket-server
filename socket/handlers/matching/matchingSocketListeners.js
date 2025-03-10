@@ -58,8 +58,6 @@ async function handleMatchingRequest(socket, io, request) {
       await updateOtherPriorityTrees(io, socket, result.otherPriorityList);
     }
 
-    console.log(socket.data.matching.matchingUuid);
-    console.log(socket.data.matching.priorityTree.getSortedList());
     // 10) priorityTree의 maxNode가 기준 점수를 넘는지 확인
     const receiverSocket = await findMatching(socket, io, threshold);
 
@@ -67,9 +65,6 @@ async function handleMatchingRequest(socket, io, request) {
       // 11) receiverSocket이 매칭 room에 존재하는지 여부 확인
       log.debug(`#11 check receiverSocket is in matching room, receiverSocket's memberId : ${receiverSocket.memberId}`, socket);
       isSocketActiveAndInRoom(receiverSocket, io, roomName);
-
-      console.log('sender : ',socket.data.matching);
-      console.log('receiver : ',receiverSocket.data.matching);
 
       const matchingFoundReceiverRequest = {};
 
@@ -112,11 +107,12 @@ async function handleMatchingFoundSuccess(socket, io, request) {
     return;
   }
 
+  // 15. 두 소켓의 matchingTargetUuid 값 저장
   socket.data.matching.matchingTargetUuid = senderMatchingUuid;
   senderSocket.data.matching.matchingTargetUuid = matchingUuid;
   
-  // TODO: gameMode undefined
-  const roomName = "GAMEMODE_" + request.gameMode;
+  // 16 ~ 18 데이터 삭제
+  const roomName = "GAMEMODE_" + socket.data.matching.gameMode;
   deleteMySocketFromMatching(socket, io, roomName);
   deleteMySocketFromMatching(senderSocket, io, roomName);
 
@@ -129,6 +125,15 @@ async function handleMatchingFoundSuccess(socket, io, request) {
     log.error(`matching-found-success : ${error.message}`, socket);
     handleSocketError(socket, error);
   }
+}
+
+//TODO: 
+// 25. "matching-success-receiver"
+async function handleMatchingSuccessReceiver(socket,io,request){
+  console.log(request);
+  const senderSocket = await getSocketIdByMatchingUuid(io,request.senderMatchingUuid);
+  // 26. "matching-success-sender" emit
+  emitMatchingSuccessSender(senderSocket);
 }
 
 /**
@@ -145,6 +150,7 @@ async function handleMatchingSuccessFinal(socket, io) {
 
   try {
     const result = await matchingSuccessApi(socket);
+    console.log(result);
     if (result) {
       socket.join("CHAT_" + result);
       receiverSocket.join("CHAT_" + result);
@@ -182,7 +188,7 @@ async function handleMatchingReject(socket, io) {
 }
 
 async function handleMatchingNotFound(socket){
-  
+
 }
 
 /**
@@ -231,6 +237,7 @@ function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", (request) => handleMatchingRequest(socket, io, request));
   socket.on("matching-retry", (request) => handleMatchingRetry(socket, io, request));
   socket.on("matching-found-success", (request) => handleMatchingFoundSuccess(socket, io, request));
+  socket.on("matching-success-receiver", (request) => handleMatchingSuccessReceiver(socket, io, request));
   socket.on("matching-success-final", () => handleMatchingSuccessFinal(socket, io));
   socket.on("matching-not-found", () => handleMatchingNotFound(socket, io));
   socket.on("matching-reject", () => handleMatchingReject(socket, io));

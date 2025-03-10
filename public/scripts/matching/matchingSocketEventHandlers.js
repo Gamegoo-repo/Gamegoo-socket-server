@@ -89,13 +89,14 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     // state에 저장
     state.matchingUuid = request.data.receiverMatchingUuid;
     console.log(request.data.senderMatchingInfo);
+
     // 13) matching-found-success emit
     socket.emit("matching-found-success", { senderMatchingUuid: request.data.senderMatchingInfo.matchingUuid });
 
     // 10초 타이머 시작, matchingSuccessReceiver call back
     const timeoutId = setTimeout(() => {
         // 10초 동안 내가 매칭 다시하기 버튼 누르지 않으면, matching-success-receiver emit
-        socket.emit("matching-success-receiver");
+        socket.emit("matching-success-receiver",{ senderMatchingUuid: request.data.senderMatchingInfo.matchingUuid });
 
         // 10초 후, 3초 타이머 시작, MatchingFail call back
         const timeoutId = setTimeout(() => {
@@ -105,8 +106,6 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 
         timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
-
-    timers.matchingSuccessReceiver = timeoutId;
 
     // 매칭 상대 정보 렌더링
     updateRightSide(request.data.senderMatchingInfo);
@@ -121,7 +120,6 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
         socket.emit("matching-quit");
-
     });
 
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
@@ -183,6 +181,9 @@ export function handleMatchingFoundSender(socket, state, request) {
 export function handleMatchingSuccessSender() {
     // matching-success-sender가 도착했음을 기록
     isMatchingSuccessSenderArrived = true;
+
+    // 27. "matching-success-final" emit 
+    socket.emit("matching-success-final");
 }
 
 export function handleMatchingSuccess(socket, request) {
@@ -190,6 +191,7 @@ export function handleMatchingSuccess(socket, request) {
     clearTimeout(timers.matchingFailCallback);
     delete timers.matchingFailCallback;
 
+    alert("매칭 성공!!!");
     // 세션 스토리지에 chatroomUuid 저장
     sessionStorage.setItem("fromMatchPage", request.data.chatroomUuid);
 
