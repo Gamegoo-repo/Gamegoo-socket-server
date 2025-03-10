@@ -61,7 +61,7 @@ export function setupSocketListeners(socket, state) {
 
   socket.on("matching-success-sender",(data)=>handleMatchingSuccessSender());
 
-  socket.on("matching-success",(data)=>handleMatchingSuccess(socket,data));
+  socket.on("matching-success",(data)=>handleMatchingSuccess(data));
 
   socket.on("matching-fail",(data)=>handleMatchingFail(socket,data));
 }

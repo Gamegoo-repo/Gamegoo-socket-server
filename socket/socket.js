@@ -21,7 +21,7 @@ const { emitError, emitJWTError, emitConnectionJwtError, emitJwtExpiredError } =
 const { fetchFriends } = require("./apis/friendApi");
 
 const { getSocketIdsByMemberIds } = require("./common/memberSocketMapper");
-const { deleteMySocketFromMatching } = require("./handlers/matching/matchingHandler/matchingFoundHandler");
+const { deleteMySocketFromMatching } = require("./handlers/matching/matchingHandler/matchingManager");
 
 function initializeSocket(server) {
   const io = socketIo(server, {

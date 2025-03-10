@@ -3,7 +3,6 @@ let searchingTimerInterval;
 let timers = {};
 let isMatchingSuccessSenderArrived = false; // matching-success-sender 도착 여부
 
-
 /**
  * matching-started 이벤트 핸들러
  * @param {*} socket 
@@ -39,7 +38,7 @@ export function handleMatchingStarted(socket, state, request) {
     // 내 매칭 요청 정보 렌더링
     renderMyMatchingData(request.data);
 
-    // 🎯 30초 후 매칭 확인 및 5분 동안 30초마다 threshold 낮춰 재시도 로직 추가
+    // 30초 후 매칭 확인 및 5분 동안 30초마다 threshold 낮춰 재시도 로직 추가
     let threshold = 45;
     let retryCount = 0;
     let maxRetries = 10; // 30초마다 실행되므로 5분(10번) 동안 실행
@@ -80,6 +79,12 @@ export function handleMatchingStarted(socket, state, request) {
     }, 300000); // 5분 (300초)
 }
 
+/**
+ * "matching-found-receiver"
+ * @param {*} socket 
+ * @param {*} state 
+ * @param {*} request 
+ */
 export function handleMatchingFoundReceiver(socket, state, request) {
     alert("✅ MATCHING FOUND!");
     isMatchingSuccessSenderArrived = true; // 매칭 성공 플래그 업데이트
@@ -88,7 +93,6 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 
     // state에 저장
     state.matchingUuid = request.data.receiverMatchingUuid;
-    console.log(request.data.senderMatchingInfo);
 
     // 13) matching-found-success emit
     socket.emit("matching-found-success", { senderMatchingUuid: request.data.senderMatchingInfo.matchingUuid });
@@ -126,6 +130,12 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     updateMatchingTopBar();
 }
 
+/**
+ * "matching-found-sender"
+ * @param {*} socket 
+ * @param {*} state 
+ * @param {*} request 
+ */
 export function handleMatchingFoundSender(socket, state, request) {
     alert("✅ MATCHING FOUND!");
 
@@ -178,6 +188,9 @@ export function handleMatchingFoundSender(socket, state, request) {
     updateMatchingTopBar();
 }
 
+/**
+ *  "matching-success-sender"
+ */
 export function handleMatchingSuccessSender() {
     // matching-success-sender가 도착했음을 기록
     isMatchingSuccessSenderArrived = true;
@@ -186,7 +199,11 @@ export function handleMatchingSuccessSender() {
     socket.emit("matching-success-final");
 }
 
-export function handleMatchingSuccess(socket, request) {
+/**
+ * "matching-success"
+ * @param {*} request 
+ */
+export function handleMatchingSuccess(request) {
     // 최종 매칭 결과가 도착했으므로, matchingFail callback clear
     clearTimeout(timers.matchingFailCallback);
     delete timers.matchingFailCallback;
@@ -199,6 +216,11 @@ export function handleMatchingSuccess(socket, request) {
     window.location.href = "/";
 }
 
+/**
+ * "matching-fail"
+ * @param {*} socket 
+ * @param {*} request 
+ */
 export function handleMatchingFail(socket, request) {
     Object.keys(timers).forEach(function (timer) {
         clearTimeout(timers[timer]);
@@ -212,7 +234,6 @@ export function handleMatchingFail(socket, request) {
 }
 
 // 타이머 업데이트
-
 function updateTimer() {
     elapsedSeconds++;
     const minutes = Math.floor(elapsedSeconds / 60);
@@ -288,8 +309,7 @@ function startRetryCountdown() {
     const retryTimerValue = document.getElementById("retryTimerValue");
 
     // 버튼을 보여줌
-    retryButton.style.display = "inline-block"; // or 'block', depending on your layout
-
+    retryButton.style.display = "inline-block"; 
 
     // 클릭되면 matching-fail emit
     retryButton.addEventListener("click", () => {
