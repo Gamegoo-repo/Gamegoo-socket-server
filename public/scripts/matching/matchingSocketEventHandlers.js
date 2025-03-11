@@ -110,6 +110,8 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 
         timers.matchingFailCallback = timeoutId;
     }, 10000); // 10000ms = 10초
+    timers.matchingSuccessReceiver = timeoutId;  
+
 
     // 매칭 상대 정보 렌더링
     updateRightSide(request.data.senderMatchingInfo);
@@ -194,9 +196,6 @@ export function handleMatchingFoundSender(socket, state, request) {
 export function handleMatchingSuccessSender() {
     // matching-success-sender가 도착했음을 기록
     isMatchingSuccessSenderArrived = true;
-
-    // 27. "matching-success-final" emit 
-    socket.emit("matching-success-final");
 }
 
 /**
