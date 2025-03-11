@@ -9,7 +9,6 @@ const {
     emitMatchingSuccess,
 } = require("../../../emitters/matchingEmitter");
 
-
 /**
  * # 1-13. "matching-found-receiver"
  * @param {*} socket 
@@ -18,31 +17,29 @@ const {
  * @returns 
  */
 async function handleMatchingFoundSuccess(socket, io, request) {
-    log.info(`matching found success`, socket);
-
     const matchingUuid = socket.data.matching.matchingUuid;
     const senderMatchingUuid = request.senderMatchingUuid;
     const senderSocket = await getSocketIdByMatchingUuid(io, senderMatchingUuid);
 
-    console.log("matching found success");
-    console.log(matchingUuid);
-    console.log(senderMatchingUuid);
-    console.log('sender : ', senderSocket.memberId);
-    console.log('receiver : ', socket.memberId);
-
-    if (!senderSocket) {
-        log.error(`Sender socket not found for senderMatchingUuid:${request.senderMatchingUuid}`, socket);
+    log.debug(`Matching Uuid: ${matchingUuid}, Sender Matching Uuid: ${senderMatchingUuid}`, socket);
+    if (senderSocket) {
+        log.debug(`# 13) Found sender socket with memberId: ${senderSocket.memberId}`, socket);
+        log.debug(`# 13) Receiver memberId: ${socket.memberId}`, socket);
+    } else {
+        log.error(`# 13) Sender socket not found for senderMatchingUuid: ${senderMatchingUuid}`, socket);
         return;
     }
 
-    // 15. 두 소켓의 matchingTargetUuid 값 저장
+    // 15) 두 소켓의 matchingTargetUuid 값 저장
     socket.data.matching.matchingTargetUuid = senderMatchingUuid;
     senderSocket.data.matching.matchingTargetUuid = matchingUuid;
+    log.info(`# 15) Set matchingTargetUuid - Sender: ${senderMatchingUuid}, Receiver: ${matchingUuid}`, socket);
 
     // 16 ~ 18 데이터 삭제
     const roomName = "GAMEMODE_" + socket.data.matching.gameMode;
     deleteMySocketFromMatching(socket, io, roomName);
     deleteMySocketFromMatching(senderSocket, io, roomName);
+    log.info(`# 16~18) Deleted sockets from matching room: ${roomName}`, socket);
 
     try {
         const result = await matchingFoundApi(socket, matchingUuid, senderMatchingUuid);
@@ -50,21 +47,18 @@ async function handleMatchingFoundSuccess(socket, io, request) {
             emitMatchingFoundSender(senderSocket, result.myMatchingInfo);
         }
     } catch (error) {
-        log.error(`matching-found-success : ${error.message}`, socket);
+        log.error(`13) matching-found-success error: ${error.message}`, socket);
         handleSocketError(socket, error);
     }
 }
 
 /**
  * # 1-25. "matching-success-receiver"
- * @param {*} socket 
  * @param {*} io 
  * @param {*} request 
  */
 async function handleMatchingSuccessReceiver(io, request) {
-    console.log(request);
     const senderSocket = await getSocketIdByMatchingUuid(io, request.senderMatchingUuid);
-    // 26. "matching-success-sender" emit
     emitMatchingSuccessSender(senderSocket);
 }
 
@@ -75,28 +69,24 @@ async function handleMatchingSuccessReceiver(io, request) {
  * @returns 
  */
 async function handleMatchingSuccessFinal(socket, io) {
-    log.info(`Received 'matching-success-final' from socketId:${socket.id}`, socket);
-
     const receiverSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
     if (!receiverSocket) {
-        log.warn(`Receiver socket not found for matchingTargetUuid:${socket.data.matching.matchingTargetUuid}`, socket);
+        log.warn(`# 27) Receiver socket not found for matchingTargetUuid: ${socket.data.matching.matchingTargetUuid}`, socket);
         return;
     }
 
     try {
         const result = await matchingSuccessApi(socket);
-        console.log(result);
         if (result) {
             socket.join("CHAT_" + result);
             receiverSocket.join("CHAT_" + result);
+            log.info(`# 27) ${socket.data.matching.matchingTargetUuid}, ${socket.data.matching.matchingUuid} joined chat room: CHAT_${result}`, socket);
             emitMatchingSuccess(socket, receiverSocket, result);
         }
     } catch (error) {
-        log.error(`matching-success-final : ${error.message}`, socket);
+        log.error(`#27) matching-success-final error: ${error.message}`, socket);
         handleSocketError(socket, error);
     }
 }
-
-
 
 module.exports = { handleMatchingFoundSuccess, handleMatchingSuccessReceiver, handleMatchingSuccessFinal };

@@ -10,20 +10,18 @@ const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
  * @returns {boolean} 중복 여부
  */
 function updatePriorityTree(socket, priorityList) {
-  log.debug(`#8 update my PriorityTree`, socket);
+  log.debug("# 8) update my PriorityTree", socket);
   if (!socket.data.matching.priorityTree) {
-    log.error("Priority tree not initialized", socket);
+    log.error("# 13) Priority tree not initialized", socket);
     return;
   }
-
-  log.debug("Updating priority tree", socket);
 
   // 내 소켓에 다른 사용자 우선순위 값 넣기
   for (const item of priorityList) {
     if (!socket.data.matching.priorityTree.contains(item.matchingUuid)) {
-      socket.data.matching.priorityTree.insert(item.matchingUuid, item.priorityValue);
+      socket.data.matching.priorityTree.insert(item.matchingUuid, item.priorityValue);    
     } else {
-      log.warn(`${item.matchingUuid} is already in priorityTree`, socket);
+      log.warn(`# 8) ${item.matchingUuid} is already in priorityTree`, socket);
     }
   }
 
@@ -32,13 +30,15 @@ function updatePriorityTree(socket, priorityList) {
     socket.data.matching.highestPriorityNode = socket.data.matching.priorityTree.getMax(socket.data.matching.priorityTree.root);
   }
 
-  log.debug(`Socket priority tree (sorted) sortedList:${JSON.stringify(socket.data.matching.priorityTree.getSortedList(), null, 2)}`, socket);
+  log.debug(`# 8) Socket priority tree (sorted): ${JSON.stringify(socket.data.matching.priorityTree.getSortedList(), null, 2)}`, socket);
 
   if (socket.data.matching.highestPriorityNode) {
     log.info(
-      `Highest priority member in tree matchingUuid: ${socket.data.matching.highestPriorityNode.matchingUuid}, priorityValue:${socket.data.matching.highestPriorityNode.priorityValue}`, socket);
+      `# 8) Highest priority member in tree: matchingUuid=${socket.data.matching.highestPriorityNode.matchingUuid}, priorityValue=${socket.data.matching.highestPriorityNode.priorityValue}`,
+      socket
+    );
   } else {
-    log.info("No highest priority node found", socket);
+    log.info("# 8) No highest priority node found", socket);
   }
 }
 
@@ -49,13 +49,13 @@ function updatePriorityTree(socket, priorityList) {
  * @param {*} otherPriorityList
  */
 async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
-  log.debug(`#9 update other PriorityTrees in room`, socket);
+  log.debug("# 9) update other PriorityTrees in room", socket);
   for (const item of otherPriorityList) {
     const otherSocket = await getSocketIdByMatchingUuid(io, item.matchingUuid);
 
     if (otherSocket) {
       if (!otherSocket.data.matching.priorityTree) {
-        log.error(`this socket has no priority tree`, otherSocket);
+        log.error("# 9) This socket has no priority tree", otherSocket);
         return;
       }
 
@@ -71,11 +71,11 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
         otherSocket.data.matching.highestPriorityNode = otherSocket.data.matching.priorityTree.getMax(otherSocket.data.matching.priorityTree.root);
       }
       
-      if (otherSocket.data.matching.highestPriorityNode) {
-        log.info("Other socket's highest priority member", otherSocket);
-      } else {
-        log.info("No highest priority node found", otherSocket);
+      if (otherSocket.data.matching.highestPriorityNode){
+        log.info("# 9) No highest priority node found in other socket", otherSocket);
       }
+    } else {
+      log.warn(`# 9) Other socket not found for matchingUuid: ${item.matchingUuid}`, socket);
     }
   }
 }
@@ -87,11 +87,11 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
  * @param {*} threshold
  */
 async function findMatching(socket, io, threshold) {
-  log.debug(`#10 find socket exceeds threshold`, socket);
+  log.debug("# 10) find socket exceeds threshold", socket);
   const matchingUuid = socket.data.matching.matchingUuid;
 
   if (!socket.data.matching.highestPriorityNode) {
-    log.warn("No highest priority node found for socket", socket);
+    log.warn("# 10) No highest priority node found for socket", socket);
     return null;
   }
 
@@ -99,28 +99,31 @@ async function findMatching(socket, io, threshold) {
     const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.highestPriorityNode.matchingUuid);
 
     if (otherSocket) {
-      log.debug(`Found other socket with priority exceeding value ${otherSocket.memberId} `, socket);
-
       const node = otherSocket.data.matching.priorityTree.getNode(matchingUuid);
 
-      // otherSocket이 highestPriorityNode가 없는 경우
+      // otherSocket이 내 매칭 정보에 대한 노드를 가지고 있지 않은 경우
       if (!node) { 
-        log.warn(`Other socket has no priority node about ${matchingUuid}`, otherSocket);
+        log.warn(`# 10) Other socket (memberId: ${otherSocket.memberId}) has no priority node for matchingUuid: ${matchingUuid}`, otherSocket);
         return null;
       }
 
       // 해당 otherSocket의 내 매칭 정보에 대한 priorityValue가 threshold를 넘을 경우
       if (node.priorityValue >= threshold) { 
+        log.info(`# 10) Matching found with socket memberId: ${otherSocket.memberId} meeting threshold ${threshold}`, socket);
         return otherSocket;
+      } else {
+        log.debug(`# 10) Priority value ${node.priorityValue} is below threshold ${threshold} for socket memberId: ${otherSocket.memberId}`, socket);
+        break;
       }
 
     } else {
-      log.warn("Could not find other socket by matchingUuid", socket);
+      log.warn("# 10) Could not find other socket by matchingUuid", socket);
       return null;
     }
   }
+  log.info("# 10) No matching socket found that meets the threshold", socket);
+  return null;
 }
-
 
 /**
  * API 응답 에러 처리
@@ -168,29 +171,30 @@ function getUsersInRoom(io, room) {
  * @param {*} roomName
  */
 function deleteMySocketFromMatching(socket, io, roomName) {
-  // 14) 소켓 룸에서 제거
+  // 16) 매칭 room에서 제거
   socket.leave(roomName);
+  log.info(`# 16) Socket ${socket.id} left room: ${roomName}`, socket);
 
-  // 15) priorityTree에서 삭제
+  // 17) 모든 소켓의 priorityTree에서 두 소켓 제거
   const room = io.sockets.adapter.rooms.get(roomName);
 
   if (room) {
-      // 룸에 있는 각 소켓에 대해 콜백 함수 실행
       room.forEach((socketId) => {
           const roomSocket = io.sockets.sockets.get(socketId);
           if (roomSocket) {
-              // roomSocket의 priorityTree에서 socket의 값을 지우기
               roomSocket.data.matching.priorityTree.removeBymatchingUuid(socket.data.matching.matchingUuid);
+              log.debug(`# 17) Removed matchingUuid: ${socket.data.matching.matchingUuid} from socket ${roomSocket.id}'s priority tree`, roomSocket);
           }
       });
   } else {
-      log.warn(`Room ${roomName} does not exist or is empty`, socket);
+      log.warn(`# 16) Room ${roomName} does not exist or is empty`, socket);
   }
 
-  // 16) 나의 priorityTree 삭제
+  // 18) priorityTree 삭제
   socket.data.matching.priorityTree.clear();
+  log.info(`# 18) Cleared priority tree for socket ${socket.id}`, socket);
 
-  // 나의 highestPriorityNode 삭제
+  // 18) highestPriorityNode 삭제
   socket.data.matching.highestPriorityNode = null;
 }
 

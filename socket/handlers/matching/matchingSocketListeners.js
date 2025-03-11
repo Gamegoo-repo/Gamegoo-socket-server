@@ -2,7 +2,6 @@ const { handleMatchingRequest, handleMatchingRetry } = require("./matchingHandle
 const { handleMatchingFoundSuccess, handleMatchingSuccessReceiver, handleMatchingSuccessFinal } = require("./matchingHandler/matchingSuccessHandler");
 const {handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit} = require("./matchingHandler/matchingFailHandler");
 
-
 /**
  * Socket 이벤트 리스너 등록
  */
