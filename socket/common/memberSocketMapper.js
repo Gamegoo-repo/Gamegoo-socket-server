@@ -11,8 +11,8 @@ async function getSocketIdsByMemberIds(io, memberIdList) {
   try {
     const connectedSockets = await io.fetchSockets();
     for (const connSocket of connectedSockets) {
-      if (memberIdList.includes(connSocket.data.matching.memberId)) {
-        socketIdList.push({ socketId: connSocket.id, memberId: connSocket.data.matching.memberId });
+      if (memberIdList.includes(connSocket.memberId)) {
+        socketIdList.push({ socketId: connSocket.id, memberId: connSocket.memberId });
       }
     }
 
@@ -33,7 +33,6 @@ async function getSocketIdByMemberId(io, memberId) {
     const connectedSockets = await io.fetchSockets();
 
     for (const connSocket of connectedSockets) {
-      console.log(connSocket.memberId);
       if (memberId == connSocket.memberId) {
         return connSocket;
       }
@@ -60,10 +59,9 @@ async function getSocketIdByMatchingUuid(io, matchingUuid) {
         return connSocket;
       }
     }
-    console.log(`getSocketIdByMemberId - No matching socket found for matchingUuid:${matchingUuid}`);
     return null;
   } catch (error) {
-    console.log(error);
+    log.error(error);
   }
 }
 
