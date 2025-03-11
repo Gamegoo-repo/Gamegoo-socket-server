@@ -91,6 +91,10 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
 
+    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
+    clearTimeout(timers.matchingRetryCallback);
+    delete timers.matchingRetryCallback;
+    
     // state에 저장
     state.matchingUuid = request.data.receiverMatchingUuid;
 
