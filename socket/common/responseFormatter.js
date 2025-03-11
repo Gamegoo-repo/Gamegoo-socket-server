@@ -1,3 +1,4 @@
+
 /**
  * socket event 응답을 포맷팅하는 메소드
  * @param {*} eventName

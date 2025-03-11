@@ -16,8 +16,8 @@ function emitMatchingStarted(socket, myMatchingInfo) {
  * @param {*} socket
  * @param {*} targetMatchingInfo
  */
-function emitMatchingFoundReceiver(socket, targetMatchingInfo) {
-  socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo));
+function emitMatchingFoundReceiver(socket, targetMatchingInfo, myMatchingUuid) {
+  socket.emit("matching-found-receiver", formatResponse("matching-found-receiver", targetMatchingInfo, myMatchingUuid));
   log.emit("matching-found-receiver", socket, `target matching info: ${JSON.stringify(targetMatchingInfo)}`);
 }
 
@@ -51,6 +51,10 @@ function emitMatchingSuccess(senderSocket, receiverSocket, chatroomUuid) {
   log.emit("matching-success", receiverSocket, `chatroomUuid: ${chatroomUuid}`);
 }
 
+/**
+ * 매칭 실패 전달
+ * @param {*} socket 
+ */
 function emitMatchingFail(socket) {
   const myMatchingInfo = socket.myMatchingInfo;
   socket.emit("matching-fail", formatResponse("matching-fail", { myMatchingInfo }));

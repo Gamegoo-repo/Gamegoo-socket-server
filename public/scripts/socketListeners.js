@@ -13,6 +13,15 @@ import {
   handleTestMatchingChattingSuccess,
 } from "./socketEventHandlers.js";
 
+import {
+  handleMatchingStarted,
+  handleMatchingFoundReceiver,
+  handleMatchingFoundSender,
+  handleMatchingSuccessSender,
+  handleMatchingSuccess,
+  handleMatchingFail
+} from "./matching/matchingSocketEventHandlers.js"
+
 /**
  * socket event listener 등록
  * @param {*} socket
@@ -42,4 +51,17 @@ export function setupSocketListeners(socket, state) {
   socket.on("manner-system-message", (data) => handleMannerSystemMessage(state, data));
 
   socket.on("test-matching-chatting-success", (data) => handleTestMatchingChattingSuccess(state, data));
+
+  // 매칭
+  socket.on("matching-started",(data)=>handleMatchingStarted(socket,state,data));
+
+  socket.on("matching-found-receiver",(data)=>handleMatchingFoundReceiver(socket,state,data));
+
+  socket.on("matching-found-sender",(data)=>handleMatchingFoundSender(socket,state,data));
+
+  socket.on("matching-success-sender",(data)=>handleMatchingSuccessSender());
+
+  socket.on("matching-success",(data)=>handleMatchingSuccess(data));
+
+  socket.on("matching-fail",(data)=>handleMatchingFail(socket,data));
 }

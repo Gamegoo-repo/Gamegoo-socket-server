@@ -1,11 +1,12 @@
 import { setupSocketEmitters } from "./socketEmitters.js";
 import { setupSocketListeners } from "./socketListeners.js";
 
-let socket;
+export let socket;
 // 전역 상태 객체
 export const state = {
   socketId: null,
   memberId: null, // 이 사용자의 memberId
+  matchingUuid: null,
   onlineFriendMemberIdList: [], // 현재 온라인인 친구의 memberId
   currentChattingMemberId: null, // 현재 이 사용자가 보고 있는 채팅방의 상대 memberId
   currentViewingChatroomUuid: null, // 현재 이 사용자가 보고 있는 채팅방의 uuid
