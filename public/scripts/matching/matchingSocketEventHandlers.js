@@ -39,9 +39,9 @@ export function handleMatchingStarted(socket, state, request) {
     renderMyMatchingData(request.data);
 
     // 30초 후 매칭 확인 및 5분 동안 30초마다 threshold 낮춰 재시도 로직 추가
-    let threshold = 45;
+    let threshold = 20;
     let retryCount = 0;
-    let maxRetries = 10; // 30초마다 실행되므로 5분(10번) 동안 실행
+    let maxRetries = 10;
 
     function matchingRetryLoop() {
         if (isMatchingSuccessSenderArrived) {

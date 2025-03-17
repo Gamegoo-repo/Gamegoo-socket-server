@@ -1,7 +1,7 @@
 import { socket, state } from "../socket.js";
 
 matchButton.addEventListener("click", () => {
-  console.log("matching-request");
+  console.log("matching-request");        
   
   const matchingType = document.getElementById("matching-type").value;
   const gameMode = document.getElementById("game-mode").value;
@@ -14,7 +14,7 @@ matchButton.addEventListener("click", () => {
   const gameStyle2 = Number(document.getElementById("gameStyle2").value);
   const gameStyle3 = Number(document.getElementById("gameStyle3").value);
   const memberId = state.memberId;
-  const threshold = 20;
+  const threshold = 30;
 
   // 요청 객체 생성
   const request = {
