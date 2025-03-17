@@ -39,9 +39,9 @@ export function handleMatchingStarted(socket, state, request) {
     renderMyMatchingData(request.data);
 
     // 30초 후 매칭 확인 및 5분 동안 30초마다 threshold 낮춰 재시도 로직 추가
-    let threshold = 45;
+    let threshold = 20;
     let retryCount = 0;
-    let maxRetries = 10; // 30초마다 실행되므로 5분(10번) 동안 실행
+    let maxRetries = 10;
 
     function matchingRetryLoop() {
         if (isMatchingSuccessSenderArrived) {
@@ -52,7 +52,7 @@ export function handleMatchingStarted(socket, state, request) {
 
         if (retryCount < maxRetries) {
             console.log(`⏳ ${retryCount + 1}번째 매칭 재시도 - 현재 threshold: ${threshold}`);
-            socket.emit("matching-retry", { priority: threshold });
+            socket.emit("matching-retry", { threshold : threshold });
             threshold = Math.max(0, threshold - 1.5); // threshold를 1.5씩 낮춤, 최소 0까지 가능
             retryCount++;
         } else {
@@ -86,7 +86,7 @@ export function handleMatchingStarted(socket, state, request) {
  * @param {*} request 
  */
 export function handleMatchingFoundReceiver(socket, state, request) {
-    alert("✅ MATCHING FOUND!");
+    console.log("✅ MATCHING FOUND!");
     isMatchingSuccessSenderArrived = true; // 매칭 성공 플래그 업데이트
     clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
@@ -143,7 +143,7 @@ export function handleMatchingFoundReceiver(socket, state, request) {
  * @param {*} request 
  */
 export function handleMatchingFoundSender(socket, state, request) {
-    alert("✅ MATCHING FOUND!");
+    console.log("✅ MATCHING FOUND!");
 
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
