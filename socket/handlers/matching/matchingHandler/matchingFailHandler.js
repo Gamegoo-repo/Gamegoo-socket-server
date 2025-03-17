@@ -88,6 +88,7 @@ async function handleMatchingQuit(socket, io) {
     }
 
     deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
+    socket.data.matching=null;
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };
