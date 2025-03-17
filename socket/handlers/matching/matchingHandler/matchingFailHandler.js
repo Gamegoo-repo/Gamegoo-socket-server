@@ -36,13 +36,25 @@ async function handleMatchingReject(socket, io) {
     socket.data.matching.matchingTargetUuid = null;
 }
 
-// TODO: 
 /**
  * # 3-13. "matching-not-found"
  * @param {*} socket 
  */
-async function handleMatchingNotFound(socket) {
+async function handleMatchingNotFound(socket,io) {
+    log.info(`matching-not-found`, socket);
 
+    if (socket.data.matching.gameMode) {
+        try {
+            await updateMatchingStatusApi(socket, "FAIL");
+        } catch (error) {
+            log.error(`matching-not-found : ${error.message}`, socket);
+            handleSocketError(socket, error);
+            return;
+        }
+    }
+
+    deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
+    socket.data.matching=null;
 }
 
 // TODO: 
