@@ -9,7 +9,7 @@ function setupMatchSocketListeners(socket, io) {
   socket.on("matching-request", (request) => handleMatchingRequest(socket, io, request));
   socket.on("matching-retry", (request) => handleMatchingRetry(socket, io, request));
   socket.on("matching-found-success", (request) => handleMatchingFoundSuccess(socket, io, request));
-  socket.on("matching-success-receiver", (request) => handleMatchingSuccessReceiver(io, request));
+  socket.on("matching-success-receiver", (request) => handleMatchingSuccessReceiver(socket,io, request));
   socket.on("matching-success-final", () => handleMatchingSuccessFinal(socket, io));
   socket.on("matching-not-found", () => handleMatchingNotFound(socket, io));
   socket.on("matching-reject", () => handleMatchingReject(socket, io));
