@@ -17,4 +17,4 @@ function setupMatchSocketListeners(socket, io) {
   socket.on("matching-quit", () => handleMatchingQuit(socket, io));
 }
 
-module.exports = { setupMatchSocketListeners };
+module.exports = { setupMatchSocketListeners };   

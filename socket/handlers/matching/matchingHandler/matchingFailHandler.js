@@ -5,42 +5,43 @@ const { deleteMySocketFromMatching } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
 
 const {
-  emitMatchingFail,
+    emitMatchingFail,
 } = require("../../../emitters/matchingEmitter");
 
-// TODO: 
 /**
  * # 4-27, 5-25. "matching-reject"
  * @param {*} socket 
  * @param {*} io 
  */
 async function handleMatchingReject(socket, io) {
-    log.info(`Received 'matching-reject' from socketId:${socket.id}`);
 
+    // matching target socket
     const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
+
+    // 28. 매칭 status 변경
     if (socket.data.matching.gameMode) {
         try {
-            await updateBothMatchingStatusApi(socket, "FAIL", socket.data.matching.matchingTargetUuid);
+            await updateMatchingStatusApi(socket, "FAIL");
         } catch (error) {
             log.error(`matching-reject : ${error.message}`, socket);
             handleSocketError(socket, error);
         }
     }
 
+    // 30. "matching-fail" emit
     if (otherSocket) {
         emitMatchingFail(otherSocket);
-        otherSocket.data.matching.matchingTargetUuid = null;
     }
 
-    emitMatchingFail(socket);
-    socket.data.matching.matchingTargetUuid = null;
+    // 31. matching 관련 데이터 전부 초기화
+    socket.data.matching = null;
 }
 
 /**
  * # 3-13. "matching-not-found"
  * @param {*} socket 
  */
-async function handleMatchingNotFound(socket,io) {
+async function handleMatchingNotFound(socket, io) {
     log.info(`matching-not-found`, socket);
 
     if (socket.data.matching.gameMode) {
@@ -54,18 +55,17 @@ async function handleMatchingNotFound(socket,io) {
     }
 
     deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
-    socket.data.matching=null;
+    socket.data.matching = null;
 }
 
-// TODO: 
 /**
  * "matching-fail"
  * @param {*} socket 
  * @returns 
  */
 async function handleMatchingFail(socket) {
-    log.info(`matching fail`, socket);
 
+    // 매칭 status 변경
     if (socket.data.matching.gameMode) {
         try {
             await updateMatchingStatusApi(socket, "FAIL");
@@ -76,8 +76,8 @@ async function handleMatchingFail(socket) {
         }
     }
 
-    socket.data.matching.matchingTargetUuid = null;
-    emitMatchingFail(socket);
+    // 매칭 관련 데이터 초기화
+    socket.data.matching = null;
 }
 
 /**
@@ -100,7 +100,7 @@ async function handleMatchingQuit(socket, io) {
     }
 
     deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
-    socket.data.matching=null;
+    socket.data.matching = null;
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };

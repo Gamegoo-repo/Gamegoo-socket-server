@@ -72,6 +72,7 @@ export function handleMatchingStarted(socket, state, request) {
     timers.matchingNotFoundCallback = setTimeout(() => {
         console.log("❌ 5분 경과 - 매칭 실패");
         clearInterval(timers.matchingRetryInterval);
+        timers.matchingRetryInterval=null;
         socket.emit("matching-not-found");
 
         alert("매칭을 찾을 수 없습니다.");
@@ -90,6 +91,8 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     isMatchingSuccessSenderArrived = true; // 매칭 성공 플래그 업데이트
     clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
+    delete timers.matchingRetryInterval;
+    delete timers.matchingNotFoundCallback;
 
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
@@ -121,7 +124,7 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     updateRightSide(request.data.senderMatchingInfo);
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
-    startRetryCountdown();
+    startRetryCountdown(socket,timers);
 
     // quit 제대로 동작하는지 확인하기 위한 버튼
     const quitButton = document.querySelector(".quit-button");
@@ -178,7 +181,7 @@ export function handleMatchingFoundSender(socket, state, request) {
     updateRightSide(request.data);
 
     // 매칭 나가기 버튼 활성화 및 10초 카운트다운
-    startRetryCountdown();
+    startRetryCountdown(socket,timers);
 
     // quit 제대로 동작하는지 확인하기 위한 버튼
     const quitButton = document.querySelector(".quit-button");
@@ -230,9 +233,8 @@ export function handleMatchingFail(socket, request) {
         delete timers[timer];
     });
 
-    alert("매칭이 실패했습니다!!");
-
-    console.log(request.data.myMatchingInfo);
+    console.log("❌ MATCHING FAIL");
+    socket.emit("matching-fail");
 
 }
 
@@ -307,7 +309,7 @@ function updateRightSide(data) {
 }
 
 // 매칭 다시하기 버튼 보여주기 및 10초 카운트 다운
-function startRetryCountdown() {
+function startRetryCountdown(socket,timers) {
     const retryButton = document.querySelector(".retryButton");
     const retryTimerValue = document.getElementById("retryTimerValue");
 
@@ -316,7 +318,7 @@ function startRetryCountdown() {
 
     // 클릭되면 matching-fail emit
     retryButton.addEventListener("click", () => {
-        console.log("MATCHING_FAILED");
+        console.log("MATCHING_REJECT");
         socket.emit("matching-reject");
 
         Object.keys(timers).forEach(function (timer) {

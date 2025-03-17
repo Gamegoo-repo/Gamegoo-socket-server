@@ -56,7 +56,7 @@ function emitMatchingSuccess(senderSocket, receiverSocket, chatroomUuid) {
  * @param {*} socket 
  */
 function emitMatchingFail(socket) {
-  const myMatchingInfo = socket.myMatchingInfo;
+  const myMatchingInfo = socket.data.matching.myMatchingInfo;
   socket.emit("matching-fail", formatResponse("matching-fail", { myMatchingInfo }));
   log.emit("matching-fail", socket, `my matching info: ${JSON.stringify(myMatchingInfo)}`);
 }
