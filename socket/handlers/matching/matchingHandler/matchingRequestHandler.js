@@ -90,7 +90,24 @@ async function handleMatchingRequest(socket, io, request) {
  * @param {*} request 
  */
 async function handleMatchingRetry(socket, io, request) {
-    // TODO: matching-retry 로직에 맞춰 로깅 추가 예정
+    // 12) priorityTree의 maxNode가 기준 점수를 넘는지 확인
+    log.info("# 10 Finding matching receiver", socket);
+    const receiverSocket = await findMatching(socket, io, request.threshold);
+
+    if (receiverSocket && receiverSocket !== socket) {
+        // 13) receiverSocket이 매칭 room에 존재하는지 여부 확인
+        log.debug(`#11 receiverSocket memberId: ${receiverSocket.memberId} is in matching room`, socket);
+        isSocketActiveAndInRoom(receiverSocket, io, socket.data.matching.roomName);
+
+        const matchingFoundReceiverRequest = {};
+        matchingFoundReceiverRequest.senderMatchingInfo = socket.data.matching.myMatchingInfo;
+        matchingFoundReceiverRequest.receiverMatchingUuid = receiverSocket.data.matching.matchingUuid;
+
+        // 14) "matching-found-receiver" emit
+        emitMatchingFoundReceiver(receiverSocket, matchingFoundReceiverRequest);
+    } else {
+        log.warn("# 10) No matching receiver found or self-matching detected", socket);
+    }
 
 }
 
