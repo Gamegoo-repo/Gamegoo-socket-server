@@ -7,6 +7,7 @@ const {
     emitMatchingFoundSender,
     emitMatchingSuccessSender,
     emitMatchingSuccess,
+    emitMatchingFail,
 } = require("../../../emitters/matchingEmitter");
 
 /**
@@ -57,9 +58,15 @@ async function handleMatchingFoundSuccess(socket, io, request) {
  * @param {*} io 
  * @param {*} request 
  */
-async function handleMatchingSuccessReceiver(io, request) {
+async function handleMatchingSuccessReceiver(socket,io, request) {
     const senderSocket = await getSocketIdByMatchingUuid(io, request.senderMatchingUuid);
-    emitMatchingSuccessSender(senderSocket);
+    
+    // 상대방이 있을 경우
+    if(senderSocket){
+        emitMatchingSuccessSender(senderSocket);
+    } else{ //상대방이 나갔을 경우
+        emitMatchingFail(socket);
+    }
 }
 
 /**
