@@ -1,7 +1,7 @@
-const { updateMatchingStatusApi, updateBothMatchingStatusApi } = require("../../../apis/matchApi");
+const { updateMatchingStatusApi } = require("../../../apis/matchApi");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { handleSocketError } = require("./matchingManager");
-const { deleteMySocketFromMatching } = require("./matchingManager");
+const { deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
 
 const {
@@ -53,8 +53,10 @@ async function handleMatchingNotFound(socket, io) {
             return;
         }
     }
+    const roomName=socket.data.matching.roomName;
+    deleteMySocketFromMatching(socket, io,roomName);
+    getUserCountsInMatchingRoom(socket,io,roomName);
 
-    deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
     socket.data.matching = null;
 }
 
@@ -63,8 +65,7 @@ async function handleMatchingNotFound(socket, io) {
  * @param {*} socket 
  * @returns 
  */
-async function handleMatchingFail(socket) {
-
+async function handleMatchingFail(socket,io) {
     // 매칭 status 변경
     if (socket.data.matching.gameMode) {
         try {
@@ -75,6 +76,7 @@ async function handleMatchingFail(socket) {
             return;
         }
     }
+    getUserCountsInMatchingRoom(socket,io,socket.data.matching.roomName);
 
     // 매칭 관련 데이터 초기화
     socket.data.matching = null;
@@ -99,7 +101,10 @@ async function handleMatchingQuit(socket, io) {
         }
     }
 
-    deleteMySocketFromMatching(socket, io, socket.data.matching.roomName);
+    const roomName=socket.data.matching.roomName;
+    deleteMySocketFromMatching(socket, io,roomName);
+    getUserCountsInMatchingRoom(socket,io,roomName);
+
     socket.data.matching = null;
 }
 

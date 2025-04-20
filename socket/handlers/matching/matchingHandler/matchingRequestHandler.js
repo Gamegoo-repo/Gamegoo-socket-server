@@ -48,8 +48,8 @@ async function handleMatchingRequest(socket, io, request) {
             // 7) "matching-started" emit
             emitMatchingStarted(socket, result.myMatchingInfo);
 
-            // TODO: matching-count emit
-            getUserCountsInMatchingRoom(socket,io,roomName);
+            // matching-count emit
+            getUserCountsInMatchingRoom(socket, io, roomName);
 
             log.info(`# 8) myPriorityList : ${JSON.stringify(result.myPriorityList)}`, socket);
 
@@ -58,7 +58,7 @@ async function handleMatchingRequest(socket, io, request) {
 
             // 9) room에 있는 모든 socket의 우선순위 트리 갱신
             await updateOtherPriorityTrees(io, socket, result.otherPriorityList);
-            log.info("# 9) Updated other sockets' priority trees", socket);                                                    
+            log.info("# 9) Updated other sockets' priority trees", socket);
         }
 
         // 10) priorityTree의 maxNode가 기준 점수를 넘는지 확인
@@ -73,6 +73,8 @@ async function handleMatchingRequest(socket, io, request) {
             const matchingFoundReceiverRequest = {};
             matchingFoundReceiverRequest.senderMatchingInfo = socket.data.matching.myMatchingInfo;
             matchingFoundReceiverRequest.receiverMatchingUuid = receiverSocket.data.matching.matchingUuid;
+
+            getUserCountsInMatchingRoom(socket, io, roomName);
 
             // 12) "matching-found-receiver" emit
             emitMatchingFoundReceiver(receiverSocket, matchingFoundReceiverRequest);
@@ -95,8 +97,20 @@ async function handleMatchingRequest(socket, io, request) {
 async function handleMatchingRetry(socket, io, request) {
     // 12) priorityTree의 maxNode가 기준 점수를 넘는지 확인
     log.info("# 10 Finding matching receiver", socket);
-    const receiverSocket = await findMatching(socket, io, request.threshold);
 
+    // socket 유효성 확인
+    if ( !socket.data || !socket.data.matching) {
+        log.warn("# 10) Invalid socket context in handleMatchingRetry", socket);
+        return;
+    }
+
+    let receiverSocket;
+    try {
+        receiverSocket = await findMatching(socket, io, request.threshold);
+    } catch (e) {
+        log.error("# 10) Error in findMatching", socket, e);
+        return;
+    }
     if (receiverSocket && receiverSocket !== socket) {
         // 13) receiverSocket이 매칭 room에 존재하는지 여부 확인
         log.debug(`#11 receiverSocket memberId: ${receiverSocket.memberId} is in matching room`, socket);

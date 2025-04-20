@@ -94,10 +94,6 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
     delete timers.matchingRetryInterval;
     delete timers.matchingNotFoundCallback;
-
-    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
-    clearTimeout(timers.matchingRetryCallback);
-    delete timers.matchingRetryCallback;
     
     // state에 저장
     state.matchingUuid = request.data.receiverMatchingUuid;
@@ -133,6 +129,10 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
+        clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
+        clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
+        delete timers.matchingRetryInterval;
+        delete timers.matchingNotFoundCallback;
         socket.emit("matching-quit");
     });
 
@@ -149,10 +149,8 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 export function handleMatchingFoundSender(socket, state, request) {
     console.log("✅ MATCHING FOUND!");
 
-    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
-    clearTimeout(timers.matchingRetryCallback);
-    delete timers.matchingRetryCallback;
-    clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
+    // 매칭 재시도 타이머 중지
+    clearInterval(timers.matchingRetryInterval); 
     delete timers.matchingRetryInterval;
 
     // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
@@ -192,6 +190,7 @@ export function handleMatchingFoundSender(socket, state, request) {
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
+        
         socket.emit("matching-quit");
 
     });

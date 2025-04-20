@@ -13,7 +13,7 @@ function setupMatchSocketListeners(socket, io) {
   socket.on("matching-success-final", () => handleMatchingSuccessFinal(socket, io));
   socket.on("matching-not-found", () => handleMatchingNotFound(socket, io));
   socket.on("matching-reject", () => handleMatchingReject(socket, io));
-  socket.on("matching-fail", () => handleMatchingFail(socket));
+  socket.on("matching-fail", () => handleMatchingFail(socket, io));
   socket.on("matching-quit", () => handleMatchingQuit(socket, io));
 }
 
