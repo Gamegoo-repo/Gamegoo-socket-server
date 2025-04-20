@@ -19,7 +19,8 @@ import {
   handleMatchingFoundSender,
   handleMatchingSuccessSender,
   handleMatchingSuccess,
-  handleMatchingFail
+  handleMatchingFail,
+  handleMatchingCount
 } from "./matching/matchingSocketEventHandlers.js"
 
 /**
@@ -64,4 +65,6 @@ export function setupSocketListeners(socket, state) {
   socket.on("matching-success",(data)=>handleMatchingSuccess(data));
 
   socket.on("matching-fail",(data)=>handleMatchingFail(socket,data));
+
+  socket.on("matching-count",(data)=>handleMatchingCount(state,data));
 }

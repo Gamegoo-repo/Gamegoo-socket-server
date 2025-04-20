@@ -1,5 +1,5 @@
 const { fetchMatchingApi } = require("../../../apis/matchApi");
-const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching } = require("./matchingManager");
+const { updateOtherPriorityTrees, updatePriorityTree, handleSocketError, joinGameModeRoom, findMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
 const { isSocketActiveAndInRoom } = require("./matchingCommonHandler");
 const { emitError } = require("../../../emitters/errorEmitter");
 const log = require("../../../../common/customLogger");
@@ -47,6 +47,9 @@ async function handleMatchingRequest(socket, io, request) {
 
             // 7) "matching-started" emit
             emitMatchingStarted(socket, result.myMatchingInfo);
+
+            // TODO: matching-count emit
+            getUserCountsInMatchingRoom(socket,io,roomName);
 
             log.info(`# 8) myPriorityList : ${JSON.stringify(result.myPriorityList)}`, socket);
 

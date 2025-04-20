@@ -13,6 +13,7 @@ export function handleMatchingStarted(socket, state, request) {
     console.log("MATCHING_STARTED");
 
     state.matchingUuid=request.data.matchingUuid;
+    state.tier=request.data.tier;
     console.log("memberId : ", state.memberId, "matchingUuid: ", state.matchingUuid);
 
     // 매칭중 화면 렌더링
@@ -236,6 +237,32 @@ export function handleMatchingFail(socket, request) {
     console.log("❌ MATCHING FAIL");
     socket.emit("matching-fail");
 
+}
+
+/**
+ * "matching-count"
+ * @param {*} socket 
+ * @param {*} request 
+ */
+export function handleMatchingCount(state, request) {
+    const data = request.data;
+    const userCount = data.userCount;
+    const tierCount = data.tierCount;
+    const myTier = state.tier;
+
+    // 총 유저 수 표시
+    const totalUserCountElement = document.getElementById("totalUserCount");
+    if (totalUserCountElement) {
+      totalUserCountElement.textContent = `현재 게임 모드에서 대기 중인 유저 수: ${userCount}명`;
+    }
+    // 내 티어에 해당하는 사용자 수 표시
+    console.log(tierCount);
+    const myTierCount = tierCount[myTier] ?? 0;
+    console.log(myTierCount);
+    const myTierUserCountElement = document.getElementById("TierUserCount");
+    if (myTierUserCountElement) {
+      myTierUserCountElement.textContent = `내 티어의 대기 중인 유저 수: ${myTierCount}명`;
+    }
 }
 
 // 타이머 업데이트
