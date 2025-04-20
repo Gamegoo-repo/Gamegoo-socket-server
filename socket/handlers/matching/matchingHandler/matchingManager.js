@@ -206,14 +206,10 @@ function deleteMySocketFromMatching(socket, io, roomName) {
  * @returns 
  */
 function getUserCountsInMatchingRoom(socket, io, roomName) {
-  log.debug(`# ) matching count start`, socket);
+  log.debug(`matching count start`, socket);
 
   // 매칭 룸 정보 얻기
   const room = io.sockets.adapter.rooms.get(roomName);
-  if (!room) {
-    log.warn(`# 16) Room ${roomName} does not exist or is empty`, socket);
-    return;
-  }
 
   // 각 티어별로 몇 명 있는지
   let userCountByTier = {
@@ -238,8 +234,6 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
       userCount++;
     }
   });
-  console.log(userCount);
-  console.log(userCountByTier);
 
   // 모든 사용자에게 같은 정보 브로드캐스트
   emitMatchingRoomStatus(io, roomName, userCount, userCountByTier);

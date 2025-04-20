@@ -74,8 +74,6 @@ async function handleMatchingRequest(socket, io, request) {
             matchingFoundReceiverRequest.senderMatchingInfo = socket.data.matching.myMatchingInfo;
             matchingFoundReceiverRequest.receiverMatchingUuid = receiverSocket.data.matching.matchingUuid;
 
-            getUserCountsInMatchingRoom(socket, io, roomName);
-
             // 12) "matching-found-receiver" emit
             emitMatchingFoundReceiver(receiverSocket, matchingFoundReceiverRequest);
         } else {

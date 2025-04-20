@@ -38,11 +38,11 @@ async function handleMatchingReject(socket, io) {
 }
 
 /**
- * # 3-13. "matching-not-found"
+ * "matching-not-found"
  * @param {*} socket 
  */
 async function handleMatchingNotFound(socket, io) {
-    log.info(`matching-not-found`, socket);
+    log.debug(`matching-not-found`, socket);
 
     if (socket.data.matching.gameMode) {
         try {
@@ -54,7 +54,7 @@ async function handleMatchingNotFound(socket, io) {
         }
     }
     const roomName=socket.data.matching.roomName;
-    deleteMySocketFromMatching(socket, io,roomName);
+    deleteMySocketFromMatching(socket, io,roomName);   
     getUserCountsInMatchingRoom(socket,io,roomName);
 
     socket.data.matching = null;
@@ -76,7 +76,6 @@ async function handleMatchingFail(socket,io) {
             return;
         }
     }
-    getUserCountsInMatchingRoom(socket,io,socket.data.matching.roomName);
 
     // 매칭 관련 데이터 초기화
     socket.data.matching = null;
