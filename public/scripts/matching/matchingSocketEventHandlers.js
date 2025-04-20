@@ -152,6 +152,8 @@ export function handleMatchingFoundSender(socket, state, request) {
     // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
     clearTimeout(timers.matchingRetryCallback);
     delete timers.matchingRetryCallback;
+    clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
+    delete timers.matchingRetryInterval;
 
     // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
     clearTimeout(timers.matchingNotFoundCallback);
