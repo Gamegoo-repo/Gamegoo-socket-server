@@ -61,6 +61,22 @@ function emitMatchingFail(socket) {
   log.emit("matching-fail", socket, `my matching info: ${JSON.stringify(myMatchingInfo)}`);
 }
 
+/**
+ * 매칭 룸 인원 수 및 티어별 인원수 브로드캐스트
+ * @param {*} io 
+ * @param {string} roomName 
+ * @param {number} totalCount 
+ * @param {object} userCountByTier 
+ */
+function emitMatchingRoomStatus(io, roomName, totalCount, userCountByTier) {
+
+  io.to(roomName).emit("matching-count", formatResponse("matching-count", {
+    userCount: totalCount,
+    tierCount: userCountByTier,
+  }));
+
+  log.emit("matching-count", roomName, `userCount: ${totalCount}, tierCount: ${JSON.stringify(userCountByTier)}`);
+}
 module.exports = {
   emitMatchingStarted,
   emitMatchingFoundReceiver,
@@ -68,4 +84,5 @@ module.exports = {
   emitMatchingSuccessSender,
   emitMatchingSuccess,
   emitMatchingFail,
+  emitMatchingRoomStatus
 };

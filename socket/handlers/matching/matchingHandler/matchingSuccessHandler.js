@@ -1,6 +1,6 @@
 const { matchingFoundApi, matchingSuccessApi } = require("../../../apis/matchApi");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
-const { handleSocketError, deleteMySocketFromMatching } = require("./matchingManager");
+const { handleSocketError, deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
 
 const {
@@ -11,13 +11,14 @@ const {
 } = require("../../../emitters/matchingEmitter");
 
 /**
- * # 1-13. "matching-found-receiver"
+ * # 1-13. "matching-found-success"
  * @param {*} socket 
  * @param {*} io 
  * @param {*} request 
  * @returns 
  */
 async function handleMatchingFoundSuccess(socket, io, request) {
+
     const matchingUuid = socket.data.matching.matchingUuid;
     const senderMatchingUuid = request.senderMatchingUuid;
     const senderSocket = await getSocketIdByMatchingUuid(io, senderMatchingUuid);
@@ -41,7 +42,8 @@ async function handleMatchingFoundSuccess(socket, io, request) {
     deleteMySocketFromMatching(socket, io, roomName);
     deleteMySocketFromMatching(senderSocket, io, roomName);
     log.info(`# 16~18) Deleted sockets from matching room: ${roomName}`, socket);
-
+    
+    getUserCountsInMatchingRoom(socket,io,roomName);
     try {
         const result = await matchingFoundApi(socket, matchingUuid, senderMatchingUuid);
         if (result) {

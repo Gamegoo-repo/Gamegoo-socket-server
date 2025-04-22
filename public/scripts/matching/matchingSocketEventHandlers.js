@@ -13,6 +13,7 @@ export function handleMatchingStarted(socket, state, request) {
     console.log("MATCHING_STARTED");
 
     state.matchingUuid=request.data.matchingUuid;
+    state.tier=request.data.tier;
     console.log("memberId : ", state.memberId, "matchingUuid: ", state.matchingUuid);
 
     // 매칭중 화면 렌더링
@@ -93,10 +94,6 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
     delete timers.matchingRetryInterval;
     delete timers.matchingNotFoundCallback;
-
-    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
-    clearTimeout(timers.matchingRetryCallback);
-    delete timers.matchingRetryCallback;
     
     // state에 저장
     state.matchingUuid = request.data.receiverMatchingUuid;
@@ -132,6 +129,10 @@ export function handleMatchingFoundReceiver(socket, state, request) {
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
+        clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
+        clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
+        delete timers.matchingRetryInterval;
+        delete timers.matchingNotFoundCallback;
         socket.emit("matching-quit");
     });
 
@@ -148,9 +149,9 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 export function handleMatchingFoundSender(socket, state, request) {
     console.log("✅ MATCHING FOUND!");
 
-    // 매칭 상대가 정해졌으므로, matchingRetry callback 취소
-    clearTimeout(timers.matchingRetryCallback);
-    delete timers.matchingRetryCallback;
+    // 매칭 재시도 타이머 중지
+    clearInterval(timers.matchingRetryInterval); 
+    delete timers.matchingRetryInterval;
 
     // 매칭 상대가 정해졌으므로, matchingNotFound callback 취소
     clearTimeout(timers.matchingNotFoundCallback);
@@ -189,6 +190,7 @@ export function handleMatchingFoundSender(socket, state, request) {
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
+        
         socket.emit("matching-quit");
 
     });
@@ -236,6 +238,32 @@ export function handleMatchingFail(socket, request) {
     console.log("❌ MATCHING FAIL");
     socket.emit("matching-fail");
 
+}
+
+/**
+ * "matching-count"
+ * @param {*} socket 
+ * @param {*} request 
+ */
+export function handleMatchingCount(state, request) {
+    const data = request.data;
+    const userCount = data.userCount;
+    const tierCount = data.tierCount;
+    const myTier = state.tier;
+
+    // 총 유저 수 표시
+    const totalUserCountElement = document.getElementById("totalUserCount");
+    if (totalUserCountElement) {
+      totalUserCountElement.textContent = `현재 게임 모드에서 대기 중인 유저 수: ${userCount}명`;
+    }
+    // 내 티어에 해당하는 사용자 수 표시
+    console.log(tierCount);
+    const myTierCount = tierCount[myTier] ?? 0;
+    console.log(myTierCount);
+    const myTierUserCountElement = document.getElementById("TierUserCount");
+    if (myTierUserCountElement) {
+      myTierUserCountElement.textContent = `내 티어의 대기 중인 유저 수: ${myTierCount}명`;
+    }
 }
 
 // 타이머 업데이트

@@ -2,7 +2,7 @@ const JWTTokenError = require("../../../../common/JWTTokenError");
 const log = require("../../../../common/customLogger");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
-
+const { emitMatchingRoomStatus } = require("../../../emitters/matchingEmitter");
 /**
  * 내 우선순위 트리 갱신
  * @param {*} socket
@@ -19,7 +19,7 @@ function updatePriorityTree(socket, priorityList) {
   // 내 소켓에 다른 사용자 우선순위 값 넣기
   for (const item of priorityList) {
     if (!socket.data.matching.priorityTree.contains(item.matchingUuid)) {
-      socket.data.matching.priorityTree.insert(item.matchingUuid, item.priorityValue);    
+      socket.data.matching.priorityTree.insert(item.matchingUuid, item.priorityValue);
     } else {
       log.warn(`# 8) ${item.matchingUuid} is already in priorityTree`, socket);
     }
@@ -70,8 +70,8 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
       if (otherSocket.data.matching.priorityTree.root) {
         otherSocket.data.matching.highestPriorityNode = otherSocket.data.matching.priorityTree.getMax(otherSocket.data.matching.priorityTree.root);
       }
-      
-      if (otherSocket.data.matching.highestPriorityNode){
+
+      if (otherSocket.data.matching.highestPriorityNode) {
         log.info("# 9) No highest priority node found in other socket", otherSocket);
       }
     } else {
@@ -102,13 +102,13 @@ async function findMatching(socket, io, threshold) {
       const node = otherSocket.data.matching.priorityTree.getNode(matchingUuid);
 
       // otherSocket이 내 매칭 정보에 대한 노드를 가지고 있지 않은 경우
-      if (!node) { 
+      if (!node) {
         log.warn(`# 10) Other socket (memberId: ${otherSocket.memberId}) has no priority node for matchingUuid: ${matchingUuid}`, otherSocket);
         return null;
       }
 
       // 해당 otherSocket의 내 매칭 정보에 대한 priorityValue가 threshold를 넘을 경우
-      if (node.priorityValue >= threshold) { 
+      if (node.priorityValue >= threshold) {
         log.info(`# 10) Matching found with socket memberId: ${otherSocket.memberId} meeting threshold ${threshold}`, socket);
         return otherSocket;
       } else {
@@ -179,15 +179,15 @@ function deleteMySocketFromMatching(socket, io, roomName) {
   const room = io.sockets.adapter.rooms.get(roomName);
 
   if (room) {
-      room.forEach((socketId) => {
-          const roomSocket = io.sockets.sockets.get(socketId);
-          if (roomSocket) {
-              roomSocket.data.matching.priorityTree.removeBymatchingUuid(socket.data.matching.matchingUuid);
-              log.debug(`# 17) Removed matchingUuid: ${socket.data.matching.matchingUuid} from socket ${roomSocket.id}'s priority tree`, roomSocket);
-          }
-      });
+    room.forEach((socketId) => {
+      const roomSocket = io.sockets.sockets.get(socketId);
+      if (roomSocket) {
+        roomSocket.data.matching.priorityTree.removeBymatchingUuid(socket.data.matching.matchingUuid);
+        log.debug(`# 17) Removed matchingUuid: ${socket.data.matching.matchingUuid} from socket ${roomSocket.id}'s priority tree`, roomSocket);
+      }
+    });
   } else {
-      log.warn(`# 16) Room ${roomName} does not exist or is empty`, socket);
+    log.warn(`# 16) Room ${roomName} does not exist or is empty`, socket);
   }
 
   // 18) priorityTree 삭제
@@ -198,11 +198,53 @@ function deleteMySocketFromMatching(socket, io, roomName) {
   socket.data.matching.highestPriorityNode = null;
 }
 
+/**
+ * 매칭 룸 사용자 수 emit
+ * @param {*} socket 
+ * @param {*} io 
+ * @param {*} roomName 
+ * @returns 
+ */
+function getUserCountsInMatchingRoom(socket, io, roomName) {
+  log.debug(`matching count start`, socket);
+
+  // 매칭 룸 정보 얻기
+  const room = io.sockets.adapter.rooms.get(roomName);
+
+  // 각 티어별로 몇 명 있는지
+  let userCountByTier = {
+    UNRANKED: 0, IRON: 0, BRONZE: 0, SILVER: 0, GOLD: 0,
+    PLATINUM: 0, EMERALD: 0, DIAMOND: 0, MASTER: 0,
+    GRANDMASTER: 0, CHALLENGER: 0,
+  };
+
+  // 매칭룸에 총 몇 명 있는지 
+  let userCount = 0;
+
+  // 사용자 수 갱신
+  room.forEach((socketId) => {
+    const roomSocket = io.sockets.sockets.get(socketId);
+    if (roomSocket) {
+      const tier = roomSocket.data?.matching?.myMatchingInfo?.tier;
+      if (tier && tier in userCountByTier) {
+        userCountByTier[tier]++;
+      } else {
+        log.warn(`Unknown or missing tier for socket ${socketId}`);
+      }
+      userCount++;
+    }
+  });
+
+  // 모든 사용자에게 같은 정보 브로드캐스트
+  emitMatchingRoomStatus(io, roomName, userCount, userCountByTier);
+}
+
 module.exports = {
   updatePriorityTree,
   updateOtherPriorityTrees,
   handleSocketError,
   joinGameModeRoom,
   findMatching,
-  deleteMySocketFromMatching
+  deleteMySocketFromMatching,
+  getUserCountsInMatchingRoom
 };

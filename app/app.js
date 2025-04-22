@@ -88,6 +88,12 @@ app.get("/match", (req, res) => {
                     <div class="timer">
                       <p><span id="timer-value" style="color: #6200ea;">0:00</span> / 5:00</p>
                     </div>
+                    <div class="matching-info">
+                      <p id="totalUserCount">현재 게임 모드에서 대기 중인 유저 수: 0명</p>
+                      <p id="TierUserCount"> 내 티어의 대기 중인 유저 수 : 0명</p>
+                      <ul id="tierUserCounts"></ul>
+                    </div>
+
                   </div>
                   <div class="match-content">
                     <div class="left-side">
