@@ -31,7 +31,6 @@ function handleApiError(error, url, socket, method) {
 async function fetchMatchingApi(socket, request) {
   const memberId = socket.memberId;
   const url = `${API_SERVER_URL}/api/v2/internal/matching/priority/${memberId}`;
-  const gameStyleIdList = [request.gameStyle1, request.gameStyle2, request.gameStyle3].filter(Boolean);
 
   const requestData = {
     gameMode: request.gameMode,
@@ -40,7 +39,7 @@ async function fetchMatchingApi(socket, request) {
     mainP: request.mainP,
     subP: request.subP,
     wantP: request.wantP,
-    gameStyleIdList: gameStyleIdList,
+    gameStyleIdList: request.gameStyleIdList,
   };
 
   try {
