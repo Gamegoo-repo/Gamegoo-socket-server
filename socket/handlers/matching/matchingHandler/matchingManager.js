@@ -220,6 +220,10 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
 
   // 매칭룸에 총 몇 명 있는지 
   let userCount = 0;
+  if (!room) {
+    log.warn(`# matchingRoom ${roomName} is undefined or empty`, socket);
+    return;
+  }
 
   // 사용자 수 갱신
   room.forEach((socketId) => {
