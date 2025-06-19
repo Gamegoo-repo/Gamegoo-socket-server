@@ -2,6 +2,7 @@ const { matchingFoundApi, matchingSuccessApi } = require("../../../apis/matchApi
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { handleSocketError, deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
+const { emitError } = require("../../../emitters/errorEmitter");
 
 const {
     emitMatchingFoundSender,
@@ -18,10 +19,15 @@ const {
  * @returns 
  */
 async function handleMatchingFoundSuccess(socket, io, request) {
-
     const matchingUuid = socket.data.matching.matchingUuid;
     const senderMatchingUuid = request.senderMatchingUuid;
     const senderSocket = await getSocketIdByMatchingUuid(io, senderMatchingUuid);
+    
+    if (matchingUuid === senderMatchingUuid) {
+        emitError(socket,`receiver와 sender의 matchingUuid가 동일합니다.`);
+        log.warn(`# 13) MatchingUuid and SenderMatchingUuid are the same: ${matchingUuid}`, socket);
+        return;
+    }
 
     log.debug(`Matching Uuid: ${matchingUuid}, Sender Matching Uuid: ${senderMatchingUuid}`, socket);
     if (senderSocket) {

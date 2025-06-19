@@ -88,7 +88,7 @@ export function handleMatchingStarted(socket, state, request) {
  * @param {*} request 
  */
 export function handleMatchingFoundReceiver(socket, state, request) {
-    console.log("✅ MATCHING FOUND!");
+    console.log("✅ MATCHING FOUND Receiver!");
     isMatchingSuccessSenderArrived = true; // 매칭 성공 플래그 업데이트
     clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
     clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
@@ -100,6 +100,8 @@ export function handleMatchingFoundReceiver(socket, state, request) {
 
     // 13) matching-found-success emit
     socket.emit("matching-found-success", { senderMatchingUuid: request.data.senderMatchingInfo.matchingUuid });
+    // socket.emit("matching-found-success", { senderMatchingUuid: state.matchingUuid });
+
 
     // 10초 타이머 시작, matchingSuccessReceiver call back
     const timeoutId = setTimeout(() => {
@@ -147,7 +149,7 @@ export function handleMatchingFoundReceiver(socket, state, request) {
  * @param {*} request 
  */
 export function handleMatchingFoundSender(socket, state, request) {
-    console.log("✅ MATCHING FOUND!");
+    console.log("✅ MATCHING FOUND Sender!");
 
     // 매칭 재시도 타이머 중지
     clearInterval(timers.matchingRetryInterval); 
