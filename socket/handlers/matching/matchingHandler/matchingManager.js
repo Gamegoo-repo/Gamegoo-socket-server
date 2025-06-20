@@ -210,6 +210,7 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
 
   // 매칭 룸 정보 얻기
   const room = io.sockets.adapter.rooms.get(roomName);
+  const gameMode = socket.data.matching.gameMode;
 
   // 각 티어별로 몇 명 있는지
   let userCountByTier = {
@@ -229,7 +230,14 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
   room.forEach((socketId) => {
     const roomSocket = io.sockets.sockets.get(socketId);
     if (roomSocket) {
-      const tier = roomSocket.data?.matching?.myMatchingInfo?.tier;
+  
+      let tier;
+      if(gameMode=="FREE"){
+        tier = roomSocket.data?.matching?.myMatchingInfo?.freeTier;
+      }else{
+        tier = roomSocket.data?.matching?.myMatchingInfo?.soloTier;
+      }
+    
       if (tier && tier in userCountByTier) {
         userCountByTier[tier]++;
       } else {
@@ -237,6 +245,7 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
       }
       userCount++;
     }
+    console.log(userCountByTier);
   });
 
   // 모든 사용자에게 같은 정보 브로드캐스트

@@ -13,7 +13,12 @@ export function handleMatchingStarted(socket, state, request) {
     console.log("MATCHING_STARTED");
 
     state.matchingUuid=request.data.matchingUuid;
-    state.tier=request.data.tier;
+    state.soloTier=request.data.soloTier;
+    state.soloRank=request.data.soloRank;
+    state.freeTier=request.data.freeTier;
+    state.freeRank=request.data.freeRank;
+    state.gameMode=request.data.gameMode;
+
     console.log("memberId : ", state.memberId, "matchingUuid: ", state.matchingUuid);
 
     // 매칭중 화면 렌더링
@@ -37,6 +42,7 @@ export function handleMatchingStarted(socket, state, request) {
     searchingTimerInterval = setInterval(updateTimer, 1000); // 1초마다 updateTimer 실행
 
     // 내 매칭 요청 정보 렌더링
+    console.log("request.data : ",request.data);
     renderMyMatchingData(request.data);
 
     // 30초 후 매칭 확인 및 5분 동안 30초마다 threshold 낮춰 재시도 로직 추가
@@ -251,17 +257,23 @@ export function handleMatchingCount(state, request) {
     const data = request.data;
     const userCount = data.userCount;
     const tierCount = data.tierCount;
-    const myTier = state.tier;
+    let myTier=state.soloTier;
+    if(state.gameMode=="FREE"){
+        myTier=state.freeTier;
+    }
 
+    console.log(myTier);
+    console.log(tierCount);
+    console.log(request);
     // 총 유저 수 표시
     const totalUserCountElement = document.getElementById("totalUserCount");
     if (totalUserCountElement) {
       totalUserCountElement.textContent = `현재 게임 모드에서 대기 중인 유저 수: ${userCount}명`;
     }
     // 내 티어에 해당하는 사용자 수 표시
-    console.log(tierCount);
+    // console.log(tierCount);
     const myTierCount = tierCount[myTier] ?? 0;
-    console.log(myTierCount);
+    // console.log(myTierCount);
     const myTierUserCountElement = document.getElementById("TierUserCount");
     if (myTierUserCountElement) {
       myTierUserCountElement.textContent = `내 티어의 대기 중인 유저 수: ${myTierCount}명`;
@@ -288,7 +300,8 @@ function renderMyMatchingData(data) {
     // left-side 안에 있는 요소들을 선택
     document.querySelector(".left-side .user-nickname").textContent = data.gameName;
     document.querySelector(".left-side .user-tag").textContent = `#${data.tag}`;
-    document.querySelector(".left-side .user-rank").textContent = `${data.tier} ${data.rank}`;
+    document.querySelector(".left-side .user-soloRank").textContent = `${data.soloTier} ${data.soloRank}`;
+    document.querySelector(".left-side .user-freeRank").textContent = `${data.freeTier} ${data.freeRank}`;
     document.querySelector(".left-side .mike-status span").textContent = data.mike ? "ON" : "OFF";
 
     // 프로필 이미지 설정
@@ -313,12 +326,16 @@ function renderMyMatchingData(data) {
 // 상대 매칭 요청 데이터 렌더링 메소드
 function updateRightSide(data) {
     const rightSide = document.querySelector(".right-side");
-
+    console.log("HERE");
+    console.log(data);
     // 동적으로 생성할 새로운 HTML
     rightSide.innerHTML = `
       <h4 class="user-nickname">${data.gameName}</h4> <!-- 닉네임 -->
       <p class="user-tag">#${data.tag}</p> <!-- 태그 -->
-      <p class="user-rank">${data.tier} ${data.rank}</p> <!-- 등급 -->
+      <h4>solo</h4>
+      <p class="user-soloRank"> ${data.soloTier} ${data.soloRank}</p> <!-- 등급 -->
+      <h4>free</h4>
+      <p class="user-freeRank">${data.freeTier} ${data.freeRank}</p> <!-- 등급 -->
       <div class="profileImg">
         <img src="${data.profileImg}" alt="avatar" class="profile-img"> <!-- 아바타 -->
       </div>
