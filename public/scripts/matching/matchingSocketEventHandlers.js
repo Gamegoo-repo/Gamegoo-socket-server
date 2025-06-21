@@ -262,9 +262,6 @@ export function handleMatchingCount(state, request) {
         myTier=state.freeTier;
     }
 
-    console.log(myTier);
-    console.log(tierCount);
-    console.log(request);
     // 총 유저 수 표시
     const totalUserCountElement = document.getElementById("totalUserCount");
     if (totalUserCountElement) {
@@ -326,8 +323,7 @@ function renderMyMatchingData(data) {
 // 상대 매칭 요청 데이터 렌더링 메소드
 function updateRightSide(data) {
     const rightSide = document.querySelector(".right-side");
-    console.log("HERE");
-    console.log(data);
+
     // 동적으로 생성할 새로운 HTML
     rightSide.innerHTML = `
       <h4 class="user-nickname">${data.gameName}</h4> <!-- 닉네임 -->
