@@ -17,7 +17,6 @@ const {
  * @returns 
  */
 async function handleMatchingRequest(socket, io, request) {
-    console.log(request);
     const threshold = request.threshold;
     const gameMode = request.gameMode;
     socket.data.matching.gameMode = gameMode;

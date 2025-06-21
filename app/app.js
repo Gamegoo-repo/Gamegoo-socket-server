@@ -99,7 +99,8 @@ app.get("/match", (req, res) => {
                     <div class="left-side">
                       <h4 class="user-nickname"></h4> <!-- 닉네임 -->
                       <p class="user-tag"></p>
-                      <p class="user-rank"></p> <!-- 등급 -->
+                      <p class="user-soloRank"></p> <!-- 등급 -->
+                      <p class="user-freeRank"></p> <!-- 등급 -->
                       <div class="profileImg">
                         <img src="heart.png" alt="profile_img" class="profile-img"> <!-- 아바타 -->
                       </div>

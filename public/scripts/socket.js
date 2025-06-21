@@ -5,8 +5,12 @@ export let socket;
 // 전역 상태 객체
 export const state = {
   socketId: null,
-  memberId: null, // 이 사용자의 memberId
-  tier: null, // 이 사용자의 tier
+  memberId: null,
+  soloTier: null,
+  soloRank: null,
+  freeTier: null,
+  freeRank: null,
+  gameMode: null,
   matchingUuid: null,
   onlineFriendMemberIdList: [], // 현재 온라인인 친구의 memberId
   currentChattingMemberId: null, // 현재 이 사용자가 보고 있는 채팅방의 상대 memberId
