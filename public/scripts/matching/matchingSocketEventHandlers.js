@@ -307,7 +307,12 @@ function renderMyMatchingData(data) {
     // 포지션 설정
     document.querySelector(".left-side .main-position span").textContent = data.mainP;
     document.querySelector(".left-side .sub-position span").textContent = data.subP;
-    document.querySelector(".left-side .wanted-position span").textContent = data.wantP;
+    const wantPSpan = document.querySelector(".left-side .wanted-position span");
+    if (Array.isArray(data.wantP)) {
+        wantPSpan.textContent = data.wantP.join(", ");
+    } else {
+        wantPSpan.textContent = data.wantP ?? "";
+    }
 
     // 게임스타일 리스트 동적 생성
     const gameStleList = document.querySelector(".left-side #gamestyle-list");
@@ -328,9 +333,7 @@ function updateRightSide(data) {
     rightSide.innerHTML = `
       <h4 class="user-nickname">${data.gameName}</h4> <!-- 닉네임 -->
       <p class="user-tag">#${data.tag}</p> <!-- 태그 -->
-      <h4>solo</h4>
       <p class="user-soloRank"> ${data.soloTier} ${data.soloRank}</p> <!-- 등급 -->
-      <h4>free</h4>
       <p class="user-freeRank">${data.freeTier} ${data.freeRank}</p> <!-- 등급 -->
       <div class="profileImg">
         <img src="${data.profileImg}" alt="avatar" class="profile-img"> <!-- 아바타 -->
@@ -344,7 +347,7 @@ function updateRightSide(data) {
       <div class="positions">
         <div class="main-position">주 포지션: <span>${data.mainP}</span></div> <!-- 메인 포지션 -->
         <div class="sub-position">부 포지션: <span>${data.subP}</span></div> <!-- 서브 포지션 -->
-        <div class="wanted-position">내가 찾는 포지션: <span>${data.wantP}</span></div> <!-- 원하는 상대 포지션 -->
+        <div class="wanted-position">내가 찾는 포지션: <span>${Array.isArray(data.wantP) ? data.wantP.join(", ") : (data.wantP ?? "")}</span></div> <!-- 원하는 상대 포지션 -->
       </div>
   
       <button class="quit-button"> QUIT </button>
