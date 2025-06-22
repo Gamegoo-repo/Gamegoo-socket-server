@@ -1,14 +1,18 @@
 import { socket, state } from "../socket.js";
 
 matchButton.addEventListener("click", () => {
-  console.log("matching-request");
+  console.log("matching-request started");
 
   const matchingType = document.getElementById("matching-type").value;
   const gameMode = document.getElementById("game-mode").value;
   const mike = document.getElementById("mike").value;
   const mainP = document.getElementById("mainP").value;
   const subP = document.getElementById("subP").value;
-  const wantP = document.getElementById("wantP").value;
+  const wantP1 = document.getElementById("wantP1").value;
+  const wantP2 = document.getElementById("wantP2").value;
+  const wantP = [Number(wantP1), Number(wantP2)].filter(
+    (v) => !isNaN(v)
+  );
   const gameStyleIdList = [
     Number(document.getElementById("gameStyle1").value),
     Number(document.getElementById("gameStyle2").value),
@@ -32,4 +36,7 @@ matchButton.addEventListener("click", () => {
 
   // (#20-1) "matching-request" emit
   socket.emit("matching-request", request);
+
+  console.log("matching-request finished");
+
 });
