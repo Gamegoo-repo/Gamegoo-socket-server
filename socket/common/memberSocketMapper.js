@@ -37,7 +37,7 @@ async function getSocketIdByMemberId(io, memberId) {
         return connSocket;
       }
     }
-    console.log(`getSocketIdByMemberId - No matching socket found for memberId:${memberId}`);
+    log.warn(`getSocketIdByMemberId - No matching socket found for memberId: ${memberId}`,undefined);
     return null;
   } catch (error) {
     console.log(error);
@@ -59,6 +59,9 @@ async function getSocketIdByMatchingUuid(io, matchingUuid) {
         return connSocket;
       }
     }
+
+    // 찾는 matchingUuid에 해당하는 socket이 없을 경우 로그 출력
+    log.warn(`getSocketIdByMatchingUuid - No matching socket found for matchingUuid: ${matchingUuid}`, undefined);
     return null;
   } catch (error) {
     log.error(error);
