@@ -6,59 +6,61 @@ class CustomLogger {
   }
 
   info(message, socket) {
-    this.logger.info(message, { socketId: socket.id, memberId: socket.memberId });
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    this.logger.info(message, { socketId, memberId });
   }
 
   warn(message, socket) {
-    this.logger.warn(message, { socketId: socket.id, memberId: socket.memberId });
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    this.logger.warn(message, { socketId, memberId });
   }
 
   debug(message, socket) {
-    this.logger.debug(message, { socketId: socket.id, memberId: socket.memberId });
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    this.logger.debug(message, { socketId, memberId });
   }
 
   error(message, socket) {
-    this.logger.error(message, { socketId: socket.id, memberId: socket.memberId });
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    this.logger.error(message, { socketId, memberId });
   }
 
   http(method, uri, socket, message) {
-    if (typeof message === "undefined") {
-      const logMsg = `[${method}] ${uri}`;
-      this.logger.http(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    } else {
-      const logMsg = `[${method}] ${uri}  |  ${message}`;
-      this.logger.http(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    }
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    const logMsg = typeof message === "undefined" ? `[${method}] ${uri}` : `[${method}] ${uri}  |  ${message}`;
+    this.logger.http(logMsg, { socketId, memberId });
   }
 
   httpError(method, uri, socket, code, message) {
-    if (typeof message === "undefined") {
-      const logMsg = `[${method}] ${uri}  |  Request failed  |  ${code}`;
-      this.logger.error(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    } else {
-      const logMsg = `[${method}] ${uri}  |  Request failed  |  ${code}  |  ${message}`;
-      this.logger.error(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    }
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    const logMsg = typeof message === "undefined"
+      ? `[${method}] ${uri}  |  Request failed  |  ${code}`
+      : `[${method}] ${uri}  |  Request failed  |  ${code}  |  ${message}`;
+    this.logger.error(logMsg, { socketId, memberId });
   }
 
   emit(eventName, socket, message) {
-    if (typeof message === "undefined") {
-      const logMsg = `[EMIT] ${eventName}`;
-      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    } else {
-      const logMsg = `[EMIT] ${eventName}  |  ${message}`;
-      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    }
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    const logMsg = typeof message === "undefined"
+      ? `[EMIT] ${eventName}`
+      : `[EMIT] ${eventName}  |  ${message}`;
+    this.logger.info(logMsg, { socketId, memberId });
   }
 
   listen(eventName, socket, message) {
-    if (typeof message === "undefined") {
-      const logMsg = `[LISTEN] ${eventName}`;
-      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    } else {
-      const logMsg = `[LISTEN] ${eventName}  |  ${message}`;
-      this.logger.info(logMsg, { socketId: socket.id, memberId: socket.memberId });
-    }
+    const socketId = socket?.id ?? 'undefined';
+    const memberId = socket?.memberId ?? 'undefined';
+    const logMsg = typeof message === "undefined"
+      ? `[LISTEN] ${eventName}`
+      : `[LISTEN] ${eventName}  |  ${message}`;
+    this.logger.info(logMsg, { socketId, memberId });
   }
 
   broadcast(eventName, roomName, message) {
