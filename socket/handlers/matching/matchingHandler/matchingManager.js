@@ -72,7 +72,7 @@ async function updateOtherPriorityTrees(io, socket, otherPriorityList) {
       }
 
       if (otherSocket.data.matching.highestPriorityNode) {
-        log.info("# 9) No highest priority node found in other socket", otherSocket);
+        log.info("# 9) Found highest priority node in other socket", otherSocket);
       }
     } else {
       log.warn(`# 9) Other socket not found for matchingUuid: ${item.matchingUuid}`, socket);
@@ -230,14 +230,14 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
   room.forEach((socketId) => {
     const roomSocket = io.sockets.sockets.get(socketId);
     if (roomSocket) {
-  
+
       let tier;
-      if(gameMode=="FREE"){
+      if (gameMode == "FREE") {
         tier = roomSocket.data?.matching?.myMatchingInfo?.freeTier;
-      }else{
+      } else {
         tier = roomSocket.data?.matching?.myMatchingInfo?.soloTier;
       }
-    
+
       if (tier && tier in userCountByTier) {
         userCountByTier[tier]++;
       } else {
