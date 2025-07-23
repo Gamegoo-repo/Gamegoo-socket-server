@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:14
+FROM --platform=linux/amd64 node:18
 
 # 1) OS 패키지 설치(apt-get) 이용해 tzdata 설치
 # 2) TZ 환경변수 설정
