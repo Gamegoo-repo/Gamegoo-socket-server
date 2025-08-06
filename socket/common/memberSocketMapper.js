@@ -51,15 +51,10 @@ async function getSocketIdByMemberId(io, memberId) {
  * @returns
  */
 async function getSocketIdByMatchingUuid(io, matchingUuid) {
-  log.debug(`[DEBUG] input matchingUuid: ${matchingUuid}`);
   try {
     const connectedSockets = await io.fetchSockets();
-    log.debug(`[DEBUG] fetchSockets count: ${connectedSockets.length}`);
-
     for (const connSocket of connectedSockets) {
-      log.debug(`[DEBUG] socketId=${connSocket.id}, matchingUuid=${connSocket.data?.matching?.matchingUuid}`);
       if (matchingUuid == connSocket.data?.matching?.matchingUuid) {
-        log.debug(`[DEBUG] ✅ MATCH FOUND`);
         return connSocket;
       }
     }
