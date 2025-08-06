@@ -20,6 +20,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       EC2_HOST: ${{ secrets.DEV_EC2_HOST }}
       EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      DISCORD_WEBHOOK_BACK_DEPLOY: ${{ secrets.DISCORD_WEBHOOK_BACK_DEPLOY }}
 
     steps:
       # 1) GitHub checkout
@@ -99,4 +100,4 @@ jobs:
           PR_URL="${{ github.event.pull_request.html_url }}"
           curl -X POST -H "Content-Type: application/json" \
           -d "{\"content\": \"🚨 **Gamegoo Socket DEV 서버 배포 실패** 🚨\nPR 번호: ${PR_NUMBER}\nPR 제목: ${PR_TITLE}\nPR 작성자: ${PR_AUTHOR}\n[PR 보기](${PR_URL})\"}" \
-          $DISCORD_WEBHOOK_URL
+          $DISCORD_WEBHOOK_BACK_DEPLOY
