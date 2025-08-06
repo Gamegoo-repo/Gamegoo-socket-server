@@ -86,7 +86,7 @@ jobs:
 
             echo "Running new Docker container..."
             docker run -d -p 3000:3000 \
-              --name gamegoo-socket-prd \
+              --name gamegoo-socket-prod \
               -v ${{ env.EC2_LOG_PATH }}:/app/logs \
               -e JWT_SECRET=${{ env.JWT_SECRET }} \
               -e SOCKETIO_URL=${{ env.SOCKETIO_URL }} \
