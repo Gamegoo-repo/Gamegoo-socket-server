@@ -54,8 +54,8 @@ const consoleT = new transports.Console({
   format: consoleFormat,
 });
 
-if (ENV === "dev") {
-  // dev: 파일 + 콘솔
+if (ENV === "prod") {
+  // prod: 파일 + 콘솔
   const fileT = new winstonDaily({
     dirname: LOG_PATH,
     filename: "socket.info.%DATE%.log",
