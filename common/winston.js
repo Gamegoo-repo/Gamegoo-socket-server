@@ -77,6 +77,10 @@ if (ENV === "prod") {
     format: fileFormat,
   });
   exceptionTransports.push(fileErrorT, consoleT);
+} else if (ENV === "dev") {
+  // dev: 콘솔만
+  mainTransports.push(consoleT);
+  exceptionTransports.push(consoleT);
 } else if (ENV === "local") {
   // local: 콘솔만
   mainTransports.push(consoleT);
