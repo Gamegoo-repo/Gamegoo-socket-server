@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - fix/147
   workflow_dispatch: # 수동 실행 가능하도록
 
 jobs:

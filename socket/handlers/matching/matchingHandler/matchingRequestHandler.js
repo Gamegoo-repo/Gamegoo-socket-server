@@ -24,6 +24,8 @@ async function handleMatchingRequest(socket, io, request) {
   const gameMode = request.gameMode;
   const roomName = "GAMEMODE_" + gameMode;
 
+  log.debug(`request.gameMode: ${gameMode}`, socket);
+
   // 2) socket.id가 소켓 룸 "GAMEMODE_" + gameMode에 있는지 확인
   const usersInRoom = io.sockets.adapter.rooms.get(roomName) || new Set();
   if (usersInRoom.has(socket.id)) {
@@ -38,8 +40,13 @@ async function handleMatchingRequest(socket, io, request) {
 
     // 4) API 정상 응답 받음
     const threshold = request.threshold;
-    socket.data.matching.gameMode = gameMode;
-    socket.data.matching.roomName = roomName;
+    try {
+      socket.data.matching.gameMode = gameMode;
+      socket.data.matching.roomName = roomName;
+    } catch (error) {
+      log.debug(`socket.data.matching 바인딩 실패: ${error.message}`, socket);
+      log.debug(`socket.data.matching: ${socket.data.matching}`, socket);
+    }
 
     // 5) 게임 모드에 따라 room에 join
     joinGameModeRoom(socket, io, roomName);
