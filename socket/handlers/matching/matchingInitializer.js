@@ -11,7 +11,16 @@ function initializeMatching(socket, io) {
     socket.data.matching = {};
   }
 
-  socket.data.matching.priorityTree = new PriorityTree(); 
+  socket.data.matching.priorityTree = new PriorityTree();
 }
 
-module.exports = { initializeMatching };
+/**
+ * 특정 socket의 matching 객체 초기화
+ * @param {*} socket
+ */
+function resetSocketMatching(socket) {
+  socket.data.matching = {};
+  socket.data.matching.priorityTree = new PriorityTree();
+}
+
+module.exports = { initializeMatching, resetSocketMatching };

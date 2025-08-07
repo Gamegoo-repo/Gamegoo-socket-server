@@ -2,6 +2,7 @@ const { updateMatchingStatusApi } = require("../../../apis/matchApi");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { handleSocketError } = require("./matchingManager");
 const { deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
+const { resetSocketMatching } = require("../matchingInitializer");
 const log = require("../../../../common/customLogger");
 
 const { emitMatchingFail } = require("../../../emitters/matchingEmitter");
@@ -31,7 +32,7 @@ async function handleMatchingReject(socket, io) {
   }
 
   // 31. matching 관련 데이터 전부 초기화
-  socket.data.matching = {};
+  resetSocketMatching(socket);
 }
 
 /**
@@ -54,7 +55,7 @@ async function handleMatchingNotFound(socket, io) {
   deleteMySocketFromMatching(socket, io, roomName);
   getUserCountsInMatchingRoom(socket, io, roomName);
 
-  socket.data.matching = {};
+  resetSocketMatching(socket);
 }
 
 /**
@@ -75,7 +76,7 @@ async function handleMatchingFail(socket, io) {
   }
 
   // 매칭 관련 데이터 초기화
-  socket.data.matching = {};
+  resetSocketMatching(socket);
 }
 
 /**
@@ -101,7 +102,7 @@ async function handleMatchingQuit(socket, io) {
   deleteMySocketFromMatching(socket, io, roomName);
   getUserCountsInMatchingRoom(socket, io, roomName);
 
-  socket.data.matching = {};
+  resetSocketMatching(socket);
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };
