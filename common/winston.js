@@ -54,8 +54,35 @@ const consoleT = new transports.Console({
   format: consoleFormat,
 });
 
-if (ENV === "dev") {
-  // dev: 파일 + 콘솔
+if (ENV === "prod") {
+  // prod: 파일 + 콘솔
+  const fileT = new winstonDaily({
+    dirname: LOG_PATH,
+    filename: "socket.info.%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    level: "info",
+    maxSize: "10m",
+    maxFiles: "7d",
+    format: fileFormat,
+  });
+  mainTransports.push(fileT, consoleT);
+
+  const fileErrorT = new winstonDaily({
+    dirname: LOG_PATH,
+    filename: "socket.error.%DATE%.log",
+    datePattern: "YYYY-MM-DD",
+    level: "error",
+    maxSize: "10m",
+    maxFiles: "7d",
+    format: fileFormat,
+  });
+  exceptionTransports.push(fileErrorT, consoleT);
+} else if (ENV === "dev") {
+  // dev: 콘솔만
+  mainTransports.push(consoleT);
+  exceptionTransports.push(consoleT);
+} else if (ENV === "qa") {
+  // qa: 파일 + 콘솔
   const fileT = new winstonDaily({
     dirname: LOG_PATH,
     filename: "socket.info.%DATE%.log",
