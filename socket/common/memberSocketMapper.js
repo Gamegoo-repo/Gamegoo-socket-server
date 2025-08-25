@@ -18,7 +18,7 @@ async function getSocketIdsByMemberIds(io, memberIdList) {
 
     return socketIdList;
   } catch (error) {
-    log.error(`Error occured getSocketIdsByMemberIds: ${error.message}`,socket);
+    log.error(`Error occured getSocketIdsByMemberIds: ${error.message}`, socket);
   }
 }
 
@@ -37,7 +37,7 @@ async function getSocketIdByMemberId(io, memberId) {
         return connSocket;
       }
     }
-    console.log(`getSocketIdByMemberId - No matching socket found for memberId:${memberId}`);
+    log.warn(`getSocketIdByMemberId - No matching socket found for memberId: ${memberId}`, undefined);
     return null;
   } catch (error) {
     console.log(error);
@@ -53,12 +53,14 @@ async function getSocketIdByMemberId(io, memberId) {
 async function getSocketIdByMatchingUuid(io, matchingUuid) {
   try {
     const connectedSockets = await io.fetchSockets();
-
     for (const connSocket of connectedSockets) {
       if (matchingUuid == connSocket.data?.matching?.matchingUuid) {
         return connSocket;
       }
     }
+
+    // 찾는 matchingUuid에 해당하는 socket이 없을 경우 로그 출력
+    log.warn(`getSocketIdByMatchingUuid - No matching socket found for matchingUuid: ${matchingUuid}`, undefined);
     return null;
   } catch (error) {
     log.error(error);
@@ -68,5 +70,5 @@ async function getSocketIdByMatchingUuid(io, matchingUuid) {
 module.exports = {
   getSocketIdsByMemberIds,
   getSocketIdByMemberId,
-  getSocketIdByMatchingUuid
+  getSocketIdByMatchingUuid,
 };

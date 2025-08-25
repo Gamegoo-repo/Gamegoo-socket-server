@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:14
+FROM --platform=linux/amd64 node:18
 
 # 1) OS 패키지 설치(apt-get) 이용해 tzdata 설치
 # 2) TZ 환경변수 설정
@@ -15,7 +15,7 @@ COPY ./ ./
 # 5) 패키지 설치
 RUN npm install
 
-ENV NODE_ENV dev
+ENV NODE_ENV prod
 
 # 6) 실행 명령
 CMD ["node", "index.js"]

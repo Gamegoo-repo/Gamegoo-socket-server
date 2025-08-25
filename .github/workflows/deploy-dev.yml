@@ -1,8 +1,11 @@
-name: Node.js CICD with Docker and EC2
+name: Gamegoo Socket Server DEV CI/CD
 
 on:
   pull_request:
     types: [closed]
+    branches:
+      - develop
+  push:
     branches:
       - develop
   workflow_dispatch: # 수동 실행 가능하도록
@@ -13,11 +16,14 @@ jobs:
 
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      SOCKETIO_URL: ${{ secrets.SOCKETIO_URL }}
-      API_SERVER_URL: ${{ secrets.API_SERVER_URL }}
-      NODE_SERVER_URL: ${{ secrets.NODE_SERVER_URL }}
+      SOCKETIO_URL: ${{ secrets.DEV_SOCKETIO_URL }}
+      API_SERVER_URL: ${{ secrets.DEV_API_SERVER_URL }}
+      NODE_SERVER_URL: ${{ secrets.DEV_NODE_SERVER_URL }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      EC2_HOST: ${{ secrets.DEV_EC2_HOST }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      DISCORD_WEBHOOK_BACK_DEPLOY: ${{ secrets.DISCORD_WEBHOOK_BACK_DEPLOY }}
 
     steps:
       # 1) GitHub checkout
@@ -50,9 +56,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile-dev
           push: true
-          tags: ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket:${{ github.sha }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket-dev:${{ github.sha }}
           platforms: linux/amd64
           build-args: |
             JWT_SECRET=${{ env.JWT_SECRET }}
@@ -64,29 +70,28 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ secrets.EC2_HOST }} # EC2 퍼블릭 IP
+          host: ${{ env.EC2_HOST }} # EC2 퍼블릭 IP
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }} # SSH Private Key
+          key: ${{ env.EC2_SSH_KEY }} # SSH Private Key
           port: 22 # SSH 포트 (기본 22)
           script_stop: true # 스크립트 실패 시 중단
           script: |
             echo "Stopping existing container..."
-            docker stop gamegoo_socket || true
+            docker stop gamegoo-socket-dev || true
             echo "Removing existing container..."
-            docker rm gamegoo_socket || true
+            docker rm gamegoo-socket-dev || true
 
             echo "Pulling new Docker image..."
-            docker pull ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket:${{ github.sha }}
+            docker pull ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket-dev:${{ github.sha }}
 
             echo "Running new Docker container..."
             docker run -d -p 3000:3000 \
-              --name gamegoo_socket \
-              -v ${{ secrets.EC2_LOG_PATH }}:/app/logs \
+              --name gamegoo-socket-dev \
               -e JWT_SECRET=${{ env.JWT_SECRET }} \
               -e SOCKETIO_URL=${{ env.SOCKETIO_URL }} \
               -e API_SERVER_URL=${{ env.API_SERVER_URL }} \
               -e NODE_SERVER_URL=${{ env.NODE_SERVER_URL }} \
-              ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket:${{ github.sha }}
+              ${{ env.DOCKERHUB_USERNAME }}/gamegoo-socket-dev:${{ github.sha }}
 
       # 실패 시 디스코드에 알림 보내기
       - name: 배포 실패 시 디스코드 알림 전송
@@ -97,5 +102,5 @@ jobs:
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
           PR_URL="${{ github.event.pull_request.html_url }}"
           curl -X POST -H "Content-Type: application/json" \
-          -d "{\"content\": \"🚨 **Gamegoo Socket 서버 배포 실패** 🚨\nPR 번호: ${PR_NUMBER}\nPR 제목: ${PR_TITLE}\nPR 작성자: ${PR_AUTHOR}\n[PR 보기](${PR_URL})\"}" \
-          $DISCORD_WEBHOOK_URL
+          -d "{\"content\": \"🚨 **Gamegoo Socket DEV 서버 배포 실패** 🚨\nPR 번호: ${PR_NUMBER}\nPR 제목: ${PR_TITLE}\nPR 작성자: ${PR_AUTHOR}\n[PR 보기](${PR_URL})\"}" \
+          $DISCORD_WEBHOOK_BACK_DEPLOY

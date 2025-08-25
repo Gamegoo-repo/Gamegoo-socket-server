@@ -13,7 +13,14 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://socket.gamegoo.co.kr", "https://www.gamegoo.co.kr"], // localhost:3000 cors 허용
+    origin: [
+      "http://localhost:3000",
+      "https://socket.gamegoo.co.kr",
+      "https://devsocket.gamegoo.co.kr",
+      "https://qasocket.gamegoo.co.kr",
+      "https://www.gamegoo.co.kr",
+      "https://test.gamegoo.co.kr",
+    ],
     methods: ["*"], // 모든 메소드 허용
     credentials: true, // 쿠키 허용
   })
@@ -65,7 +72,8 @@ app.get("/match", (req, res) => {
                 <div class="input-group">
                   <input type="number" id="mainP" min="0" max="5" placeholder="메인 포지션 (0 ~ 5)">
                   <input type="number" id="subP" min="0" max="5" placeholder="서브 포지션 (0 ~ 5)">
-                  <input type="number" id="wantP" min="0" max="5" placeholder="원하는 포지션 (0 ~ 5)">
+                  <input type="number" id="wantP1" min="0" max="5" placeholder="원하는 포지션 1 (선택, 0 ~ 5)">
+                  <input type="number" id="wantP2" min="0" max="5" placeholder="원하는 포지션 2 (선택, 0 ~ 5)">
                 </div>
 
                 <div class="input-group">
@@ -113,7 +121,7 @@ app.get("/match", (req, res) => {
                       <div class="positions">
                         <div class="main-position">주 포지션: <span>탑</span></div> <!-- 메인 포지션 -->
                         <div class="sub-position">부 포지션: <span>정글</span></div> <!-- 서브 포지션 -->
-                        <div class="wanted-position">내가 찾는 포지션: <span>미드</span></div> <!-- 원하는 상대 포지션 -->
+                        <div class="wanted-position">내가 찾는 포지션: <span id="wanted-position-span">미드</span></div> <!-- 원하는 상대 포지션 -->
                       </div>
                     </div>
                     <div class="right-side">
