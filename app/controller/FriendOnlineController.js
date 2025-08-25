@@ -3,7 +3,7 @@ const { logger } = require("../../common/winston.js");
 
 const { emitFriendOnline } = require("../../socket/emitters/friendEmitter.js");
 
-function emitFriendOnline(io) {
+function emitFriendOnlineEvent(io) {
   return async (req, res) => {
     const { memberId } = req.params;
     const { targetMemberId } = req.body;
@@ -28,7 +28,7 @@ function emitFriendOnline(io) {
 
     // targetMemberId를 가진 socket이 없으면 event emit하지 않고 종료
     if (!targetMemberSockets.length) {
-      logger.info(`[POST] /internal/socket/sysmessage  |  IP: ${req.ip} | Emit System Message Success - Socket Not Found`);
+      logger.info(`[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Success - Socket Not Found`);
       res.status(200).json(successResponse("해당 targetMemberId를 갖는 socket 객체가 존재하지 않습니다. friend-online event를 emit하지 않습니다."));
     }
 
@@ -53,7 +53,7 @@ function emitFriendOnline(io) {
       }
     } catch (error) {
       logger.error(
-        `[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Failed - memberId:${targetMemberId}, SOCKET501`
+        `[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Failed - memberId:${memberId}, SOCKET501`
       );
       res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
@@ -75,6 +75,6 @@ function emitFriendOnline(io) {
 
 module.exports = (io) => {
   return {
-    emitFriendOnline: emitFriendOnline(io),
+    emitFriendOnlineEvent: emitFriendOnlineEvent(io),
   };
 };
