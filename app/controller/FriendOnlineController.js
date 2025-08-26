@@ -2,6 +2,7 @@ const { successResponse, failResponse } = require("../common/responseFormatter.j
 const { logger } = require("../../common/winston.js");
 
 const { emitFriendOnline } = require("../../socket/emitters/friendEmitter.js");
+const { getSocketIdsByMemberIds } = require("../../socket/common/memberSocketMapper.js");
 
 function emitFriendOnlineEvent(io) {
   return async (req, res) => {
@@ -13,12 +14,7 @@ function emitFriendOnlineEvent(io) {
     // 현재 연결된 socket 중 해당 targetMemberId를 가진 socket 객체 list 추출
     let targetMemberSockets = [];
     try {
-      const connectedSockets = await io.fetchSockets();
-      for (const connSocket of connectedSockets) {
-        if (targetMemberId == connSocket.memberId) {
-          targetMemberSockets.push(connSocket);
-        }
-      }
+      targetMemberSockets = await getSocketIdsByMemberIds(io, [targetMemberId]);
     } catch (error) {
       logger.error(
         `[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Failed - targetMemberId:${targetMemberId}, SOCKET501`
@@ -45,12 +41,7 @@ function emitFriendOnlineEvent(io) {
     // 현재 연결된 socket 중 해당 memberId를 가진 socket 객체 list 추출
     let memberSockets = [];
     try {
-      const connectedSockets = await io.fetchSockets();
-      for (const connSocket of connectedSockets) {
-        if (memberId == connSocket.memberId) {
-          memberSockets.push(connSocket);
-        }
-      }
+      memberSockets = await getSocketIdsByMemberIds(io, [memberId]);
     } catch (error) {
       logger.error(
         `[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Failed - memberId:${memberId}, SOCKET501`
