@@ -26,6 +26,7 @@ function emitFriendOnlineEvent(io) {
     if (!targetMemberSockets.length) {
       logger.info(`[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request Success - Socket Not Found`);
       res.status(200).json(successResponse("해당 targetMemberId를 갖는 socket 객체가 존재하지 않습니다. friend-online event를 emit하지 않습니다."));
+      return;
     }
 
     // targetMember에게 emit
