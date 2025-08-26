@@ -6,7 +6,7 @@ const { getSocketIdsByMemberIds } = require("../../socket/common/memberSocketMap
 
 function emitFriendOnlineEvent(io) {
   return async (req, res) => {
-    const { memberId } = req.params;
+    const memberId = Number(req.params.memberId);
     const { targetMemberId } = req.body;
 
     logger.info(`[POST] /internal/socket/friend/online/${memberId}  |  IP: ${req.ip} | Friend Online Event Emit Request`);
