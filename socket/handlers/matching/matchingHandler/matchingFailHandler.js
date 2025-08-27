@@ -1,23 +1,13 @@
 const { updateMatchingStatusApi } = require("../../../apis/matchApi");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { handleSocketError } = require("./matchingManager");
-const { deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
+const { deleteMySocketFromMatching, getUserCountsInMatchingRoom, resetMatchingObject } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
-const { PriorityTree } = require("../../../common/PriorityTree");
 
 const {
     emitMatchingFail,
 } = require("../../../emitters/matchingEmitter");
 
-function _resetMatchingObject(socket) {
-    socket.data.matching = {
-        gameMode: null,
-        roomName: null,
-        myMatchingInfo: null,
-        matchingUuid: null,
-        priorityTree: new PriorityTree()
-    };
-}
 
 /**
  * # 4-27, 5-25. "matching-reject"
@@ -25,7 +15,6 @@ function _resetMatchingObject(socket) {
  * @param {*} io 
  */
 async function handleMatchingReject(socket, io) {
-
     // matching target socket
     const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
 
@@ -45,7 +34,7 @@ async function handleMatchingReject(socket, io) {
     }
 
     // 31. matching 관련 데이터 전부 초기화
-    _resetMatchingObject(socket);
+    resetMatchingObject(socket);
 }
 
 /**
@@ -67,8 +56,6 @@ async function handleMatchingNotFound(socket, io) {
     const roomName=socket.data.matching.roomName;
     deleteMySocketFromMatching(socket, io,roomName);   
     getUserCountsInMatchingRoom(socket,io,roomName);
-
-    _resetMatchingObject(socket);
 }
 
 /**
@@ -76,7 +63,7 @@ async function handleMatchingNotFound(socket, io) {
  * @param {*} socket 
  * @returns 
  */
-async function handleMatchingFail(socket,io) {
+async function handleMatchingFail(socket) {
     // 매칭 status 변경
     if (socket.data.matching.gameMode) {
         try {
@@ -89,7 +76,7 @@ async function handleMatchingFail(socket,io) {
     }
 
     // 매칭 관련 데이터 초기화
-    _resetMatchingObject(socket);
+    resetMatchingObject(socket);
 }
 
 /**
@@ -115,7 +102,6 @@ async function handleMatchingQuit(socket, io) {
     deleteMySocketFromMatching(socket, io,roomName);
     getUserCountsInMatchingRoom(socket,io,roomName);
 
-    _resetMatchingObject(socket);
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };
