@@ -3,10 +3,21 @@ const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMappe
 const { handleSocketError } = require("./matchingManager");
 const { deleteMySocketFromMatching, getUserCountsInMatchingRoom } = require("./matchingManager");
 const log = require("../../../../common/customLogger");
+const { PriorityTree } = require("../../../common/PriorityTree");
 
 const {
     emitMatchingFail,
 } = require("../../../emitters/matchingEmitter");
+
+function _resetMatchingObject(socket) {
+    socket.data.matching = {
+        gameMode: null,
+        roomName: null,
+        myMatchingInfo: null,
+        matchingUuid: null,
+        priorityTree: new PriorityTree()
+    };
+}
 
 /**
  * # 4-27, 5-25. "matching-reject"
@@ -34,7 +45,7 @@ async function handleMatchingReject(socket, io) {
     }
 
     // 31. matching 관련 데이터 전부 초기화
-    socket.data.matching = null;
+    _resetMatchingObject(socket);
 }
 
 /**
@@ -57,7 +68,7 @@ async function handleMatchingNotFound(socket, io) {
     deleteMySocketFromMatching(socket, io,roomName);   
     getUserCountsInMatchingRoom(socket,io,roomName);
 
-    socket.data.matching = null;
+    _resetMatchingObject(socket);
 }
 
 /**
@@ -78,7 +89,7 @@ async function handleMatchingFail(socket,io) {
     }
 
     // 매칭 관련 데이터 초기화
-    socket.data.matching = null;
+    _resetMatchingObject(socket);
 }
 
 /**
@@ -104,7 +115,7 @@ async function handleMatchingQuit(socket, io) {
     deleteMySocketFromMatching(socket, io,roomName);
     getUserCountsInMatchingRoom(socket,io,roomName);
 
-    socket.data.matching = null;
+    _resetMatchingObject(socket);
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };
