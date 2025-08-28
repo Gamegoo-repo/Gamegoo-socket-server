@@ -194,8 +194,7 @@ function deleteMySocketFromMatching(socket, io, roomName) {
   socket.data.matching.priorityTree.clear();
   log.info(`# 18) Cleared priority tree for socket ${socket.id}`, socket);
 
-  // 18) highestPriorityNode 삭제
-  socket.data.matching.highestPriorityNode = null;
+  resetMatchingObject(socket);
 }
 
 /**
@@ -252,6 +251,18 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
   emitMatchingRoomStatus(io, roomName, userCount, userCountByTier);
 }
 
+function resetMatchingObject(socket) {
+    socket.data.matching = {
+        gameMode: null,
+        roomName: null,
+        myMatchingInfo: null,
+        matchingUuid: null,
+        priorityTree: new PriorityTree(),
+        highestPriorityNode: null
+    };
+}
+
+
 module.exports = {
   updatePriorityTree,
   updateOtherPriorityTrees,
@@ -259,5 +270,6 @@ module.exports = {
   joinGameModeRoom,
   findMatching,
   deleteMySocketFromMatching,
-  getUserCountsInMatchingRoom
+  getUserCountsInMatchingRoom,
+  resetMatchingObject
 };
