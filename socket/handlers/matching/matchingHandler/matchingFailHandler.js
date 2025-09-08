@@ -99,7 +99,7 @@ async function handleMatchingQuit(socket, io) {
     }
 
     // 상태 소켓이 있으면 matchingFail 시키도록
-    if(socket.data.matching.matchingTargetUuid!=null){
+    if(socket.data.matching.matchingTargetUuid){
         const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
 
         if (otherSocket) {
