@@ -17,7 +17,7 @@ const {
 async function handleMatchingReject(socket, io) {
     // matching target socket
     const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
-    console.log(JSON.stringify(socket.data.matching, null, 2));
+
     // 28. 매칭 status 변경
     if (socket.data.matching.gameMode) {
         try {
@@ -87,10 +87,8 @@ async function handleMatchingFail(socket) {
  */
 async function handleMatchingQuit(socket, io) {
     log.info(`matching-quit`, socket);
-    console.log(JSON.stringify(socket.data.matching, null, 2));
+
     if (socket.data.matching.gameMode) {
-        console.log("mathing-quit java api 전송");
-        console.log(JSON.stringify(socket.data.matching, null, 2));
         try {
             await updateMatchingStatusApi(socket, "QUIT");
         } catch (error) {

@@ -243,7 +243,6 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
       }
       userCount++;
     }
-    console.log(userCountByTier);
   });
 
   // 모든 사용자에게 같은 정보 브로드캐스트
