@@ -33,6 +33,13 @@ export function handleMatchingStarted(socket, state, request) {
         clearInterval(searchingTimerInterval);
         clearInterval(timers.matchingRetryInterval);
         clearTimeout(timers.matchingNotFoundCallback);
+
+        Object.keys(timers).forEach(function (timer) {
+            clearTimeout(timers[timer]);
+            delete timers[timer];
+        });
+        window.location.href = "/match";
+
     });
 
     // 매칭중 화면 스탑워치 시작
@@ -142,6 +149,12 @@ export function handleMatchingFoundReceiver(socket, state, request) {
         delete timers.matchingRetryInterval;
         delete timers.matchingNotFoundCallback;
         socket.emit("matching-quit");
+
+        Object.keys(timers).forEach(function (timer) {
+            clearTimeout(timers[timer]);
+            delete timers[timer];
+        });
+        window.location.href = "/match";
     });
 
     // 매칭 top bar 스탑워치 종료 및 매칭완료로 변경
@@ -198,8 +211,17 @@ export function handleMatchingFoundSender(socket, state, request) {
     // 클릭되면 matching-fail emit
     quitButton.addEventListener("click", () => {
         console.log("MATCHING_QUIT");
-        
+        clearInterval(timers.matchingRetryInterval); // 매칭 재시도 타이머 중지
+        clearTimeout(timers.matchingNotFoundCallback); // 5분 후 강제 종료 타이머 중지
+        delete timers.matchingRetryInterval;
+        delete timers.matchingNotFoundCallback;
         socket.emit("matching-quit");
+
+        Object.keys(timers).forEach(function (timer) {
+            clearTimeout(timers[timer]);
+            delete timers[timer];
+        });
+        window.location.href = "/match";
 
     });
 
@@ -238,6 +260,9 @@ export function handleMatchingSuccess(request) {
  * @param {*} request 
  */
 export function handleMatchingFail(socket, request) {
+    alert("매칭이 실패했습니다.");
+    window.location.href = "/";
+
     Object.keys(timers).forEach(function (timer) {
         clearTimeout(timers[timer]);
         delete timers[timer];
@@ -366,11 +391,14 @@ function startRetryCountdown(socket,timers) {
     retryButton.addEventListener("click", () => {
         console.log("MATCHING_REJECT");
         socket.emit("matching-reject");
-
+        
         Object.keys(timers).forEach(function (timer) {
             clearTimeout(timers[timer]);
             delete timers[timer];
         });
+
+        window.location.href = "/match";
+
     });
 
     let countdown = 10; // 카운트다운 시작 값
