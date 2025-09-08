@@ -35,7 +35,7 @@ export function handleMatchingStarted(socket, state, request) {
         clearTimeout(timers.matchingNotFoundCallback);
 
         Object.keys(timers).forEach(function (timer) {
-            clearTimeout(timers[timer]);
+            if (timer === 'matchingRetryInterval') clearInterval(timers[timer]); else clearTimeout(timers[timer]);
             delete timers[timer];
         });
         window.location.href = "/match";
