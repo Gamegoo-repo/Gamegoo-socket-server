@@ -3,6 +3,7 @@ const log = require("../../../../common/customLogger");
 const { getSocketIdByMatchingUuid } = require("../../../common/memberSocketMapper");
 const { emitError, emitJWTError } = require("../../../emitters/errorEmitter");
 const { emitMatchingRoomStatus } = require("../../../emitters/matchingEmitter");
+const { PriorityTree }=require("../../../common/PriorityTree");
 /**
  * 내 우선순위 트리 갱신
  * @param {*} socket
@@ -193,8 +194,6 @@ function deleteMySocketFromMatching(socket, io, roomName) {
   // 18) priorityTree 삭제
   socket.data.matching.priorityTree.clear();
   log.info(`# 18) Cleared priority tree for socket ${socket.id}`, socket);
-
-  resetMatchingObject(socket);
 }
 
 /**
@@ -244,7 +243,6 @@ function getUserCountsInMatchingRoom(socket, io, roomName) {
       }
       userCount++;
     }
-    console.log(userCountByTier);
   });
 
   // 모든 사용자에게 같은 정보 브로드캐스트
