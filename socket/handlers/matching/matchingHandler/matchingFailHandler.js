@@ -98,10 +98,19 @@ async function handleMatchingQuit(socket, io) {
         }
     }
 
+    // 상태 소켓이 있으면 matchingFail 시키도록
+    if(socket.data.matching.matchingTargetUuid){
+        const otherSocket = await getSocketIdByMatchingUuid(io, socket.data.matching.matchingTargetUuid);
+
+        if (otherSocket) {
+            emitMatchingFail(otherSocket);
+        }       
+    }
+
     const roomName=socket.data.matching.roomName;
     deleteMySocketFromMatching(socket, io,roomName);
     getUserCountsInMatchingRoom(socket,io,roomName);
-
+    resetMatchingObject(socket);
 }
 
 module.exports = { handleMatchingReject, handleMatchingNotFound, handleMatchingFail, handleMatchingQuit };
