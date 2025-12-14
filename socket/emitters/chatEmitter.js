@@ -67,6 +67,7 @@ function emitMannerSystemMessage(socket, chatroomUuid, messageContent, timestamp
     senderName: "SYSTEM",
     senderProfileImg: 0,
     message: messageContent,
+    systemType: 5,
     createdAt: null,
     timestamp: timestamp,
   };

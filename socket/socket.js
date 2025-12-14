@@ -166,9 +166,13 @@ function initializeSocket(server) {
 
       // 해당 socket이 memberId를 가질 때에만(로그인한 소켓인 경우에만)
       if (socket.memberId) {
-        // (#6-2) 매칭 status 변경 API 요청
         if (socket.data?.matching?.gameMode != null) {
-          updateMatchingStatusApi(socket, "QUIT");
+          // (#6-2) 매칭 status 변경 API 요청
+          try {
+            await updateMatchingStatusApi(socket, "QUIT");
+          } catch (error) {
+            log.error(`Failed to update matching status on disconnect: ${error.message}`, socket);
+          }
 
           // (#6-4) 매칭 room에 join 되어 있는 경우, 해당 room의 모든 소켓의 priorityTree 에서 해당 소켓 노드 제거
           const roomName = "GAMEMODE_" + socket.data.matching.gameMode;

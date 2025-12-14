@@ -22,28 +22,18 @@ const notiCloseButton = document.getElementById("notiCloseButton");
 const boardTestButton = document.getElementById("boardTestButton");
 const closeBoardIdPopupButton = document.getElementById("closeBoardIdPopupButton");
 const boardIdForm = document.getElementById("boardIdForm");
+const matchingChatTestButton = document.getElementById("matchingChatTestButton");
 const matchingTestButton = document.getElementById("matchingTestButton");
 const closeMatchingMemberIdPopupButton = document.getElementById("closeMatchingMemberIdPopupButton");
 const mathingMemberIdForm = document.getElementById("mathingMemberIdForm");
-const userEmailInput = document.getElementById("userEmail");
-const userPwInput = document.getElementById("userPw");
+const memberIdInput = document.getElementById("memberId");
 
 // 로그인 버튼 클릭 시
 loginButton.addEventListener("click", () => {
-  const userEmail = userEmailInput.value;
-  if (!userEmail) {
-    alert("Please enter your Email.");
-    return;
-  }
-
-  const userPw = userPwInput.value;
-  if (!userPw) {
-    alert("Please enter your Pw.");
-    return;
-  }
+  const memberId = memberIdInput.value;
 
   // (#1-2) 8080서버로 로그인 요청 보내 jwt 토큰 발급받기
-  loginApi(userEmail, userPw).then((result) => {
+  loginApi(memberId).then((result) => {
     // (#1-3) 8080서버로부터 jwt 토큰 정상 응답 받음
     if (result) {
       // (#1-4) jwt 토큰 localStorage에 저장
@@ -485,9 +475,15 @@ boardIdForm.addEventListener("submit", (event) => {
 });
 
 // 매칭 채팅방 입장 테스트 버튼 클릭 시
-matchingTestButton.addEventListener("click", () => {
+matchingChatTestButton.addEventListener("click", () => {
   document.getElementById("matchingMemberIdPopup").style.display = "block";
 });
+
+// 매칭 입장 테스트 버튼 클릭 시
+matchingTestButton.addEventListener("click", () => {
+  window.location.href = "/match";
+});
+
 
 // 매칭 채팅방 입장 팝업 닫기 버튼 클릭 시
 closeMatchingMemberIdPopupButton.addEventListener("click", () => {
