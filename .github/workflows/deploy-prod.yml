@@ -1,10 +1,6 @@
 name: Gamegoo Socket Server PROD CI/CD
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
   push:
     branches:
       - main
