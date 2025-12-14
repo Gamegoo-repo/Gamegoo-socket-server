@@ -196,12 +196,12 @@ app.get("/", (req, res) => {
         <div class="container">
           <div class="top-bar">
             <div>
-              <input id="userEmail" type="string" placeholder="Enter your Email" />
-              <input id="userPw" type="string" placeholder="Enter your Pw" />
+              <input id="memberId" type="string" placeholder="Enter your MemberId" />
               <button id="loginButton">Login</button>
               <button id="logoutButton">Logout</button>
               <button id="boardTestButton">게시글 말 걸어보기</button>
-              <button id="matchingTestButton">매칭 채팅방 시작</button>
+              <button id="matchingChatTestButton">매칭 채팅방 시작</button>
+              <button id="matchingTestButton">매칭 시작</button>
               <!-- 게시판 ID 입력 폼을 위한 팝업 추가 -->
               <div id="boardIdPopup" class="popup">
                 <div class="popup-content">

@@ -1,11 +1,10 @@
-export async function loginApi(userEmail, userPw) {
+export async function loginApi(memberId) {
   try {
-    const response = await fetch(`${API_SERVER_URL}/api/v2/auth/login`, {
-      method: "POST",
+    const response = await fetch(`${API_SERVER_URL}/home/tokens/${memberId}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json", // JSON 형식으로 전송 명시
-      },
-      body: JSON.stringify({ email: userEmail, password: userPw }),
+      }
     });
     const data = await response.json();
     if (data.status == 200) {
@@ -23,7 +22,7 @@ export async function getMemberInfoApi() {
     const jwtToken = localStorage.getItem("jwtToken");
     const response = await fetch(`${API_SERVER_URL}/api/v2/member/profile`, {
       headers: {
-        Authorization: `Bearer ${jwtToken}`, // Include JWT token in header
+        Authorization: `Bearer ${jwtToken}`, 
       },
     });
     const data = await response.json();
