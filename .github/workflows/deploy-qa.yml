@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - qa
+      - develop
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
   workflow_dispatch: # 수동 실행 가능하도록
 
 jobs:
