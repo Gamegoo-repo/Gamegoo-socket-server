@@ -25,7 +25,7 @@ function socketRoomJoin(io) {
       }
     } catch (error) {
       logger.error(`[POST] /internal/socket/room/join  |  IP: ${req.ip} | Socket Room Join Failed - memberId:${memberId}, chatroomUuid:${chatroomUuid}`);
-      res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
+      return res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
 
     // memberId를 가진 socket이 존재하면, 해당 socket을 chatroom join, joined-new-chatroom event emit
@@ -37,14 +37,14 @@ function socketRoomJoin(io) {
         // (#10-7) "joined-new-chatroom" event emit
         emitJoinedNewChatroom(socket);
       } catch (error) {
-        res.status(500).json(failResponse("SOCKET502", "socket room join 및 event emit 실패"));
+        return res.status(500).json(failResponse("SOCKET502", "socket room join 및 event emit 실패"));
       }
       // (#10-8) return 200
       logger.info(`[POST] /internal/socket/room/join  |  IP: ${req.ip} | Socket Room Join Success`);
-      res.status(200).json(successResponse("socket room join 및 event emit 성공"));
+      return res.status(200).json(successResponse("socket room join 및 event emit 성공"));
     } else {
       logger.info(`[POST] /internal/socket/room/join  |  IP: ${req.ip} | Socket Room Join Success - Socket Not Found`);
-      res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
+      return res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
     }
   };
 }
@@ -72,7 +72,7 @@ function emitSystemMessage(io) {
       }
     } catch (error) {
       logger.error(`[POST] /internal/socket/sysmessage  |  IP: ${req.ip} | Emit System Message Failed - memberId:${memberId}, SOCKET501`);
-      res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
+      return res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
     // memberId를 가진 socket이 존재하면, 해당 socket 모두에게 manner-system-message event emit
     if (sockets.length) {
@@ -81,14 +81,14 @@ function emitSystemMessage(io) {
           emitMannerSystemMessage(connSocket, chatroomUuid, content, timestamp);
         } catch (error) {
           logger.error(`[POST] /internal/socket/sysmessage  |  IP: ${req.ip} | Emit System Message Failed - memberId:${memberId}, SOCKET503`);
-          res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 system message emit에 실패했습니다."));
+          return res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 system message emit에 실패했습니다."));
         }
         logger.info(`[POST] /internal/socket/sysmessage  |  IP: ${req.ip} | Emit System Message Success`);
-        res.status(200).json(successResponse("시스템 메시지 emit 성공"));
+        return res.status(200).json(successResponse("시스템 메시지 emit 성공"));
       }
     } else {
       logger.info(`[POST] /internal/socket/sysmessage  |  IP: ${req.ip} | Emit System Message Success - Socket Not Found`);
-      res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
+      return res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
     }
   };
 }
@@ -115,7 +115,7 @@ function emitNewNotification(io) {
       }
     } catch (error) {
       logger.error(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Failed - memberId:${memberId}, SOCKET501`);
-      res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
+      return res.status(500).json(failResponse("SOCKET501", "해당 memberId를 가진 socket 객체 추출 도중 에러가 발생했습니다."));
     }
     // memberId를 가진 socket이 존재하면, 해당 socket 모두에게 new-notification event emit
     if (sockets.length) {
@@ -124,14 +124,14 @@ function emitNewNotification(io) {
           emitNewNotificationEvent(connSocket);
         } catch (error) {
           logger.error(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Failed - memberId:${memberId}, SOCKET503`);
-          res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 new-notification emit에 실패했습니다."));
+          return res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 new-notification emit에 실패했습니다."));
         }
         logger.info(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Success`);
-        res.status(200).json(successResponse("시스템 메시지 emit 성공"));
+        return res.status(200).json(successResponse("시스템 메시지 emit 성공"));
       }
     } else {
       logger.info(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Success - Socket Not Found`);
-      res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
+      return res.status(200).json(successResponse("해당 memberId를 갖는 socket 객체가 존재하지 않습니다."));
     }
   };
 }
