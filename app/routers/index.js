@@ -6,7 +6,7 @@ module.exports = (io) => {
 
   const { login } = require("../controller/loginController")(io); // io 객체를 전달
   const { logout } = require("../controller/logoutController")(io);
-  const { socketRoomJoin, emitSystemMessage } = require("../controller/socketController")(io);
+  const { socketRoomJoin, emitSystemMessage, emitNewNotification } = require("../controller/socketController")(io);
   const { countUsersInMatching } = require("../controller/systemMessageController")(io);
   const { emitFriendOnlineEvent } = require("../controller/FriendOnlineController")(io);
 
@@ -31,6 +31,9 @@ module.exports = (io) => {
   // 엔드포인트 뒤에 query로 tier 붙이면 각 티어마다 몇 명 있는지 조회
   // ex) /socket/message?tier=BRONZE
   router.get("/socket/message", countUsersInMatching);
+
+  // 8080 -> 3000으로 보낼 api. 특정 memberId를 갖는 socket 모두에게 new-notification event emit
+  router.post("/internal/socket/newnotification/:memberId", emitNewNotification);
 
   return router;
 };

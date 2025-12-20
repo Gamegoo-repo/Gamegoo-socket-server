@@ -74,6 +74,14 @@ function emitMannerSystemMessage(socket, chatroomUuid, messageContent, timestamp
   socket.emit("manner-system-message", formatResponse("manner-system-message", systemMessage));
   log.emit("manner-system-message", socket, JSON.stringify(systemMessage));
 }
+/**
+ * 해당 socket에게 new-notification event emit
+ * @param {*} socket
+ */
+function emitNewNotificationEvent(socket) {
+  socket.emit("new-notification");
+  log.emit("new-notification", socket);
+}
 
 module.exports = {
   emitChatMessage,
@@ -81,4 +89,5 @@ module.exports = {
   emitChatSystemMessage,
   emitTestMatchingChattingSuccess,
   emitMannerSystemMessage,
+  emitNewNotificationEvent,
 };
