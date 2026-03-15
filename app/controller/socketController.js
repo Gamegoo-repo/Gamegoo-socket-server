@@ -127,7 +127,7 @@ function emitNewNotification(io) {
           emitNewNotificationEvent(connSocket, notificationId, notificationType, content, pageUrl, read);
         } catch (error) {
           logger.error(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Failed - memberId:${memberId}, SOCKET503`);
-          res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 new-notification emit에 실패했습니다."));
+          return res.status(500).json(failResponse("SOCKET503", "memberId에 해당하는 socket이 존재하지만 new-notification emit에 실패했습니다."));
         }
         logger.info(`[POST] /internal/socket/newnotification/${memberId}  |  IP: ${req.ip} | Emit NewNotification Success`);
         res.status(200).json(successResponse("시스템 메시지 emit 성공"));
