@@ -78,9 +78,16 @@ function emitMannerSystemMessage(socket, chatroomUuid, messageContent, timestamp
  * 해당 socket에게 new-notification event emit
  * @param {*} socket
  */
-function emitNewNotificationEvent(socket) {
-  socket.emit("new-notification");
-  log.emit("new-notification", socket);
+function emitNewNotificationEvent(socket, notificationId, notificationType, content, pageUrl, read) {
+  const data = {
+    notificationId: notificationId,
+    notificationType: notificationType,
+    content: content,
+    pageUrl: pageUrl,
+    read: read,
+  };
+  socket.emit("new-notification", formatResponse("new-notification", data));
+  log.emit("new-notification", socket, JSON.stringify(data));
 }
 
 module.exports = {
